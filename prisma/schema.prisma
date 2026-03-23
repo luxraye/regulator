@@ -1,0 +1,195 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+enum Role {
+  PUBLIC
+  LICENSEE
+  ADMIN
+  SUPERADMIN
+}
+
+enum Scale {
+  SCALE_1
+  SCALE_2
+  SCALE_3
+  SCALE_4
+  SCALE_5
+  SCALE_6
+}
+
+enum DataType {
+  TYPE_A
+  TYPE_B
+  TYPE_C
+  TYPE_D
+  TYPE_E
+  TYPE_F
+}
+
+enum InstanceStatus {
+  DRAFT
+  PENDING
+  IN_PROGRESS
+  SUBMITTED
+  APPROVED
+  FLAGGED
+  REJECTED
+}
+
+model User {
+  id               String         @id @default(cuid())
+  email            String         @unique
+  passwordHash     String
+  name             String
+  role             Role           @default(PUBLIC)
+  organizationName String?
+  licenseNumber    String?
+  createdAt        DateTime       @default(now())
+  updatedAt        DateTime       @updatedAt
+
+  assignedInstances Instance[]     @relation("AssignedInstances")
+  reviewedInstances Instance[]     @relation("ReviewedInstances")
+  createdTemplates  Template[]
+  auditLogs         AuditLog[]
+  notifications     Notification[]
+  complaints        Complaint[]
+  bookmarks         Bookmark[]
+  starredEvents     StarredEvent[]
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  code        String   @unique
+  name        String
+  description String?
+  scale       Scale
+  dataType    DataType
+  schema      Json
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  instances Instance[]
+}
+
+model Instance {
+  id            String         @id @default(cuid())
+  templateId    String
+  template      Template       @relation(fields: [templateId], references: [id])
+  licenseeId    String
+  licensee      User           @relation("AssignedInstances", fields: [licenseeId], references: [id])
+  assignedById  String
+  status        InstanceStatus @default(PENDING)
+  deadline      DateTime
+  encryptionKey String
+  submissionJwt String?
+  reviewNotes   String?
+  reviewedById  String?
+  reviewedBy    User?          @relation("ReviewedInstances", fields: [reviewedById], references: [id])
+  createdAt     DateTime       @default(now())
+  submittedAt   DateTime?
+  reviewedAt    DateTime?
+
+  files  InstanceFile[]
+  fields InstanceField[]
+  audits AuditLog[]
+}
+
+model InstanceFile {
+  id            String   @id @default(cuid())
+  instanceId    String
+  instance      Instance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  fileName      String
+  fileExtension String
+  fileSize      Int
+  clientHash    String
+  serverHash    String
+  storagePath   String
+  uploadedAt    DateTime @default(now())
+}
+
+model InstanceField {
+  id          String    @id @default(cuid())
+  instanceId  String
+  instance    Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  fieldKey    String
+  fieldValue  String
+  validatedAt DateTime?
+}
+
+model AuditLog {
+  id         String   @id @default(cuid())
+  actorId    String
+  actor      User     @relation(fields: [actorId], references: [id])
+  action     String
+  instanceId String?
+  instance   Instance? @relation(fields: [instanceId], references: [id])
+  metadata   Json?
+  createdAt  DateTime @default(now())
+}
+
+model Notification {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  body      String
+  read      Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+enum ComplaintStatus {
+  OPEN
+  UNDER_REVIEW
+  RESOLVED
+  CLOSED
+}
+
+model Complaint {
+  id           String          @id @default(cuid())
+  trackingCode String          @unique
+  userId       String?
+  user         User?           @relation(fields: [userId], references: [id])
+  isAnonymous  Boolean         @default(false)
+  name         String?
+  email        String?
+  phone        String?
+  provider     String
+  category     String
+  description  String
+  status       ComplaintStatus @default(OPEN)
+  adminNotes   String?
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id])
+  title     String
+  url       String
+  category  String?
+  createdAt DateTime @default(now())
+
+  @@unique([userId, url])
+}
+
+model StarredEvent {
+  id        String    @id @default(cuid())
+  userId    String
+  user      User      @relation(fields: [userId], references: [id])
+  title     String
+  date      DateTime?
+  url       String?
+  notes     String?
+  createdAt DateTime  @default(now())
+}
