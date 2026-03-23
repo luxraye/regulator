@@ -3,6 +3,8 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import crypto from "crypto";
 
+export const dynamic = "force-dynamic";
+
 function generateTrackingCode(): string {
   const hex = crypto.randomBytes(4).toString("hex").toUpperCase();
   return `BOCRA-${hex.slice(0, 4)}-${hex.slice(4, 8)}`;
