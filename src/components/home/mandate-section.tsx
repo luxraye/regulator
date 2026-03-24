@@ -1,8 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { Phone, Radio, Mail, Globe, Wifi, Shield, ArrowRight } from "lucide-react";
-import Link from "next/link";
+import { Phone, Radio, Mail, Globe, ArrowRight } from "lucide-react";
 
 const mandateTabs = [
   {
@@ -102,7 +101,7 @@ export function MandateSection() {
 
         {/* Active tab content */}
         <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="w-full h-48 bg-bocra-light overflow-hidden flex items-center justify-center" key={active.id}>
+          <div className="w-full h-56 bg-bocra-light overflow-hidden flex items-center justify-center" key={active.id}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={active.image}
@@ -110,41 +109,53 @@ export function MandateSection() {
               className="w-full h-full object-contain"
             />
           </div>
-          <div className="p-8">
-          <div className="flex items-start gap-4 mb-6">
-            <div className={`w-12 h-12 rounded-xl ${active.color} text-white flex items-center justify-center shrink-0`}>
-              {active.icon}
+          <div className="relative">
+            <div className="absolute inset-0">
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={active.image}
+                alt=""
+                aria-hidden="true"
+                className="w-full h-full object-cover opacity-20"
+              />
+              <div className="absolute inset-0 bg-white/88" />
             </div>
-            <div>
-              <h3 className="text-xl font-bold text-bocra-navy">{active.label}</h3>
-              <p className="text-muted-foreground mt-1 leading-relaxed">{active.description}</p>
-            </div>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-            {active.items.map((item) => {
-              const inner = (
-                <div className="flex items-start gap-3 p-4 rounded-xl bg-bocra-light hover:bg-gray-100 transition-colors group">
-                  <div className="w-2 h-2 rounded-full bg-bocra-blue mt-2 shrink-0" />
-                  <div>
-                    <p className="font-medium text-sm text-bocra-navy group-hover:text-bocra-blue transition-colors">
-                      {item.title}
-                      {item.url && <ArrowRight className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />}
-                    </p>
-                    <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
-                  </div>
+            <div className="relative p-8">
+              <div className="flex items-start gap-4 mb-6">
+                <div className={`w-12 h-12 rounded-xl ${active.color} text-white flex items-center justify-center shrink-0`}>
+                  {active.icon}
                 </div>
-              );
-              if (item.url) {
-                return (
-                  <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer">
-                    {inner}
-                  </a>
-                );
-              }
-              return <div key={item.title}>{inner}</div>;
-            })}
-          </div>
+                <div>
+                  <h3 className="text-xl font-bold text-bocra-navy">{active.label}</h3>
+                  <p className="text-muted-foreground mt-1 leading-relaxed">{active.description}</p>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {active.items.map((item) => {
+                  const inner = (
+                    <div className="flex items-start gap-3 p-4 rounded-xl bg-bocra-light/90 hover:bg-gray-100 transition-colors group">
+                      <div className="w-2 h-2 rounded-full bg-bocra-blue mt-2 shrink-0" />
+                      <div>
+                        <p className="font-medium text-sm text-bocra-navy group-hover:text-bocra-blue transition-colors">
+                          {item.title}
+                          {item.url && <ArrowRight className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                        </p>
+                        <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
+                      </div>
+                    </div>
+                  );
+                  if (item.url) {
+                    return (
+                      <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer">
+                        {inner}
+                      </a>
+                    );
+                  }
+                  return <div key={item.title}>{inner}</div>;
+                })}
+              </div>
+            </div>
           </div>
         </div>
       </div>
