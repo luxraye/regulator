@@ -64,6 +64,20 @@ const mandateTabs = [
   },
 ];
 
+function getActiveTabClasses(tabId: string) {
+  if (tabId === "telecoms") return "bg-bocra-blue text-white shadow-md";
+  if (tabId === "broadcasting") return "bg-bocra-green text-white shadow-md";
+  if (tabId === "postal") return "bg-bocra-amber text-bocra-navy shadow-md";
+  return "bg-bocra-orange text-bocra-navy shadow-md";
+}
+
+function getIconBgClasses(tabId: string) {
+  if (tabId === "telecoms") return "bg-bocra-blue text-white";
+  if (tabId === "broadcasting") return "bg-bocra-green text-white";
+  if (tabId === "postal") return "bg-bocra-amber text-bocra-navy";
+  return "bg-bocra-orange text-bocra-navy";
+}
+
 export function MandateSection() {
   const [activeTab, setActiveTab] = useState("telecoms");
   const active = mandateTabs.find((t) => t.id === activeTab)!;
@@ -89,7 +103,7 @@ export function MandateSection() {
               onClick={() => setActiveTab(tab.id)}
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                 activeTab === tab.id
-                  ? `${tab.color} text-white shadow-md`
+                  ? getActiveTabClasses(tab.id)
                   : "bg-bocra-light text-bocra-navy hover:bg-gray-200"
               }`}
             >
@@ -122,7 +136,7 @@ export function MandateSection() {
             </div>
             <div className="relative p-8">
               <div className="flex items-start gap-4 mb-6">
-                <div className={`w-12 h-12 rounded-xl ${active.color} text-white flex items-center justify-center shrink-0`}>
+                <div className={`w-12 h-12 rounded-xl ${getIconBgClasses(active.id)} flex items-center justify-center shrink-0`}>
                   {active.icon}
                 </div>
                 <div>
