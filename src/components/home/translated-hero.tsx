@@ -1,9 +1,8 @@
 "use client";
 
-import { useState } from "react";
 import Link from "next/link";
 import { useLanguage } from "@/components/providers/language-provider";
-import { Phone, Radio, Mail, Globe, ImageIcon } from "lucide-react";
+import { Phone, Radio, Mail, Globe } from "lucide-react";
 
 export function TranslatedHero() {
   const { t } = useLanguage();
@@ -112,27 +111,15 @@ export function TranslatedHero() {
 }
 
 function HeroImage() {
-  const [failed, setFailed] = useState(false);
-
-  if (failed) {
-    return (
-      <div className="w-full max-w-md aspect-[4/3] rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-white/20">
-        <ImageIcon className="w-12 h-12 mb-2" />
-        <p className="text-xs">hero.jpg</p>
-      </div>
-    );
-  }
-
   return (
-    // eslint-disable-next-line @next/next/no-img-element
-    <img
-      src="/images/hero.jpg"
-      alt="BOCRA - Regulating communications for Botswana"
-      width={560}
-      height={420}
-      className="rounded-2xl shadow-2xl object-cover border-2 border-white/10"
-      onError={() => setFailed(true)}
-    />
+    <div className="w-full max-w-md aspect-[4/3] rounded-2xl bg-white/5 border-2 border-white/10 overflow-hidden">
+      {/* eslint-disable-next-line @next/next/no-img-element */}
+      <img
+        src="/images/hero.jpg"
+        alt="BOCRA - Regulating communications for Botswana"
+        className="w-full h-full object-cover"
+      />
+    </div>
   );
 }
 

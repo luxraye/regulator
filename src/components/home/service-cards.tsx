@@ -1,7 +1,6 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
 import { Shield, FileSearch, BarChart3, Users } from "lucide-react";
 
 const services = [
@@ -36,15 +35,14 @@ const services = [
 ];
 
 function ServiceImage({ src, alt }: { src: string; alt: string }) {
-  const [hidden, setHidden] = useState(false);
-  if (hidden) return null;
   return (
-    <img
-      src={src}
-      alt={alt}
-      className="w-full h-32 object-cover bg-bocra-light"
-      onError={() => setHidden(true)}
-    />
+    <div className="w-full h-32 bg-bocra-light overflow-hidden">
+      <img
+        src={src}
+        alt={alt}
+        className="w-full h-full object-cover"
+      />
+    </div>
   );
 }
 

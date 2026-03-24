@@ -102,16 +102,14 @@ export function MandateSection() {
 
         {/* Active tab content */}
         <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-          {/* eslint-disable-next-line @next/next/no-img-element */}
-          <img
-            src={active.image}
-            alt={active.label}
-            className="w-full h-48 object-cover bg-bocra-light"
-            onError={(e) => {
-              (e.target as HTMLImageElement).style.display = "none";
-            }}
-            key={active.id}
-          />
+          <div className="w-full h-48 bg-bocra-light overflow-hidden" key={active.id}>
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={active.image}
+              alt={active.label}
+              className="w-full h-full object-cover"
+            />
+          </div>
           <div className="p-8">
           <div className="flex items-start gap-4 mb-6">
             <div className={`w-12 h-12 rounded-xl ${active.color} text-white flex items-center justify-center shrink-0`}>
