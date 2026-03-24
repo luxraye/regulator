@@ -50,7 +50,7 @@ export function PublicHeader() {
   }, []);
 
   return (
-    <header className="bg-bocra-navy text-white sticky top-0 z-50">
+    <header className="bg-bocra-navy/95 backdrop-blur text-white sticky top-0 z-50 border-b border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
       {/* Top utility bar */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">

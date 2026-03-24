@@ -34,12 +34,6 @@ export function TranslatedHero() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
-            <div className="flex gap-1.5 mb-6">
-              <span className="w-4 h-4 rounded-full bg-bocra-blue" />
-              <span className="w-4 h-4 rounded-full bg-bocra-green" />
-              <span className="w-4 h-4 rounded-full bg-bocra-amber" />
-              <span className="w-4 h-4 rounded-full bg-bocra-orange" />
-            </div>
             <p className="text-white/50 text-sm font-medium italic mb-1">
               {t("hero.tagline")}
             </p>
@@ -52,28 +46,28 @@ export function TranslatedHero() {
             <p className="text-lg text-white/80 mb-8 leading-relaxed">
               {t("hero.subtitle")}
             </p>
-            <div className="flex flex-wrap gap-3">
+            <div className="grid grid-cols-2 gap-3 max-w-lg w-full sm:w-auto">
               <Link
                 href="#how-instances-work"
-                className="px-6 py-3 bg-bocra-blue rounded-lg font-medium hover:bg-bocra-blue/80 transition-colors"
+                className="px-4 py-3 bg-bocra-blue rounded-lg font-medium hover:bg-bocra-blue/80 transition-colors text-center min-h-12 flex items-center justify-center"
               >
                 {t("hero.cta.instances")}
               </Link>
               <Link
                 href="/login"
-                className="px-6 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors"
+                className="px-4 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors text-center min-h-12 flex items-center justify-center"
               >
                 {t("hero.cta.portal")}
               </Link>
               <Link
                 href="/complaints"
-                className="px-6 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors"
+                className="px-4 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors text-center min-h-12 flex items-center justify-center"
               >
                 {t("hero.cta.complaint")}
               </Link>
               <Link
                 href="/register"
-                className="px-6 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors"
+                className="px-4 py-3 bg-white/10 rounded-lg font-medium hover:bg-white/20 transition-colors text-center min-h-12 flex items-center justify-center"
               >
                 {t("hero.cta.register")}
               </Link>
