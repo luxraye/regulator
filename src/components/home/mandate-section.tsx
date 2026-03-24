@@ -8,8 +8,6 @@ const mandateTabs = [
     id: "telecoms",
     label: "Telecommunications",
     icon: <Phone className="w-4 h-4" />,
-    color: "bg-bocra-blue",
-    image: "/images/sector-telecoms.jpg",
     description:
       "BOCRA regulates all telecommunications services including mobile, fixed-line, and internet service providers in Botswana.",
     items: [
@@ -23,8 +21,6 @@ const mandateTabs = [
     id: "broadcasting",
     label: "Broadcasting",
     icon: <Radio className="w-4 h-4" />,
-    color: "bg-bocra-green",
-    image: "/images/sector-broadcasting.jpg",
     description:
       "BOCRA regulates all broadcasting, subscription management services and re-broadcasting activities including Yarona FM, Duma FM, Gabz FM, and eBotswana.",
     items: [
@@ -37,8 +33,6 @@ const mandateTabs = [
     id: "postal",
     label: "Postal Services",
     icon: <Mail className="w-4 h-4" />,
-    color: "bg-bocra-amber",
-    image: "/images/sector-postal.jpg",
     description:
       "BOCRA supervises the provision of postal services in Botswana. The CRA Act prohibits any person to provide postal services without a valid licence.",
     items: [
@@ -51,8 +45,6 @@ const mandateTabs = [
     id: "internet",
     label: "Internet & ICT",
     icon: <Globe className="w-4 h-4" />,
-    color: "bg-bocra-orange",
-    image: "/images/sector-internet.jpg",
     description:
       "BOCRA manages Botswana's internet infrastructure including the .bw country code domain, cybersecurity, and electronic communications.",
     items: [
@@ -95,7 +87,6 @@ export function MandateSection() {
           </p>
         </div>
 
-        {/* Tab buttons */}
         <div className="flex flex-wrap justify-center gap-2 mb-8">
           {mandateTabs.map((tab) => (
             <button
@@ -113,62 +104,41 @@ export function MandateSection() {
           ))}
         </div>
 
-        {/* Active tab content */}
-        <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="w-full h-44 md:h-52 bg-bocra-light overflow-hidden" key={active.id}>
-            {/* eslint-disable-next-line @next/next/no-img-element */}
-            <img
-              src={active.image}
-              alt={active.label}
-              className="w-full h-full object-cover object-center md:object-top contrast-105 saturate-110 [image-rendering:-webkit-optimize-contrast]"
-            />
-          </div>
-          <div className="relative">
-            <div className="absolute inset-0">
-              {/* eslint-disable-next-line @next/next/no-img-element */}
-              <img
-                src={active.image}
-                alt=""
-                aria-hidden="true"
-                className="w-full h-full object-cover opacity-10 [image-rendering:-webkit-optimize-contrast]"
-              />
-              <div className="absolute inset-0 bg-white/94" />
+        <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm" key={active.id}>
+          <div className="p-8">
+            <div className="flex items-start gap-4 mb-6">
+              <div className={`w-12 h-12 rounded-xl ${getIconBgClasses(active.id)} flex items-center justify-center shrink-0`}>
+                {active.icon}
+              </div>
+              <div>
+                <h3 className="text-xl font-bold text-bocra-navy">{active.label}</h3>
+                <p className="text-muted-foreground mt-1 leading-relaxed">{active.description}</p>
+              </div>
             </div>
-            <div className="relative p-8">
-              <div className="flex items-start gap-4 mb-6">
-                <div className={`w-12 h-12 rounded-xl ${getIconBgClasses(active.id)} flex items-center justify-center shrink-0`}>
-                  {active.icon}
-                </div>
-                <div>
-                  <h3 className="text-xl font-bold text-bocra-navy">{active.label}</h3>
-                  <p className="text-muted-foreground mt-1 leading-relaxed">{active.description}</p>
-                </div>
-              </div>
 
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {active.items.map((item) => {
-                  const inner = (
-                    <div className="flex items-start gap-3 p-4 rounded-xl bg-bocra-light/90 hover:bg-gray-100 transition-colors group">
-                      <div className="w-2 h-2 rounded-full bg-bocra-blue mt-2 shrink-0" />
-                      <div>
-                        <p className="font-medium text-sm text-bocra-navy group-hover:text-bocra-blue transition-colors">
-                          {item.title}
-                          {item.url && <ArrowRight className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />}
-                        </p>
-                        <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
-                      </div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+              {active.items.map((item) => {
+                const inner = (
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-bocra-light hover:bg-gray-100 transition-colors group">
+                    <div className="w-2 h-2 rounded-full bg-bocra-blue mt-2 shrink-0" />
+                    <div>
+                      <p className="font-medium text-sm text-bocra-navy group-hover:text-bocra-blue transition-colors">
+                        {item.title}
+                        {item.url && <ArrowRight className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />}
+                      </p>
+                      <p className="text-xs text-muted-foreground mt-0.5">{item.desc}</p>
                     </div>
+                  </div>
+                );
+                if (item.url) {
+                  return (
+                    <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer">
+                      {inner}
+                    </a>
                   );
-                  if (item.url) {
-                    return (
-                      <a key={item.title} href={item.url} target="_blank" rel="noopener noreferrer">
-                        {inner}
-                      </a>
-                    );
-                  }
-                  return <div key={item.title}>{inner}</div>;
-                })}
-              </div>
+                }
+                return <div key={item.title}>{inner}</div>;
+              })}
             </div>
           </div>
         </div>
