@@ -10,6 +10,7 @@ const mandateTabs = [
     label: "Telecommunications",
     icon: <Phone className="w-4 h-4" />,
     color: "bg-bocra-blue",
+    image: "/images/sector-telecoms.jpg",
     description:
       "BOCRA regulates all telecommunications services including mobile, fixed-line, and internet service providers in Botswana.",
     items: [
@@ -24,6 +25,7 @@ const mandateTabs = [
     label: "Broadcasting",
     icon: <Radio className="w-4 h-4" />,
     color: "bg-bocra-green",
+    image: "/images/sector-broadcasting.jpg",
     description:
       "BOCRA regulates all broadcasting, subscription management services and re-broadcasting activities including Yarona FM, Duma FM, Gabz FM, and eBotswana.",
     items: [
@@ -37,6 +39,7 @@ const mandateTabs = [
     label: "Postal Services",
     icon: <Mail className="w-4 h-4" />,
     color: "bg-bocra-amber",
+    image: "/images/sector-postal.jpg",
     description:
       "BOCRA supervises the provision of postal services in Botswana. The CRA Act prohibits any person to provide postal services without a valid licence.",
     items: [
@@ -50,6 +53,7 @@ const mandateTabs = [
     label: "Internet & ICT",
     icon: <Globe className="w-4 h-4" />,
     color: "bg-bocra-orange",
+    image: "/images/sector-internet.jpg",
     description:
       "BOCRA manages Botswana's internet infrastructure including the .bw country code domain, cybersecurity, and electronic communications.",
     items: [
@@ -97,7 +101,18 @@ export function MandateSection() {
         </div>
 
         {/* Active tab content */}
-        <div className="bg-white rounded-2xl border border-border p-8 shadow-sm">
+        <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
+          {/* eslint-disable-next-line @next/next/no-img-element */}
+          <img
+            src={active.image}
+            alt={active.label}
+            className="w-full h-48 object-cover bg-bocra-light"
+            onError={(e) => {
+              (e.target as HTMLImageElement).style.display = "none";
+            }}
+            key={active.id}
+          />
+          <div className="p-8">
           <div className="flex items-start gap-4 mb-6">
             <div className={`w-12 h-12 rounded-xl ${active.color} text-white flex items-center justify-center shrink-0`}>
               {active.icon}
@@ -131,6 +146,7 @@ export function MandateSection() {
               }
               return <div key={item.title}>{inner}</div>;
             })}
+          </div>
           </div>
         </div>
       </div>

@@ -1,8 +1,10 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
+import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
-import { Phone, Radio, Mail, Globe } from "lucide-react";
+import { Phone, Radio, Mail, Globe, ImageIcon } from "lucide-react";
 
 export function TranslatedHero() {
   const { t } = useLanguage();
@@ -32,15 +34,19 @@ export function TranslatedHero() {
         </div>
 
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 lg:py-28">
-          <div className="max-w-3xl">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
             <div className="flex gap-1.5 mb-6">
               <span className="w-4 h-4 rounded-full bg-bocra-blue" />
               <span className="w-4 h-4 rounded-full bg-bocra-green" />
               <span className="w-4 h-4 rounded-full bg-bocra-amber" />
               <span className="w-4 h-4 rounded-full bg-bocra-orange" />
             </div>
-            <p className="text-white/50 text-sm font-medium italic mb-3">
+            <p className="text-white/50 text-sm font-medium italic mb-1">
               {t("hero.tagline")}
+            </p>
+            <p className="text-bocra-amber text-xs font-semibold uppercase tracking-widest mb-4">
+              Fair Play, Fair Game
             </p>
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
               {t("hero.title")}
@@ -75,6 +81,12 @@ export function TranslatedHero() {
               </Link>
             </div>
           </div>
+
+          {/* Hero image */}
+          <div className="hidden lg:flex items-center justify-center">
+            <HeroImage />
+          </div>
+          </div>
         </div>
       </section>
 
@@ -99,3 +111,29 @@ export function TranslatedHero() {
     </>
   );
 }
+
+function HeroImage() {
+  const [failed, setFailed] = useState(false);
+
+  if (failed) {
+    return (
+      <div className="w-full max-w-md aspect-[4/3] rounded-2xl bg-white/5 border border-white/10 flex flex-col items-center justify-center text-white/20">
+        <ImageIcon className="w-12 h-12 mb-2" />
+        <p className="text-xs">hero.jpg</p>
+      </div>
+    );
+  }
+
+  return (
+    <Image
+      src="/images/hero.jpg"
+      alt="BOCRA - Regulating communications for Botswana"
+      width={560}
+      height={420}
+      className="rounded-2xl shadow-2xl object-cover border-2 border-white/10"
+      onError={() => setFailed(true)}
+      priority
+    />
+  );
+}
+

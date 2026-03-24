@@ -24,8 +24,11 @@ export function Footer() {
               </div>
               <span className="font-bold text-white">BOCRA</span>
             </div>
-            <p className="text-sm italic text-white/50 mb-2">
+            <p className="text-sm italic text-white/50 mb-1">
               Imagine a world without order.
+            </p>
+            <p className="text-xs font-semibold text-bocra-amber/70 uppercase tracking-wider mb-2">
+              Fair Play, Fair Game
             </p>
             <p className="text-sm leading-relaxed mb-4">
               Botswana Communications Regulatory Authority. Regulating

@@ -2,9 +2,10 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Menu, X, ChevronDown, ExternalLink, Landmark, Globe2 } from "lucide-react";
+import { Menu, X, ChevronDown, ExternalLink, Landmark, Globe2, Search } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/components/providers/language-provider";
+import { SearchTrigger } from "@/components/layout/search-modal";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -137,20 +138,25 @@ export function PublicHeader() {
               )}
             </div>
 
+            <SearchTrigger />
+
             <Link
               href={dashboardHref}
-              className="ml-3 px-4 py-2 bg-bocra-blue rounded-md text-sm font-medium hover:bg-bocra-blue/80 transition-colors"
+              className="ml-2 px-4 py-2 bg-bocra-blue rounded-md text-sm font-medium hover:bg-bocra-blue/80 transition-colors"
             >
               {session ? "Dashboard" : "Sign In"}
             </Link>
           </nav>
 
-          <button
-            className="lg:hidden p-2 rounded-md hover:bg-white/10"
-            onClick={() => setMobileOpen(!mobileOpen)}
-          >
-            {mobileOpen ? <X size={20} /> : <Menu size={20} />}
-          </button>
+          <div className="lg:hidden flex items-center gap-1">
+            <SearchTrigger />
+            <button
+              className="p-2 rounded-md hover:bg-white/10"
+              onClick={() => setMobileOpen(!mobileOpen)}
+            >
+              {mobileOpen ? <X size={20} /> : <Menu size={20} />}
+            </button>
+          </div>
         </div>
 
         {/* Mobile nav */}
