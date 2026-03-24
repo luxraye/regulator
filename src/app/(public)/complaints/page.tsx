@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import Link from "next/link";
 import {
@@ -12,7 +12,16 @@ import {
   Clock,
   AlertCircle,
   ArrowRight,
+  WifiOff,
+  CloudUpload,
 } from "lucide-react";
+import { useLanguage } from "@/components/providers/language-provider";
+import { useOnlineStatus } from "@/hooks/use-online-status";
+import {
+  saveOfflineComplaint,
+  getOfflineComplaints,
+  type OfflineComplaint,
+} from "@/lib/offline-complaints";
 
 const providers = [
   "Mascom Wireless",
@@ -50,9 +59,13 @@ const statusConfig: Record<string, { label: string; color: string }> = {
 
 export default function ComplaintsPage() {
   const { data: session } = useSession();
+  const { t } = useLanguage();
+  const isOnline = useOnlineStatus();
   const [tab, setTab] = useState<"file" | "track">("file");
   const [anonymous, setAnonymous] = useState(false);
   const [submitted, setSubmitted] = useState<{ trackingCode: string } | null>(null);
+  const [savedOffline, setSavedOffline] = useState(false);
+  const [pendingOffline, setPendingOffline] = useState<OfflineComplaint[]>([]);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [copied, setCopied] = useState(false);
@@ -72,6 +85,10 @@ export default function ComplaintsPage() {
   const [trackError, setTrackError] = useState("");
   const [tracking, setTracking] = useState(false);
 
+  useEffect(() => {
+    setPendingOffline(getOfflineComplaints());
+  }, [savedOffline]);
+
   function update(field: string, value: string) {
     setForm((prev) => ({ ...prev, [field]: value }));
   }
@@ -79,6 +96,24 @@ export default function ComplaintsPage() {
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
+    setSavedOffline(false);
+
+    if (!isOnline) {
+      saveOfflineComplaint({
+        fullName: form.name || session?.user?.name || "",
+        email: form.email || session?.user?.email || "",
+        phone: form.phone,
+        provider: form.provider,
+        category: form.category,
+        subject: form.provider,
+        details: form.description,
+        anonymous,
+      });
+      setSavedOffline(true);
+      setForm({ name: "", email: "", phone: "", provider: "", category: "", description: "" });
+      return;
+    }
+
     setLoading(true);
 
     const payload: any = {
@@ -195,11 +230,47 @@ export default function ComplaintsPage() {
 
   return (
     <div className="max-w-2xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
-      <h1 className="text-3xl font-bold text-bocra-navy mb-2">Consumer Complaints</h1>
-      <p className="text-muted-foreground mb-8 leading-relaxed">
-        BOCRA investigates complaints against communications service providers on behalf of
-        the public. You can file anonymously or track an existing complaint.
+      <h1 className="text-3xl font-bold text-bocra-navy mb-2">{t("complaints.title")}</h1>
+      <p className="text-muted-foreground mb-6 leading-relaxed">
+        {t("complaints.subtitle")}
       </p>
+
+      {/* Offline banner */}
+      {!isOnline && (
+        <div className="flex items-center gap-3 p-3 mb-4 bg-amber-50 border border-amber-200 rounded-xl text-sm">
+          <WifiOff className="w-5 h-5 text-amber-600 shrink-0" />
+          <div>
+            <p className="font-medium text-amber-800">{t("offline")}</p>
+            <p className="text-amber-700 text-xs">{t("complaints.offline.saved")}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Saved-offline confirmation */}
+      {savedOffline && (
+        <div className="flex items-center gap-3 p-3 mb-4 bg-blue-50 border border-blue-200 rounded-xl text-sm">
+          <CloudUpload className="w-5 h-5 text-blue-600 shrink-0" />
+          <div>
+            <p className="font-medium text-blue-800">{t("complaints.offline.pending")}</p>
+            <p className="text-blue-700 text-xs">{t("complaints.offline.will_submit")}</p>
+          </div>
+        </div>
+      )}
+
+      {/* Pending offline complaints */}
+      {pendingOffline.length > 0 && (
+        <div className="mb-4 p-3 bg-bocra-light border border-border rounded-xl">
+          <p className="text-xs font-medium text-bocra-navy mb-1">
+            {pendingOffline.length} {t("complaints.offline.pending").toLowerCase()}
+          </p>
+          {pendingOffline.map((c) => (
+            <div key={c.id} className="text-xs text-muted-foreground flex items-center gap-2">
+              <CloudUpload className="w-3 h-3" />
+              {c.provider} — {c.category} ({new Date(c.savedAt).toLocaleString()})
+            </div>
+          ))}
+        </div>
+      )}
 
       {/* Tab switcher */}
       <div className="flex gap-1 p-1 bg-bocra-light rounded-xl mb-8">
@@ -211,7 +282,7 @@ export default function ComplaintsPage() {
               : "text-muted-foreground hover:text-bocra-navy"
           }`}
         >
-          File a Complaint
+          {t("complaints.tab.file")}
         </button>
         <button
           onClick={() => setTab("track")}
@@ -221,7 +292,7 @@ export default function ComplaintsPage() {
               : "text-muted-foreground hover:text-bocra-navy"
           }`}
         >
-          Track Complaint
+          {t("complaints.tab.track")}
         </button>
       </div>
 

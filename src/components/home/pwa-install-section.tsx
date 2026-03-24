@@ -1,7 +1,8 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Smartphone, Download, QrCode, Check, Share2 } from "lucide-react";
+import { Smartphone, Download, QrCode, Check, Share2, Phone } from "lucide-react";
+import Link from "next/link";
 
 export function PWAInstallSection() {
   const [origin, setOrigin] = useState("");
@@ -159,6 +160,26 @@ export function PWAInstallSection() {
               </p>
             </div>
           </div>
+        </div>
+
+        {/* Rural access banner */}
+        <div className="mt-10 p-5 bg-bocra-light rounded-2xl border border-border flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-xl bg-bocra-navy text-white flex items-center justify-center shrink-0">
+            <Phone className="w-6 h-6" />
+          </div>
+          <div className="flex-1">
+            <p className="font-semibold text-bocra-navy text-sm">No smartphone? No internet?</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Citizens can file and track complaints by dialing <strong className="text-bocra-navy">*123#</strong> from
+              any phone — even a basic feature phone with no data connection.
+            </p>
+          </div>
+          <Link
+            href="/ussd-demo"
+            className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors shrink-0"
+          >
+            See How It Works
+          </Link>
         </div>
       </div>
     </section>

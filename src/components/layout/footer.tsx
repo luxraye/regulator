@@ -24,6 +24,9 @@ export function Footer() {
               </div>
               <span className="font-bold text-white">BOCRA</span>
             </div>
+            <p className="text-sm italic text-white/50 mb-2">
+              Imagine a world without order.
+            </p>
             <p className="text-sm leading-relaxed mb-4">
               Botswana Communications Regulatory Authority. Regulating
               telecommunications, broadcasting, postal and internet services in

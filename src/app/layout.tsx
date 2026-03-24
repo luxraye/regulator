@@ -4,6 +4,7 @@ import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { RegisterSW } from "@/components/pwa/register-sw";
+import { LanguageProvider } from "@/components/providers/language-provider";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -43,9 +44,11 @@ export default function RootLayout({
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
         <SessionProvider>
-          {children}
-          <CookieBanner />
-          <RegisterSW />
+          <LanguageProvider>
+            {children}
+            <CookieBanner />
+            <RegisterSW />
+          </LanguageProvider>
         </SessionProvider>
       </body>
     </html>

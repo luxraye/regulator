@@ -5,6 +5,7 @@ const SHELL_URLS = [
   "/dashboard/citizen",
   "/complaints",
   "/legacy",
+  "/register",
   "/icons/icon-192.svg",
   "/icons/icon-512.svg",
 ];

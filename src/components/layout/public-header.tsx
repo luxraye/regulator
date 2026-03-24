@@ -2,8 +2,9 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Menu, X, ChevronDown, ExternalLink, Landmark } from "lucide-react";
+import { Menu, X, ChevronDown, ExternalLink, Landmark, Globe2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -27,6 +28,7 @@ export function PublicHeader() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [portalsOpen, setPortalsOpen] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
+  const { locale, setLocale, t } = useLanguage();
 
   const dashboardHref = session?.user?.role === "LICENSEE"
     ? "/dashboard/licensee"
@@ -54,12 +56,21 @@ export function PublicHeader() {
           <span className="text-xs text-white/50">
             Botswana Communications Regulatory Authority
           </span>
-          <div className="hidden sm:flex items-center gap-3 text-xs text-white/50">
-            <a href="tel:+2673957755" className="hover:text-white transition-colors">
+          <div className="flex items-center gap-3 text-xs text-white/50">
+            <button
+              onClick={() => setLocale(locale === "en" ? "tn" : "en")}
+              className="flex items-center gap-1 hover:text-white transition-colors font-medium"
+              aria-label="Toggle language"
+            >
+              <Globe2 className="w-3 h-3" />
+              {t("nav.language")}
+            </button>
+            <span className="text-white/20 hidden sm:inline">|</span>
+            <a href="tel:+2673957755" className="hover:text-white transition-colors hidden sm:inline">
               +267 395 7755
             </a>
-            <span className="text-white/20">|</span>
-            <a href="mailto:info@bocra.org.bw" className="hover:text-white transition-colors">
+            <span className="text-white/20 hidden sm:inline">|</span>
+            <a href="mailto:info@bocra.org.bw" className="hover:text-white transition-colors hidden sm:inline">
               info@bocra.org.bw
             </a>
           </div>

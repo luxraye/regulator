@@ -12,6 +12,7 @@ import {
   Bell,
   Shield,
 } from "lucide-react";
+import { useLanguage } from "@/components/providers/language-provider";
 
 interface DashboardStats {
   complaints: number;
@@ -46,25 +47,27 @@ export default function CitizenDashboardPage() {
     load();
   }, []);
 
+  const { t } = useLanguage();
+
   const quickLinks = [
     {
       icon: <MessageSquareWarning className="w-5 h-5" />,
-      title: "File a Complaint",
-      desc: "Report an issue with a service provider",
+      title: t("citizen.file_complaint"),
+      desc: t("citizen.file_complaint.desc"),
       href: "/complaints",
       color: "bg-red-50 text-red-600 border-red-200",
     },
     {
       icon: <FileText className="w-5 h-5" />,
-      title: "Browse Documents",
-      desc: "Access publications, reports, and guidelines",
+      title: t("citizen.browse_docs"),
+      desc: t("citizen.browse_docs.desc"),
       href: "/legacy",
       color: "bg-blue-50 text-blue-600 border-blue-200",
     },
     {
       icon: <Shield className="w-5 h-5" />,
-      title: "Licensing Info",
-      desc: "Learn about licence types and requirements",
+      title: t("citizen.licensing_info"),
+      desc: t("citizen.licensing_info.desc"),
       href: "/licensing",
       color: "bg-green-50 text-green-600 border-green-200",
     },
@@ -74,10 +77,10 @@ export default function CitizenDashboardPage() {
     <div className="max-w-6xl">
       <div className="mb-6">
         <h1 className="text-xl sm:text-2xl font-bold text-bocra-navy">
-          Welcome back, {session?.user?.name?.split(" ")[0] || "Citizen"}
+          {t("citizen.welcome")} {session?.user?.name?.split(" ")[0] || "Citizen"}
         </h1>
         <p className="text-muted-foreground text-sm mt-1">
-          Your personal BOCRA dashboard — track complaints, save documents, and stay informed.
+          {t("citizen.subtitle")}
         </p>
       </div>
 
@@ -91,7 +94,7 @@ export default function CitizenDashboardPage() {
             <MessageSquareWarning className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.complaints}</p>
-          <p className="text-[11px] sm:text-sm text-muted-foreground">Complaints</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">{t("citizen.complaints")}</p>
         </Link>
 
         <Link
@@ -102,7 +105,7 @@ export default function CitizenDashboardPage() {
             <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.bookmarks}</p>
-          <p className="text-[11px] sm:text-sm text-muted-foreground">Bookmarks</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">{t("citizen.bookmarks")}</p>
         </Link>
 
         <Link
@@ -113,12 +116,12 @@ export default function CitizenDashboardPage() {
             <Star className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
           <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.events}</p>
-          <p className="text-[11px] sm:text-sm text-muted-foreground">Events</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">{t("citizen.events")}</p>
         </Link>
       </div>
 
       {/* Quick actions */}
-      <h2 className="text-base sm:text-lg font-bold text-bocra-navy mb-3 sm:mb-4">Quick Actions</h2>
+      <h2 className="text-base sm:text-lg font-bold text-bocra-navy mb-3 sm:mb-4">{t("citizen.quick")}</h2>
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
         {quickLinks.map((link) => (
           <Link
