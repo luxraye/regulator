@@ -2,7 +2,6 @@
 
 import { useState } from "react";
 import Link from "next/link";
-import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
 import { Phone, Radio, Mail, Globe, ImageIcon } from "lucide-react";
 
@@ -125,14 +124,14 @@ function HeroImage() {
   }
 
   return (
-    <Image
+    // eslint-disable-next-line @next/next/no-img-element
+    <img
       src="/images/hero.jpg"
       alt="BOCRA - Regulating communications for Botswana"
       width={560}
       height={420}
       className="rounded-2xl shadow-2xl object-cover border-2 border-white/10"
       onError={() => setFailed(true)}
-      priority
     />
   );
 }
