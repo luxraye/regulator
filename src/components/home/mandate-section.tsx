@@ -101,12 +101,12 @@ export function MandateSection() {
 
         {/* Active tab content */}
         <div className="bg-white rounded-2xl border border-border overflow-hidden shadow-sm">
-          <div className="w-full h-56 bg-bocra-light overflow-hidden" key={active.id}>
+          <div className="w-full h-44 md:h-52 bg-bocra-light overflow-hidden" key={active.id}>
             {/* eslint-disable-next-line @next/next/no-img-element */}
             <img
               src={active.image}
               alt={active.label}
-              className="w-full h-full object-cover object-center md:object-top"
+              className="w-full h-full object-cover object-center md:object-top contrast-105 saturate-110 [image-rendering:-webkit-optimize-contrast]"
             />
           </div>
           <div className="relative">
@@ -116,9 +116,9 @@ export function MandateSection() {
                 src={active.image}
                 alt=""
                 aria-hidden="true"
-                className="w-full h-full object-cover opacity-15"
+                className="w-full h-full object-cover opacity-10 [image-rendering:-webkit-optimize-contrast]"
               />
-              <div className="absolute inset-0 bg-white/92" />
+              <div className="absolute inset-0 bg-white/94" />
             </div>
             <div className="relative p-8">
               <div className="flex items-start gap-4 mb-6">
