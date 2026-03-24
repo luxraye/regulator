@@ -1,7 +1,7 @@
+export const dynamic = "force-dynamic";
+
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
 import { redirect } from "next/navigation";
 import { FileBox, Clock, CheckCircle2, AlertTriangle } from "lucide-react";
 

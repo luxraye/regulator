@@ -1,6 +1,6 @@
-import { prisma } from "@/lib/prisma";
-
 export const dynamic = "force-dynamic";
+
+import { prisma } from "@/lib/prisma";
 
 const scaleLabels: Record<string, string> = {
   SCALE_1: "1 - Major Telecom",
