@@ -71,74 +71,65 @@ export default function CitizenDashboardPage() {
   ];
 
   return (
-    <div className="p-6 lg:p-8 max-w-6xl">
-      <div className="mb-8">
-        <h1 className="text-2xl font-bold text-bocra-navy">
+    <div className="max-w-6xl">
+      <div className="mb-6">
+        <h1 className="text-xl sm:text-2xl font-bold text-bocra-navy">
           Welcome back, {session?.user?.name?.split(" ")[0] || "Citizen"}
         </h1>
-        <p className="text-muted-foreground mt-1">
+        <p className="text-muted-foreground text-sm mt-1">
           Your personal BOCRA dashboard — track complaints, save documents, and stay informed.
         </p>
       </div>
 
       {/* Stats cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 mb-8">
+      <div className="grid grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
         <Link
           href="/dashboard/citizen/complaints"
-          className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow group"
+          className="bg-white rounded-xl border border-border p-3 sm:p-5 hover:shadow-md transition-shadow group active:scale-[0.98]"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center">
-              <MessageSquareWarning className="w-5 h-5" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-red-50 text-red-600 flex items-center justify-center mb-2 sm:mb-3">
+            <MessageSquareWarning className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <p className="text-2xl font-bold text-bocra-navy">{stats.complaints}</p>
-          <p className="text-sm text-muted-foreground">Complaints Filed</p>
+          <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.complaints}</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">Complaints</p>
         </Link>
 
         <Link
           href="/dashboard/citizen/bookmarks"
-          className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow group"
+          className="bg-white rounded-xl border border-border p-3 sm:p-5 hover:shadow-md transition-shadow group active:scale-[0.98]"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center">
-              <Bookmark className="w-5 h-5" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-blue-50 text-blue-600 flex items-center justify-center mb-2 sm:mb-3">
+            <Bookmark className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <p className="text-2xl font-bold text-bocra-navy">{stats.bookmarks}</p>
-          <p className="text-sm text-muted-foreground">Saved Documents</p>
+          <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.bookmarks}</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">Bookmarks</p>
         </Link>
 
         <Link
           href="/dashboard/citizen/events"
-          className="bg-white rounded-xl border border-border p-5 hover:shadow-md transition-shadow group"
+          className="bg-white rounded-xl border border-border p-3 sm:p-5 hover:shadow-md transition-shadow group active:scale-[0.98]"
         >
-          <div className="flex items-center justify-between mb-3">
-            <div className="w-10 h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center">
-              <Star className="w-5 h-5" />
-            </div>
-            <ArrowRight className="w-4 h-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+          <div className="w-8 h-8 sm:w-10 sm:h-10 rounded-lg bg-amber-50 text-amber-600 flex items-center justify-center mb-2 sm:mb-3">
+            <Star className="w-4 h-4 sm:w-5 sm:h-5" />
           </div>
-          <p className="text-2xl font-bold text-bocra-navy">{stats.events}</p>
-          <p className="text-sm text-muted-foreground">Starred Events</p>
+          <p className="text-xl sm:text-2xl font-bold text-bocra-navy">{stats.events}</p>
+          <p className="text-[11px] sm:text-sm text-muted-foreground">Events</p>
         </Link>
       </div>
 
       {/* Quick actions */}
-      <h2 className="text-lg font-bold text-bocra-navy mb-4">Quick Actions</h2>
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-4 mb-8">
+      <h2 className="text-base sm:text-lg font-bold text-bocra-navy mb-3 sm:mb-4">Quick Actions</h2>
+      <div className="grid grid-cols-1 sm:grid-cols-3 gap-2 sm:gap-4 mb-6 sm:mb-8">
         {quickLinks.map((link) => (
           <Link
             key={link.title}
             href={link.href}
-            className={`flex items-start gap-3 p-4 rounded-xl border ${link.color} hover:brightness-95 transition-all group`}
+            className={`flex items-center gap-3 p-4 rounded-xl border ${link.color} hover:brightness-95 active:scale-[0.98] transition-all`}
           >
             {link.icon}
             <div>
               <p className="font-medium text-sm">{link.title}</p>
-              <p className="text-xs opacity-70 mt-0.5">{link.desc}</p>
+              <p className="text-xs opacity-70 mt-0.5 hidden sm:block">{link.desc}</p>
             </div>
           </Link>
         ))}

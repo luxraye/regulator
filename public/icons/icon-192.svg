@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="192" height="192" viewBox="0 0 192 192">
+  <rect width="192" height="192" rx="32" fill="#0A1628"/>
+  <circle cx="68" cy="80" r="14" fill="#2563EB"/>
+  <circle cx="104" cy="80" r="14" fill="#16A34A"/>
+  <circle cx="68" cy="116" r="14" fill="#F59E0B"/>
+  <circle cx="104" cy="116" r="14" fill="#EA580C"/>
+  <text x="96" y="166" text-anchor="middle" font-family="Inter,system-ui,sans-serif" font-weight="700" font-size="24" fill="white">BOCRA</text>
+</svg>

@@ -62,17 +62,17 @@ export default function CitizenEventsPage() {
   const past = events.filter((e) => !e.date || new Date(e.date) < new Date());
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-5xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-bocra-navy">Starred Events</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-bocra-navy">Starred Events</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Keep track of BOCRA events, consultations, and deadlines
           </p>
         </div>
         <button
           onClick={() => setShowAdd(!showAdd)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 active:scale-[0.98] transition-all w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           Star an Event

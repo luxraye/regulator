@@ -18,6 +18,7 @@ import {
 } from "lucide-react";
 import { MandateSection } from "@/components/home/mandate-section";
 import { InstanceDeepDive } from "@/components/home/instance-deep-dive";
+import { PWAInstallSection } from "@/components/home/pwa-install-section";
 
 const services = [
   {
@@ -244,6 +245,9 @@ export default function HomePage() {
 
       {/* BOCRA Mandate / Core Services */}
       <MandateSection />
+
+      {/* PWA Install / Get the App */}
+      <PWAInstallSection />
 
       {/* Legacy Portal CTA */}
       <section className="py-12 bg-white">

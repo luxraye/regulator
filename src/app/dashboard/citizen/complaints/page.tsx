@@ -34,17 +34,17 @@ export default function CitizenComplaintsPage() {
   }, []);
 
   return (
-    <div className="p-6 lg:p-8 max-w-5xl">
-      <div className="flex items-center justify-between mb-6">
+    <div className="max-w-5xl">
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
         <div>
-          <h1 className="text-2xl font-bold text-bocra-navy">My Complaints</h1>
+          <h1 className="text-xl sm:text-2xl font-bold text-bocra-navy">My Complaints</h1>
           <p className="text-muted-foreground text-sm mt-1">
             Track the status of complaints you&apos;ve filed with BOCRA
           </p>
         </div>
         <Link
           href="/complaints"
-          className="inline-flex items-center gap-2 px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2.5 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 active:scale-[0.98] transition-all w-full sm:w-auto"
         >
           <Plus className="w-4 h-4" />
           File New Complaint
