@@ -9,7 +9,7 @@ const services = [
     title: "Licensing",
     description: "Apply for and manage telecommunications, broadcasting, and postal licenses.",
     href: "/licensing",
-    image: "/images/service-licensing.jpg",
+    image: "/images/service-licensing.jpeg",
   },
   {
     icon: <FileSearch className="w-8 h-8" />,
@@ -23,7 +23,7 @@ const services = [
     title: "Publications",
     description: "Access regulatory publications, reports, and industry statistics.",
     href: "/publications",
-    image: "/images/service-publications.jpg",
+    image: "/images/service-publications.jpeg",
   },
   {
     icon: <Users className="w-8 h-8" />,
