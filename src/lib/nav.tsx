@@ -31,7 +31,6 @@ const evaluator: NavItem[] = [
 const adjudicator: NavItem[] = [
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
-  { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
 ];
 
 const admin: NavItem[] = [
@@ -40,6 +39,7 @@ const admin: NavItem[] = [
   { href: "/dashboard/admin/calls", label: "Calls", icon: i(Layers) },
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
 ];
 
 const superadmin: NavItem[] = [
