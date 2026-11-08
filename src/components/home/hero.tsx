@@ -32,12 +32,17 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
             </div>
           </div>
           <div className="relative hidden lg:block">
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl border-2 border-white/10">
-              <Image src="/images/hero.jpg" alt="The Three Dikgosi Monument in Gaborone" fill priority sizes="28rem" className="object-cover object-top" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
-                <p className="text-sm text-white/80">Built on the same idea as Botswana itself: fair rules, applied openly, for every citizen.</p>
+            <figure className="relative mx-auto w-full max-w-lg">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border-2 border-white/10 shadow-2xl shadow-black/30">
+                <Image src="/images/hero-innovation.jpg" alt="Young developers building software together at their laptops" fill priority sizes="32rem" className="object-cover" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
+                  <p className="text-sm text-white/85">Ideas start at a kitchen table. We help the good ones become companies.</p>
+                </div>
               </div>
-            </div>
+              <figcaption className="mt-2 text-right text-[10px] text-white/40">
+                Photo: Deo photographer, <a href="https://commons.wikimedia.org/wiki/File:Computer_engineer.jpg" className="underline hover:text-white/70" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>
+              </figcaption>
+            </figure>
           </div>
         </div>
         <dl className="mt-12 grid grid-cols-2 gap-4 border-t border-white/10 pt-8 sm:grid-cols-4">

@@ -8,16 +8,19 @@ import { Hero, HowItWorks } from "@/components/home/hero";
 import { CallCard } from "@/components/ideas/call-card";
 import { BlueBackdrop } from "@/components/home/blue-backdrop";
 import { PWAInstallSection } from "@/components/home/pwa-install-section";
+import { FundedCard } from "@/components/funded/funded-card";
+import { fundedShowcase } from "@/lib/funded";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const now = new Date();
-  const [calls, submitted, awarded, districts] = await Promise.all([
+  const [calls, submitted, awarded, districts, funded] = await Promise.all([
     prisma.template.findMany({ where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } }, orderBy: { closesAt: "asc" } }),
     prisma.instance.count({ where: { status: { not: "DRAFT" } } }),
     prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
     prisma.user.findMany({ where: { role: "INNOVATOR", instances: { some: { status: { not: "DRAFT" } } } }, select: { district: true }, distinct: ["district"] }),
+    fundedShowcase(3),
   ]);
 
   const stats = [
@@ -99,7 +102,27 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-[#0b4a86] py-16 text-white">
+      {funded.length > 0 && (
+        <section className="bg-white py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-ceda-blue">Recognition</p>
+                <h2 className="text-3xl font-bold text-ceda-navy">Recently funded</h2>
+                <p className="mt-1 text-muted-foreground">Young founders whose ideas made it all the way through. Every award comes with a certificate anyone can check.</p>
+              </div>
+              <Link href="/funded" className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+                All funded innovators <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {funded.map((f) => <FundedCard key={f.referenceCode} f={f} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="relative overflow-hidden py-16 text-white">
         <BlueBackdrop />
         <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Fair by design</p>

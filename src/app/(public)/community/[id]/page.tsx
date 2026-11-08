@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeft } from "lucide-react";
+import { ArrowLeft, Award } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { forumLabel, initials, timeAgo } from "@/lib/community";
@@ -19,14 +19,25 @@ function Avatar({ name, staff }: { name: string; staff: boolean }) {
   );
 }
 
+const FUNDED = { where: { status: "AWARDED" as const, showcase: true }, select: { id: true }, take: 1 };
+
+function FundedBadge({ show }: { show: boolean }) {
+  if (!show) return null;
+  return (
+    <Link href="/funded" className="ml-2 inline-flex items-center gap-0.5 rounded bg-ceda-amber/20 px-1.5 py-0.5 text-[11px] font-semibold text-amber-800 hover:bg-ceda-amber/30" title="CEDA-funded innovator">
+      <Award className="h-3 w-3" /> CEDA-funded
+    </Link>
+  );
+}
+
 export default async function ThreadPage({ params }: { params: { id: string } }) {
   const [user, thread] = await Promise.all([
     getSessionUser(),
     prisma.forumThread.findUnique({
       where: { id: params.id },
       include: {
-        author: { select: { name: true, organizationName: true, role: true } },
-        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true } } } },
+        author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } },
+        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } } } },
       },
     }),
   ]);
@@ -49,7 +60,7 @@ export default async function ThreadPage({ params }: { params: { id: string } })
           <div className="mb-5 flex items-center gap-3">
             <Avatar name={thread.author.name} staff={thread.author.role !== "INNOVATOR"} />
             <div className="text-sm">
-              <p className="font-medium text-ceda-navy">{who(thread.author)}</p>
+              <p className="font-medium text-ceda-navy">{who(thread.author)}<FundedBadge show={thread.author.instances.length > 0} /></p>
               <p className="text-muted-foreground">{timeAgo(thread.createdAt)}</p>
             </div>
           </div>
@@ -70,6 +81,7 @@ export default async function ThreadPage({ params }: { params: { id: string } })
                     <p className="font-medium text-ceda-navy">
                       {who(r.author)}
                       {staff && <span className="ml-2 rounded bg-ceda-blue/10 px-1.5 py-0.5 text-[11px] font-semibold text-ceda-blue">Staff</span>}
+                      <FundedBadge show={r.author.instances.length > 0} />
                     </p>
                     <p className="text-muted-foreground">{timeAgo(r.createdAt)}</p>
                   </div>

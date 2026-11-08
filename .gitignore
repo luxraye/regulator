@@ -57,3 +57,7 @@ next-env.d.ts
 
 # hackathon source docs (provided separately)
 /docs/*.pdf
+
+# Playwright
+/playwright-report/
+/test-results/

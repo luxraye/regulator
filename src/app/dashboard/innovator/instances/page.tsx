@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
-import { ArrowRight, Lightbulb } from "lucide-react";
+import { ArrowRight, Award, Lightbulb } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -62,6 +62,11 @@ export default async function MyIdeasPage() {
                   <JourneyTracker status={i.status} />
                 </div>
               </Link>
+              {i.status === "AWARDED" && (
+                <Link href={`/dashboard/innovator/certificate/${i.id}`} className="mt-2 inline-flex items-center gap-1.5 rounded-lg bg-ceda-amber/15 px-3 py-1.5 text-sm font-medium text-ceda-navy hover:bg-ceda-amber/25">
+                  <Award className="h-4 w-4 text-ceda-amber" /> View award certificate
+                </Link>
+              )}
             </li>
           ))}
         </ul>

@@ -14,7 +14,7 @@ export default async function CommunityPage() {
     getSessionUser(),
     prisma.forumThread.findMany({
       orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
-      include: { author: { select: { name: true, organizationName: true, role: true } }, _count: { select: { replies: true } } },
+      include: { author: { select: { name: true, organizationName: true, role: true, instances: { where: { status: "AWARDED", showcase: true }, select: { id: true }, take: 1 } } }, _count: { select: { replies: true } } },
     }),
     prisma.notice.findMany({ where: { pinned: true }, orderBy: { createdAt: "desc" }, take: 3 }),
     prisma.user.count({ where: { role: "INNOVATOR" } }),
@@ -30,6 +30,7 @@ export default async function CommunityPage() {
     author: t.author.name,
     authorOrg: t.author.organizationName,
     authorIsStaff: t.author.role !== "INNOVATOR",
+    authorFunded: t.author.instances.length > 0,
     initials: initials(t.author.name),
     replies: t._count.replies,
     lastActivity: timeAgo(t.updatedAt),

@@ -642,6 +642,10 @@ async function main() {
     ],
   });
 
+  // Most funded founders opt in to the public showcase; one stays private to show it is a choice.
+  const awardedIds = (await prisma.instance.findMany({ where: { status: InstanceStatus.AWARDED }, orderBy: { referenceCode: "asc" }, select: { id: true } })).map((i) => i.id);
+  await prisma.instance.updateMany({ where: { id: { in: awardedIds.slice(0, -1) } }, data: { showcase: true } });
+
   await seedCommunity(prisma, users);
 
   console.log(`Seed complete. Demo password for every account: ${DEMO_PASSWORD}`);

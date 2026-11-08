@@ -15,6 +15,7 @@ export type ThreadRow = {
   author: string;
   authorOrg: string | null;
   authorIsStaff: boolean;
+  authorFunded?: boolean;
   initials: string;
   replies: number;
   lastActivity: string;
@@ -62,6 +63,7 @@ export function ThreadList({ threads }: { threads: ThreadRow[] }) {
                   <span>
                     {t.author}
                     {t.authorIsStaff ? " · CEDA" : t.authorOrg ? ` · ${t.authorOrg}` : ""}
+                    {t.authorFunded && <span className="ml-1.5 rounded bg-ceda-amber/20 px-1 py-0.5 text-[10px] font-semibold text-amber-800">CEDA-funded</span>}
                   </span>
                 </span>
                 <span className="block font-semibold text-ceda-navy">{t.title}</span>

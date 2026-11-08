@@ -138,6 +138,8 @@ model Instance {
   reviewedById    String?
   reviewedBy      User?          @relation("ReviewedInstances", fields: [reviewedById], references: [id])
   awardAmount     Int?
+  /// The founder agreed to list this award on the public Funded innovators page.
+  showcase        Boolean        @default(false)
   createdAt       DateTime       @default(now())
   submittedAt     DateTime?
   reviewedAt      DateTime?
