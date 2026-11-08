@@ -3,6 +3,7 @@
  * Everything here is fictional. Running the seed wipes the demo database and rebuilds it,
  * with dates relative to today so deadlines and timelines always look current.
  */
+import { seedCommunity } from "./seed-community";
 import { PrismaClient, Role, Scale, DataType, InstanceStatus, CallStatus, Prisma } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
@@ -339,6 +340,9 @@ const DISTRICTS = ["Gaborone", "Francistown", "Maun", "Kgalagadi", "Kweneng", "C
 
 async function main() {
   console.log("Resetting demo data…");
+  await prisma.forumReply.deleteMany();
+  await prisma.forumThread.deleteMany();
+  await prisma.notice.deleteMany();
   await prisma.notification.deleteMany();
   await prisma.auditLog.deleteMany();
   await prisma.message.deleteMany();
@@ -637,6 +641,8 @@ async function main() {
       n("super", "Evaluation in progress", `${pump.referenceCode} has one of two scorecards in.`, `/dashboard/admin/instances/${pump.id}`, 2),
     ],
   });
+
+  await seedCommunity(prisma, users);
 
   console.log(`Seed complete. Demo password for every account: ${DEMO_PASSWORD}`);
 }

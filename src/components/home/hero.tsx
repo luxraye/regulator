@@ -8,7 +8,7 @@ import { HexField } from "@/components/home/hex-field";
 export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   const { t } = useLanguage();
   return (
-    <section className="relative overflow-hidden bg-ceda-navy text-white">
+    <section className="relative overflow-hidden bg-[#0b4a86] text-white">
       <HexField />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">

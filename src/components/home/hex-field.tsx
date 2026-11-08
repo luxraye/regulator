@@ -98,8 +98,8 @@ function hexToRgb(hex: string): [number, number, number] {
 export function HexField({
   className = "",
   cell = 22,
-  base = "#003366",
-  glow = "#0066CC",
+  base = "#0b4a86",
+  glow = "#2f8cf0",
 }: {
   className?: string;
   /** Cell size in CSS pixels. */

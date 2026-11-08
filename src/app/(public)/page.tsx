@@ -99,7 +99,7 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="relative overflow-hidden bg-ceda-navy py-16 text-white">
+      <section className="relative overflow-hidden bg-[#0b4a86] py-16 text-white">
         <HexField />
         <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Fair by design</p>
@@ -114,7 +114,7 @@ export default async function HomePage() {
               { icon: <Fingerprint className="h-5 w-5 text-ceda-amber" />, title: "Signed receipt", body: "Your answers and documents are hashed and signed, so nobody can change them later.", border: "border-ceda-amber/30", bg: "bg-ceda-amber/20" },
               { icon: <FileCheck2 className="h-5 w-5 text-ceda-orange" />, title: "Feedback for everyone", body: "Win or not, you get the scores and evaluator comments to improve your next pitch.", border: "border-ceda-orange/30", bg: "bg-ceda-orange/20" },
             ].map((p) => (
-              <div key={p.title} className={`rounded-xl border bg-ceda-navy/60 p-5 backdrop-blur-sm ${p.border}`}>
+              <div key={p.title} className={`rounded-xl border bg-ceda-navy/45 p-5 backdrop-blur-sm ${p.border}`}>
                 <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${p.bg}`}>{p.icon}</div>
                 <h3 className="mb-1 font-semibold">{p.title}</h3>
                 <p className="text-sm text-white/60">{p.body}</p>

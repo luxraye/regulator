@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, FileBox, Megaphone, History, ShieldCheck, ClipboardList, Gavel, BarChart3,
-  Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox,
+  Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox, MessagesSquare, ShieldAlert,
 } from "lucide-react";
 
 export interface NavItem {
@@ -20,6 +20,8 @@ const innovator: NavItem[] = [
   { href: "/dashboard/innovator/instances", label: "My ideas", short: "Ideas", icon: i(FileBox), mobile: true },
   { href: "/dashboard/innovator/history", label: "Activity", icon: i(History), mobile: true },
   { href: "/dashboard/innovator/privacy", label: "My data", icon: i(ShieldCheck) },
+  { href: "/community", label: "Community forum", icon: i(MessagesSquare) },
+  { href: "/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
 ];
 
 const evaluator: NavItem[] = [
@@ -29,6 +31,7 @@ const evaluator: NavItem[] = [
 const adjudicator: NavItem[] = [
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
 ];
 
 const admin: NavItem[] = [

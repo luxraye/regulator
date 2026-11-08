@@ -14,6 +14,7 @@ const navLinks: { href: string; key: TranslationKey }[] = [
   { href: "/#how-it-works", key: "nav.how" },
   { href: "/eligibility", key: "nav.eligibility" },
   { href: "/track", key: "nav.track" },
+  { href: "/community", key: "nav.community" },
   { href: "/about", key: "nav.about" },
 ];
 
