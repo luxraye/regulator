@@ -1,8 +1,8 @@
 import Link from "next/link";
 import { MessagesSquare, ShieldAlert } from "lucide-react";
-import { HexField } from "@/components/home/hex-field";
+import { BlueBackdrop } from "@/components/home/blue-backdrop";
 
-/** Blue honeycomb band with the Forum / Safe practices tabs. */
+/** Blue band with the Forum / Safe practices tabs. */
 export function CommunityHeader({ active, title, subtitle }: { active: "forum" | "safe"; title: string; subtitle: string }) {
   const tab = (on: boolean) =>
     `inline-flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
@@ -10,7 +10,7 @@ export function CommunityHeader({ active, title, subtitle }: { active: "forum" |
     }`;
   return (
     <section className="relative overflow-hidden bg-[#0b4a86] text-white">
-      <HexField cell={20} />
+      <BlueBackdrop />
       <div className="relative mx-auto max-w-6xl px-4 pt-12 sm:px-6 lg:px-8">
         <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Innovator community</p>
         <h1 className="text-3xl font-bold sm:text-4xl">{title}</h1>

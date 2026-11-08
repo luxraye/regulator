@@ -3,13 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
-import { HexField } from "@/components/home/hex-field";
+import { BlueBackdrop } from "@/components/home/blue-backdrop";
 
 export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   const { t } = useLanguage();
   return (
     <section className="relative overflow-hidden bg-[#0b4a86] text-white">
-      <HexField />
+      <BlueBackdrop />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
