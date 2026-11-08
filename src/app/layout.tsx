@@ -5,6 +5,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { LanguageProvider } from "@/components/providers/language-provider";
+import { auth } from "@/lib/auth";
 
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
@@ -31,11 +32,12 @@ export const viewport: Viewport = {
   userScalable: false,
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const session = await auth();
   return (
     <html lang="en">
       <head>
@@ -43,7 +45,7 @@ export default function RootLayout({
         <link rel="apple-touch-icon" href="/icons/icon-192.svg" />
       </head>
       <body className={`${inter.variable} font-sans antialiased`}>
-        <SessionProvider>
+        <SessionProvider session={session}>
           <LanguageProvider>
             {children}
             <CookieBanner />

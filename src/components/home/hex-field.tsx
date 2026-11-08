@@ -4,8 +4,8 @@ import { useEffect, useRef } from "react";
 
 /**
  * A honeycomb of small blue cells drawn on the GPU behind a section.
- * The pointer presses a soft dip into the surface, a slow swell keeps it alive when idle,
- * and a tap sends out a ripple. With "reduce motion" on, it draws one still frame.
+ * A slow swell keeps it alive. With `interactive`, the pointer also presses a soft dip into
+ * the surface and a tap sends out a ripple. With "reduce motion" on, it draws one still frame.
  * Without WebGL it draws nothing, so the section's own background shows instead.
  */
 
@@ -100,12 +100,15 @@ export function HexField({
   cell = 22,
   base = "#0b4a86",
   glow = "#2f8cf0",
+  interactive = false,
 }: {
   className?: string;
   /** Cell size in CSS pixels. */
   cell?: number;
   base?: string;
   glow?: string;
+  /** React to the pointer with a dip and a tap ripple. Off by default. */
+  interactive?: boolean;
 }) {
   const ref = useRef<HTMLCanvasElement>(null);
 
@@ -220,9 +223,11 @@ export function HexField({
 
     let io: IntersectionObserver | undefined;
     if (!reduce) {
-      window.addEventListener("pointermove", onMove, { passive: true });
-      window.addEventListener("pointerdown", onDown, { passive: true });
-      document.documentElement.addEventListener("pointerleave", onLeave);
+      if (interactive) {
+        window.addEventListener("pointermove", onMove, { passive: true });
+        window.addEventListener("pointerdown", onDown, { passive: true });
+        document.documentElement.addEventListener("pointerleave", onLeave);
+      }
       io = new IntersectionObserver(([entry]) => {
         visible = entry.isIntersecting;
         if (visible && !raf) raf = requestAnimationFrame(loop);
@@ -240,7 +245,7 @@ export function HexField({
       document.documentElement.removeEventListener("pointerleave", onLeave);
       gl.getExtension("WEBGL_lose_context")?.loseContext();
     };
-  }, [cell, base, glow]);
+  }, [cell, base, glow, interactive]);
 
   return <canvas ref={ref} aria-hidden className={`pointer-events-none absolute inset-0 h-full w-full ${className}`} />;
 }
