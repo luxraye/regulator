@@ -56,7 +56,7 @@ export default async function InnovatorDashboard() {
         <Stat icon={<Trophy />} label="Awarded" value={awarded ? formatPula(awarded) : "—"} tone="green" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           {needsYou.length > 0 && (
             <section className="rounded-xl border border-orange-200 bg-orange-50/60">
@@ -139,7 +139,7 @@ export default async function InnovatorDashboard() {
             <h2 className="font-semibold text-ceda-navy">Open calls you haven&apos;t applied to</h2>
             <Link href="/dashboard/innovator/calls" className="text-sm font-medium text-ceda-blue hover:underline">All calls</Link>
           </div>
-          <div className="grid gap-6 md:grid-cols-3">
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {freshCalls.map((c) => (
               <CallCard
                 key={c.id}

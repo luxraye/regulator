@@ -4,7 +4,7 @@ import {
   AlertTriangle, ArrowLeft, CheckCircle2, Info, Lock, ShieldAlert, ShieldCheck, TrendingDown, TrendingUp, UserX,
 } from "lucide-react";
 import { prisma } from "@/lib/prisma";
-import { fileMetaSelect, fieldsToRecord, schemaOf, integrityOf } from "@/lib/instances";
+import { fieldsToRecord, schemaOf, integrityOf } from "@/lib/instances";
 import { screeningInsights } from "@/lib/analysis";
 import { summarise } from "@/lib/scoring";
 import { availableActions } from "@/lib/decisions";
@@ -201,7 +201,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
         </div>
       )}
 
-      <div className="grid gap-6 lg:grid-cols-5">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
         <div className="space-y-6 lg:col-span-3">
           <DecisionPanel
             instanceId={instance.id}
@@ -230,7 +230,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
 
           <section className="rounded-xl border border-border bg-white p-5">
             <h3 className="mb-3 font-semibold text-ceda-navy">Screening checks</h3>
-            <div className="grid gap-3 sm:grid-cols-2">
+            <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {insights.map((a) => (
                 <div key={a.label} className="rounded-lg bg-ceda-light p-3">
                   <p className="text-xs text-muted-foreground">{a.label}</p>

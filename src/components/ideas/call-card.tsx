@@ -43,7 +43,7 @@ export function CallCard({ call, action, footer }: { call: CallSummary; action?:
             <dd>
               Closes {formatDate(call.closesAt)}{" "}
               <span className={cn("text-muted-foreground", closes.soon && "text-amber-700")}>
-                ({closes.overdue ? "closed" : closes.text.replace("due", "")})
+                ({closes.overdue ? "closed" : closes.text.replace("due ", "")})
               </span>
             </dd>
           </div>

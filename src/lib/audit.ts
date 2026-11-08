@@ -15,7 +15,7 @@ export async function notify(userId: string, title: string, body: string, link?:
   await prisma.notification.create({ data: { userId, title, body, link } });
 }
 
-/** Notify everyone with one of the given roles (e.g. all BOCRA staff). */
+/** Notify everyone with one of the given roles (e.g. all programme admins). */
 export async function notifyRoles(roles: Role[], title: string, body: string, link?: string) {
   const users = await prisma.user.findMany({ where: { role: { in: roles } }, select: { id: true } });
   if (users.length === 0) return;

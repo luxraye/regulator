@@ -9,14 +9,14 @@ import { LanguageProvider } from "@/components/providers/language-provider";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
-  title: "BOCRA - Botswana Communications Regulatory Authority",
+  title: "CEDA Innovation Portal",
   description:
-    "Modern digital platform for regulatory compliance, licensing, and stakeholder engagement.",
+    "Submit, track and fund youth innovation in Botswana: CEDA's idea submission and evaluation portal.",
   manifest: "/manifest.json",
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
-    title: "BOCRA",
+    title: "CEDA Ideas",
   },
   other: {
     "mobile-web-app-capable": "yes",
@@ -24,7 +24,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#0A1628",
+  themeColor: "#003366",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

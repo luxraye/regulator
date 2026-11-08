@@ -1,123 +1,140 @@
+import Link from "next/link";
+import Image from "next/image";
+import { ArrowRight, EyeOff, FileCheck2, Fingerprint, Gavel, Scale, ClipboardList, Lightbulb, LineChart } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { DATA_TYPES, typeLabels } from "@/lib/labels";
+import { formatPula } from "@/lib/utils";
+import { Hero, HowItWorks } from "@/components/home/hero";
+import { CallCard } from "@/components/ideas/call-card";
+import { PWAInstallSection } from "@/components/home/pwa-install-section";
+
 export const dynamic = "force-dynamic";
 
-import Link from "next/link";
-import {
-  Lock,
-  Eye,
-  FileCheck,
-  ArrowRight,
-  Fingerprint,
-} from "lucide-react";
-import { MandateSection } from "@/components/home/mandate-section";
-import { PWAInstallSection } from "@/components/home/pwa-install-section";
-import { TranslatedHero } from "@/components/home/translated-hero";
-import { TranslatedInstanceSection } from "@/components/home/translated-instance-section";
-import { ServiceCards } from "@/components/home/service-cards";
+export default async function HomePage() {
+  const now = new Date();
+  const [calls, submitted, awarded, districts] = await Promise.all([
+    prisma.template.findMany({ where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } }, orderBy: { closesAt: "asc" } }),
+    prisma.instance.count({ where: { status: { not: "DRAFT" } } }),
+    prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
+    prisma.user.findMany({ where: { role: "INNOVATOR", instances: { some: { status: { not: "DRAFT" } } } }, select: { district: true }, distinct: ["district"] }),
+  ]);
 
-export default function HomePage() {
+  const stats = [
+    { label: "Open calls", value: String(calls.length) },
+    { label: "Ideas submitted", value: String(submitted) },
+    { label: "Districts reached", value: String(districts.filter((d) => d.district).length) },
+    { label: "Awarded so far", value: formatPula(awarded._sum.awardAmount ?? 0) },
+  ];
+
   return (
     <>
-      {/* Translated Hero + Sectors */}
-      <TranslatedHero />
+      <Hero stats={stats} />
 
-      {/* Translated Instance Explainer */}
-      <TranslatedInstanceSection />
-
-      {/* Services */}
-      <section className="py-16 lg:py-24 bg-ceda-light">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-ceda-navy mb-4">
-              Our Digital Services
-            </h2>
-            <p className="text-muted-foreground max-w-2xl mx-auto">
-              Access regulatory services, submit compliance data, and engage
-              with BOCRA through our modern digital platform.
-            </p>
+      <section className="bg-ceda-light py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+            <div>
+              <h2 className="text-3xl font-bold text-ceda-navy">Open calls</h2>
+              <p className="mt-1 text-muted-foreground">Each call names its sector, stage, funding and how ideas will be scored.</p>
+            </div>
+            <Link href="/calls" className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+              All calls <ArrowRight size={16} />
+            </Link>
           </div>
-          <ServiceCards />
+          <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
+            {calls.slice(0, 3).map((c) => (
+              <CallCard
+                key={c.id}
+                call={c}
+                action={
+                  <Link href={`/calls/${c.code}`} className="inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+                    Details and criteria <ArrowRight size={14} />
+                  </Link>
+                }
+              />
+            ))}
+          </div>
         </div>
       </section>
 
-      {/* BOCRA Mandate / Core Services */}
-      <MandateSection />
+      <HowItWorks />
 
-      {/* PWA Install / Get the App */}
+      <section className="bg-ceda-light py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-navy">Priority sectors</h2>
+          <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">
+            Calls are aimed at the sectors that diversify Botswana&apos;s economy beyond diamonds, at every stage from first idea to export.
+          </p>
+          <div className="grid grid-cols-2 gap-4 md:grid-cols-3">
+            {DATA_TYPES.map((dt) => (
+              <Link key={dt} href="/calls" className="group relative aspect-[4/3] overflow-hidden rounded-2xl">
+                <Image src={typeLabels[dt].photo} alt="" fill sizes="(min-width: 768px) 33vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ceda-navy/90 via-ceda-navy/20 to-transparent" />
+                <p className="absolute bottom-3 left-4 right-4 font-semibold text-white sm:text-lg">{typeLabels[dt].full}</p>
+              </Link>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-white py-16 lg:py-20">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-navy">One portal, four roles</h2>
+          <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">Everyone sees only what their job needs.</p>
+          <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: <Lightbulb />, title: "Innovators", body: "Check eligibility, apply, save drafts, follow the five stages, answer CEDA's questions and resubmit." },
+              { icon: <ClipboardList />, title: "Evaluators", body: "Declare conflicts, then score ideas blind on weighted criteria, with written feedback for the founder." },
+              { icon: <Gavel />, title: "Adjudication panel", body: "See a ranked shortlist with every scorecard side by side, spot disagreements, approve and award." },
+              { icon: <LineChart />, title: "CEDA programme team", body: "Open calls, screen, assign evaluators, chase overdue scores and export participation reports." },
+            ].map((r) => (
+              <div key={r.title} className="rounded-2xl border border-border p-6">
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ceda-blue/10 text-ceda-blue [&>svg]:h-5 [&>svg]:w-5">{r.icon}</div>
+                <h3 className="mb-2 font-semibold text-ceda-navy">{r.title}</h3>
+                <p className="text-sm leading-relaxed text-muted-foreground">{r.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      <section className="bg-ceda-navy py-16 text-white">
+        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+          <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Fair by design</p>
+          <h2 className="mb-3 text-3xl font-bold">Judged on the idea, not on who you know</h2>
+          <p className="mx-auto mb-10 max-w-2xl text-white/70">
+            Young founders often tell us the hardest part is not knowing what happened to their application. Every step here is recorded and explainable.
+          </p>
+          <div className="grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">
+            {[
+              { icon: <EyeOff className="h-5 w-5 text-ceda-blue" />, title: "Blind scoring", body: "Evaluators never see your name, Omang, age or phone number.", border: "border-ceda-blue/30", bg: "bg-ceda-blue/20" },
+              { icon: <Scale className="h-5 w-5 text-ceda-green" />, title: "Conflicts declared", body: "Each evaluator confirms no link to your company before opening your idea.", border: "border-ceda-green/30", bg: "bg-ceda-green/20" },
+              { icon: <Fingerprint className="h-5 w-5 text-ceda-amber" />, title: "Signed receipt", body: "Your answers and documents are hashed and signed, so nobody can change them later.", border: "border-ceda-amber/30", bg: "bg-ceda-amber/20" },
+              { icon: <FileCheck2 className="h-5 w-5 text-ceda-orange" />, title: "Feedback for everyone", body: "Win or not, you get the scores and evaluator comments to improve your next pitch.", border: "border-ceda-orange/30", bg: "bg-ceda-orange/20" },
+            ].map((p) => (
+              <div key={p.title} className={`rounded-xl border bg-white/5 p-5 ${p.border}`}>
+                <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${p.bg}`}>{p.icon}</div>
+                <h3 className="mb-1 font-semibold">{p.title}</h3>
+                <p className="text-sm text-white/60">{p.body}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </section>
+
       <PWAInstallSection />
 
-      {/* Legacy Portal CTA */}
-      <section className="py-12 bg-white">
-        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ceda-navy to-ceda-blue p-8 text-white text-center">
-            <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
-            <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
-            <div className="relative z-10">
-              <p className="text-white/70 text-sm font-medium uppercase tracking-wider mb-2">
-                Smooth Transition
-              </p>
-              <h2 className="text-2xl lg:text-3xl font-bold mb-4">
-                Your BOCRA Essentials, Still Safe
-              </h2>
-              <p className="text-white/80 max-w-2xl mx-auto mb-6 leading-relaxed">
-                BOCRA is transitioning to a modern platform to serve you better. But everything you
-                relied on &mdash; news, tenders, documents, careers, legislation, tools &mdash; is
-                still here. Access all legacy services in one organized view.
-              </p>
-              <Link
-                href="/legacy"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-ceda-navy rounded-lg font-semibold hover:bg-white/90 transition-colors"
-              >
-                Access Legacy Services
-                <ArrowRight className="w-4 h-4" />
-              </Link>
-            </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Security Pillars */}
-      <section className="bg-ceda-navy text-white py-16">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-ceda-amber text-xs font-semibold uppercase tracking-widest mb-3">
-            The Umpire of Botswana&apos;s Communications Industry
-          </p>
-          <h2 className="text-3xl font-bold mb-3">
-            Trust the Process, Not the Person
-          </h2>
-          <p className="text-white/70 max-w-2xl mx-auto mb-10">
-            Like an umpire ensures fair play on the field, BOCRA ensures the communications
-            industry operates within clear rules. Since compliance data is self-reported, our security
-            model ensures integrity at every step — so BOCRA can focus on{" "}
-            <strong className="text-white">verification and validation</strong>, not data collection.
-          </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            <div className="bg-white/5 rounded-xl p-5 border border-ceda-blue/30">
-              <div className="w-10 h-10 rounded-lg bg-ceda-blue/20 flex items-center justify-center mb-3">
-                <Lock className="w-5 h-5 text-ceda-blue" />
+      <section className="bg-white pb-16">
+        <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
+          <div className="relative overflow-hidden rounded-2xl">
+            <Image src="/photos/team-laptop.webp" alt="" fill sizes="56rem" className="object-cover" />
+            <div className="relative bg-ceda-navy/85 p-8 text-center text-white sm:p-12">
+              <h2 className="mb-3 text-2xl font-bold lg:text-3xl">Aged 18 to 35 with an idea for Botswana?</h2>
+              <p className="mx-auto mb-6 max-w-xl text-white/80">Check you qualify in 30 seconds, then start your application. Drafts save as you go.</p>
+              <div className="flex flex-wrap justify-center gap-3">
+                <Link href="/eligibility" className="rounded-lg bg-ceda-amber px-6 py-3 font-semibold text-ceda-navy hover:bg-ceda-amber/90">Am I eligible?</Link>
+                <Link href="/register" className="rounded-lg bg-white/10 px-6 py-3 font-medium hover:bg-white/20">Create an account</Link>
               </div>
-              <h4 className="font-semibold mb-1">Zero-Trust Files</h4>
-              <p className="text-sm text-white/60">SHA-256 hashing on client and server. Altered files are rejected immediately.</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-ceda-green/30">
-              <div className="w-10 h-10 rounded-lg bg-ceda-green/20 flex items-center justify-center mb-3">
-                <Fingerprint className="w-5 h-5 text-ceda-green" />
-              </div>
-              <h4 className="font-semibold mb-1">Digital Signatures</h4>
-              <p className="text-sm text-white/60">JWT-signed receipts cryptographically bind each submission to the licensee.</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-ceda-amber/30">
-              <div className="w-10 h-10 rounded-lg bg-ceda-amber/20 flex items-center justify-center mb-3">
-                <Eye className="w-5 h-5 text-ceda-amber" />
-              </div>
-              <h4 className="font-semibold mb-1">Real-time Oversight</h4>
-              <p className="text-sm text-white/60">Dashboards update the moment data is submitted. No more waiting months.</p>
-            </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-ceda-orange/30">
-              <div className="w-10 h-10 rounded-lg bg-ceda-orange/20 flex items-center justify-center mb-3">
-                <FileCheck className="w-5 h-5 text-ceda-orange" />
-              </div>
-              <h4 className="font-semibold mb-1">Immutable Vault</h4>
-              <p className="text-sm text-white/60">Submitted data cannot be altered. Full audit trail for every action.</p>
             </div>
           </div>
         </div>

@@ -55,7 +55,7 @@ export default async function OpenCallsPage() {
       {calls.length === 0 ? (
         <p className="rounded-xl border border-border bg-white p-10 text-center text-muted-foreground">No calls are open right now.</p>
       ) : (
-        <div className="grid gap-6 md:grid-cols-2 xl:grid-cols-3">
+        <div className="grid grid-cols-1 gap-6 md:grid-cols-2 xl:grid-cols-3">
           {calls.map((c) => {
             const existing = mine.find((m) => m.templateId === c.id);
             const criteria = schemaOf(c).criteria;

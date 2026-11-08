@@ -1,5 +1,6 @@
 "use client";
 
+import { LogoMark } from "@/components/brand/logo";
 import { useState, useEffect } from "react";
 import { Smartphone, QrCode, Check, Share2, Phone } from "lucide-react";
 import Link from "next/link";
@@ -24,11 +25,11 @@ export function PWAInstallSection() {
               Mobile App
             </div>
             <h2 className="text-3xl font-bold text-ceda-navy mb-4">
-              BOCRA in Your Pocket
+              Apply from your phone
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Access your citizen dashboard, track complaints, and stay updated
-              — all from your phone. No app store needed.
+              Most young Batswana are online on a phone, not a laptop. Install the portal to draft your idea,
+              upload your pitch deck and get status alerts. No app store and little data needed.
             </p>
 
             <div className="space-y-4">
@@ -77,7 +78,7 @@ export function PWAInstallSection() {
                 <li>Open this website in <strong className="text-ceda-navy">Chrome</strong> or <strong className="text-ceda-navy">Safari</strong> on your phone</li>
                 <li>Tap the menu (three dots) or share button</li>
                 <li>Select <strong className="text-ceda-navy">&quot;Add to Home Screen&quot;</strong></li>
-                <li>The BOCRA app icon will appear on your home screen</li>
+                <li>The CEDA Ideas icon will appear on your home screen</li>
               </ol>
             </div>
           </div>
@@ -100,42 +101,37 @@ export function PWAInstallSection() {
                   {/* App content preview */}
                   <div className="p-3 space-y-2 bg-ceda-light min-h-[280px]">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="flex gap-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-ceda-blue" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-ceda-green" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-ceda-amber" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-ceda-orange" />
-                      </div>
-                      <span className="text-[9px] font-bold text-ceda-navy">BOCRA</span>
+                      <LogoMark className="h-3 w-3" />
+                      <span className="text-[9px] font-bold text-ceda-navy">CEDA Ideas</span>
                     </div>
-                    <p className="text-[10px] font-bold text-ceda-navy">Welcome, Kagiso</p>
+                    <p className="text-[10px] font-bold text-ceda-navy">Dumela, Naledi</p>
                     <div className="grid grid-cols-3 gap-1.5">
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">5</p>
-                        <p className="text-[7px] text-muted-foreground">Complaints</p>
+                        <p className="text-sm font-bold text-ceda-navy">2</p>
+                        <p className="text-[7px] text-muted-foreground">Ideas</p>
                       </div>
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">7</p>
-                        <p className="text-[7px] text-muted-foreground">Bookmarks</p>
+                        <p className="text-sm font-bold text-ceda-navy">1</p>
+                        <p className="text-[7px] text-muted-foreground">In review</p>
                       </div>
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">6</p>
-                        <p className="text-[7px] text-muted-foreground">Events</p>
+                        <p className="text-sm font-bold text-ceda-navy">1</p>
+                        <p className="text-[7px] text-muted-foreground">Awarded</p>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">BOCRA-7A3F-01DC</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Resolved</span>
+                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-K7Q2</span>
+                        <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Awarded</span>
                       </div>
-                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Mascom — Billing</p>
+                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Solar cold rooms, Tlokweng</p>
                     </div>
                     <div className="bg-white rounded-lg p-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">BOCRA-B2E1-44FA</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">Reviewing</span>
+                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-P4M9</span>
+                        <span className="text-[7px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">With panel</span>
                       </div>
-                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Orange — Coverage</p>
+                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Setswana coding app</p>
                     </div>
                   </div>
                 </div>
@@ -170,8 +166,8 @@ export function PWAInstallSection() {
           <div className="flex-1">
             <p className="font-semibold text-ceda-navy text-sm">No smartphone? No internet?</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Citizens can file and track complaints by dialing <strong className="text-ceda-navy">*123#</strong> from
-              any phone — even a basic feature phone with no data connection.
+              Dial <strong className="text-ceda-navy">*161#</strong> from any phone to check eligibility, hear about open calls and track
+              an application by reference, with SMS alerts at every stage. Works on a basic phone with no data.
             </p>
           </div>
           <Link

@@ -14,6 +14,6 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!instance || !(await canReadInstance(user, instance))) return notFound();
 
   const report = await checkIntegrity(params.id);
-  if (!report) return NextResponse.json({ error: "This instance has not been submitted yet" }, { status: 400 });
+  if (!report) return NextResponse.json({ error: "This idea has not been submitted yet" }, { status: 400 });
   return NextResponse.json(report);
 }

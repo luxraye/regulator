@@ -18,7 +18,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
   if (!instance || instance.innovatorId !== user.id) return notFound();
-  if (!isEditable(instance.status)) return badRequest("This instance is locked and can no longer be edited");
+  if (!isEditable(instance.status)) return badRequest("This idea is submitted and locked. It can only be edited if CEDA asks for changes");
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");

@@ -57,7 +57,7 @@ export default async function AdminDashboard() {
         <StatCard href="/dashboard/reports" icon={<Trophy />} label="Awarded" value={formatPula(awardSum._sum.awardAmount ?? 0)} tone="green" />
       </div>
 
-      <div className="grid gap-6 lg:grid-cols-3">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-3">
         <div className="space-y-6 lg:col-span-2">
           <section className="rounded-xl border border-border bg-white p-5">
             <h2 className="mb-4 font-semibold text-ceda-navy">Where ideas are now</h2>

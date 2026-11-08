@@ -16,7 +16,7 @@ export function ReportCharts({
 }) {
   const top = Math.max(1, funnel[0]?.value ?? 1);
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
+    <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">
       <Card title="Outcome funnel" sub="How many ideas reach each stage">
         <div className="space-y-3 pt-2">
           {funnel.map((f, i) => (
@@ -41,7 +41,7 @@ export function ReportCharts({
       <Card title="Ideas by sector"><HBars data={bySector} /></Card>
       <Card title="Ideas by call"><HBars data={byCall} /></Card>
       <Card title="Ideas by district" sub="Top 10"><HBars data={byDistrict} /></Card>
-      <div className="grid gap-6 sm:grid-cols-2">
+      <div className="grid grid-cols-1 gap-6 sm:grid-cols-2">
         <Card title="By gender"><HBars data={byGender} small /></Card>
         <Card title="By age"><HBars data={byAge} small /></Card>
       </div>

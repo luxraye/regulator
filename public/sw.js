@@ -1,10 +1,10 @@
-const CACHE_NAME = "bocra-v1";
+const CACHE_NAME = "ceda-portal-v1";
 
 const SHELL_URLS = [
   "/",
-  "/dashboard/citizen",
-  "/complaints",
-  "/legacy",
+  "/calls",
+  "/track",
+  "/eligibility",
   "/register",
   "/icons/icon-192.svg",
   "/icons/icon-512.svg",

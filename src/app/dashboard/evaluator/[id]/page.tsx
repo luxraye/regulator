@@ -61,7 +61,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
       )}
 
       {canSee && (
-        <div className="grid gap-6 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <div className="space-y-6 lg:col-span-3">
             <div className="flex items-center gap-2 rounded-lg bg-ceda-light px-3 py-2 text-xs text-muted-foreground">
               <EyeOff size={14} /> Blind review: the applicant&apos;s name, Omang, age and contact details are hidden from you.

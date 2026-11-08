@@ -44,7 +44,8 @@ export default async function InstanceRunnerPage({ params }: { params: { id: str
   const done = instance.evaluations.filter((e) => e.submittedAt && e.conflict === false);
   const summary = summarise(schema.criteria, instance.evaluations);
 
-  const { template, evaluations: _e, innovatorId: _i, ...rest } = instance;
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
+  const { template, evaluations, innovatorId, ...rest } = instance;
   return (
     <InstanceRunnerClient
       instance={JSON.parse(

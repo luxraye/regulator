@@ -106,12 +106,12 @@ export default function CallsPage() {
       {showForm && (
         <form onSubmit={create} className="mb-6 space-y-5 rounded-xl border border-border bg-white p-6">
           {error && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
-          <div className="grid gap-4 sm:grid-cols-3">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
             <Field label="Code"><input value={form.code} onChange={set("code")} placeholder="WATER_2027" className={`${input} font-mono uppercase`} required /></Field>
             <Field label="Name" className="sm:col-span-2"><input value={form.name} onChange={set("name")} placeholder="Water Security Innovation Challenge" className={input} required /></Field>
           </div>
           <Field label="Who should apply, and what CEDA wants to fund"><textarea value={form.description} onChange={set("description")} rows={2} className={input} /></Field>
-          <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
+          <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 lg:grid-cols-4">
             <Field label="Sector">
               <select value={form.dataType} onChange={set("dataType")} className={`${input} bg-white`}>
                 {DATA_TYPES.map((t) => <option key={t} value={t}>{typeLabels[t].full}</option>)}
@@ -207,7 +207,7 @@ function CallDetail({ call, onCriteria }: { call: Call; onCriteria: (c: Criterio
   }
 
   return (
-    <div className="grid gap-5 border-t border-border bg-ceda-light/40 px-5 py-4 text-sm lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 border-t border-border bg-ceda-light/40 px-5 py-4 text-sm lg:grid-cols-3">
       <div className="lg:col-span-1">
         {call.description && <p className="mb-2 text-muted-foreground">{call.description}</p>}
         {call.fundingSummary && <p><span className="font-medium">Funding:</span> {call.fundingSummary}</p>}

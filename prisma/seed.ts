@@ -133,6 +133,8 @@ interface Story {
   evaluations?: { evaluator: string; scores?: number[]; conflict?: boolean; feedback?: string; privateNote?: string; pending?: boolean }[];
   decision?: { by: string; notes: string; daysAgo: number; award?: number };
   messages?: { from: string; body: string; internal?: boolean; daysAgo: number }[];
+  /** Was sent back for changes once, then resubmitted. */
+  resubmitted?: boolean;
 }
 
 const STORIES: Story[] = [
@@ -488,7 +490,7 @@ async function main() {
         submittedAt,
         submissionJwt,
         dataHash,
-        submissionCount: submittedAt ? 1 : 0,
+        submissionCount: submittedAt ? (story.resubmitted ? 2 : 1) : 0,
         reviewNotes: story.decision?.notes,
         reviewedById: decisionBy?.id,
         reviewedAt: story.decision ? ago(story.decision.daysAgo) : undefined,
@@ -501,14 +503,24 @@ async function main() {
     const log: Prisma.AuditLogCreateManyInput[] = [
       { actorId: innovator.id, action: "IDEA_STARTED", instanceId: id, createdAt, metadata: { callCode: call.code, referenceCode } },
     ];
-    if (submittedAt) log.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash } });
+    if (submittedAt && story.resubmitted) {
+      const first = new Date(submittedAt.getTime() - 5 * DAY);
+      log.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: first, metadata: { submissionNumber: 1 } });
+      log.push({ actorId: users.tebogo.id, action: "IDEA_FLAGGED", instanceId: id, createdAt: new Date(first.getTime() + 2 * DAY), metadata: { notes: "Please add a budget breakdown." } });
+      log.push({ actorId: innovator.id, action: "IDEA_RESUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash, submissionNumber: 2 } });
+    } else if (submittedAt) {
+      log.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash } });
+    }
+    let lastScore: Date | null = null;
 
     for (const [i, e] of Array.from((story.evaluations ?? []).entries())) {
       const evaluator = users[e.evaluator];
-      const assignedAt = new Date((submittedAt ?? createdAt).getTime() + DAY);
+      // Keep generated timestamps in the past, even for ideas submitted yesterday.
+      const sub = (submittedAt ?? createdAt).getTime();
+      const assignedAt = new Date(Math.min(sub + DAY, Date.now() - 6 * 3600_000, Math.max(sub, Date.now() - 6 * 3600_000)));
       const scores = e.scores ? Object.fromEntries(CRITERIA.map((c, j) => [c.key, e.scores![j]])) : undefined;
       const total = scores ? weightedTotal(CRITERIA, scores) : null;
-      const submittedEval = e.pending ? null : new Date(assignedAt.getTime() + (2 + i) * DAY);
+      const submittedEval = e.pending ? null : new Date(Math.min(assignedAt.getTime() + (2 + i) * DAY, Date.now() - (3 - i) * 3600_000));
       await prisma.evaluation.create({
         data: {
           instanceId: id,
@@ -526,6 +538,11 @@ async function main() {
       });
       if (i === 0) log.push({ actorId: users.tebogo.id, action: "EVALUATORS_ASSIGNED", instanceId: id, createdAt: assignedAt, metadata: { evaluators: story.evaluations!.map((x) => users[x.evaluator].name) } });
       if (submittedEval) log.push({ actorId: evaluator.id, action: "EVALUATION_SUBMITTED", instanceId: id, createdAt: submittedEval, metadata: { total } });
+      if (submittedEval && (!lastScore || submittedEval > lastScore)) lastScore = submittedEval;
+    }
+    const pastReview = ["SHORTLISTED", "APPROVED", "AWARDED", "REJECTED"].includes(story.status);
+    if (pastReview && lastScore) {
+      log.push({ actorId: users.tebogo.id, action: "IDEA_SHORTLISTED", instanceId: id, createdAt: lastScore, metadata: { reason: "all evaluations in" } });
     }
     if (story.decision) {
       log.push({ actorId: decisionBy!.id, action: `IDEA_${story.status}`, instanceId: id, createdAt: ago(story.decision.daysAgo), metadata: { notes: story.decision.notes, ...(story.decision.award ? { awardAmount: story.decision.award } : {}) } });
@@ -589,6 +606,7 @@ async function main() {
         ...(call === "CREATE_2026" ? { revenue_12m: String(between(10, 300) * 1000) } : {}),
       },
       evaluations: evs,
+      resubmitted: evaluated && i % 4 === 1,
       decision: decided
         ? {
             by: status === InstanceStatus.FLAGGED ? "tebogo" : "dineo",

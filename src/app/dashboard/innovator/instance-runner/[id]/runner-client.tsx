@@ -290,7 +290,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
             Submitted {formatDate(instance.submittedAt, true)}. Your answers and documents are locked and signed while CEDA reviews them.
           </div>
         )}
-        <div className="grid gap-6 lg:grid-cols-5">
+        <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <div className="space-y-6 lg:col-span-3">
             {instance.feedback && <FeedbackPanel feedback={instance.feedback} schema={schema} />}
             <DataList schema={schema} values={values} />
@@ -353,7 +353,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
 
       <div className="rounded-xl border border-border bg-white p-5 sm:p-6">
         {step === 0 && (
-          <div className="grid gap-5 sm:grid-cols-2">
+          <div className="grid grid-cols-1 gap-5 sm:grid-cols-2">
             <div className="sm:col-span-2">
               <label htmlFor="idea-title" className="mb-1.5 block text-sm font-medium">
                 Idea title<span className="ml-1 text-red-500">*</span>

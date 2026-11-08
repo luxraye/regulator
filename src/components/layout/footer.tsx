@@ -1,149 +1,61 @@
 import Link from "next/link";
-import { ExternalLink, MapPin, Phone, Mail, Clock } from "lucide-react";
+import { ExternalLink } from "lucide-react";
+import { Logo } from "@/components/brand/logo";
 
-const socialLinks = [
-  { label: "Facebook", url: "https://www.facebook.com/ABORACRA/" },
-  { label: "Twitter / X", url: "https://twitter.com/ABORACRA" },
-  { label: "LinkedIn", url: "https://www.linkedin.com/company/bocra" },
-  { label: "YouTube", url: "https://www.youtube.com/@bocra" },
+const partners = [
+  { label: "CEDA", url: "https://www.ceda.co.bw/" },
+  { label: "CIPA company registry", url: "https://www.cipa.co.bw/" },
+  { label: "Local Enterprise Authority", url: "https://www.lea.co.bw/" },
+  { label: "Botswana Innovation Hub", url: "https://www.bih.co.bw/" },
 ];
 
 export function Footer() {
   return (
     <footer className="bg-ceda-navy text-white/80">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* Brand + About */}
+      <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
+        <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>
-            <div className="flex items-center gap-2 mb-4">
-              <div className="flex gap-1">
-                <span className="w-2.5 h-2.5 rounded-full bg-ceda-blue" />
-                <span className="w-2.5 h-2.5 rounded-full bg-ceda-green" />
-                <span className="w-2.5 h-2.5 rounded-full bg-ceda-amber" />
-                <span className="w-2.5 h-2.5 rounded-full bg-ceda-orange" />
-              </div>
-              <span className="font-bold text-white">BOCRA</span>
-            </div>
-            <p className="text-sm italic text-white/50 mb-1">
-              Imagine a world without order.
+            <Logo tone="light" className="mb-4" />
+            <p className="text-sm leading-relaxed">
+              One place for young Batswana to submit ideas, be scored fairly, follow their application and get funded. Built for
+              CEDA&apos;s youth innovation challenge.
             </p>
-            <p className="text-xs font-semibold text-ceda-amber/70 uppercase tracking-wider mb-2">
-              Fair Play, Fair Game
-            </p>
-            <p className="text-sm leading-relaxed mb-4">
-              Botswana Communications Regulatory Authority. Regulating
-              telecommunications, broadcasting, postal and internet services in
-              the public interest.
-            </p>
-            <div className="flex items-center gap-3">
-              {socialLinks.map((s) => (
-                <a
-                  key={s.label}
-                  href={s.url}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs text-white/50 hover:text-white transition-colors"
-                  title={s.label}
-                >
-                  {s.label}
-                </a>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white">Apply</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/calls" className="hover:text-white">Open calls</Link></li>
+              <li><Link href="/eligibility" className="hover:text-white">Eligibility checker</Link></li>
+              <li><Link href="/register" className="hover:text-white">Create an account</Link></li>
+              <li><Link href="/track" className="hover:text-white">Track my idea</Link></li>
+              <li><Link href="/ussd-demo" className="hover:text-white">USSD *161#</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white">The programme</h4>
+            <ul className="space-y-2 text-sm">
+              <li><Link href="/about" className="hover:text-white">About</Link></li>
+              <li><Link href="/about#judging" className="hover:text-white">How judging works</Link></li>
+              <li><Link href="/about#integrity" className="hover:text-white">Fairness and integrity</Link></li>
+              <li><Link href="/privacy" className="hover:text-white">Privacy notice</Link></li>
+            </ul>
+          </div>
+          <div>
+            <h4 className="mb-3 text-sm font-semibold text-white">Partners</h4>
+            <ul className="space-y-2 text-sm">
+              {partners.map((p) => (
+                <li key={p.url}>
+                  <a href={p.url} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1 hover:text-white">
+                    {p.label} <ExternalLink size={11} className="opacity-50" />
+                  </a>
+                </li>
               ))}
-            </div>
-          </div>
-
-          {/* Quick Links */}
-          <div>
-            <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">
-              Quick Links
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li><Link href="/about" className="hover:text-white transition-colors">About BOCRA</Link></li>
-              <li><Link href="/licensing" className="hover:text-white transition-colors">Licensing</Link></li>
-              <li><Link href="/publications" className="hover:text-white transition-colors">Publications</Link></li>
-              <li><Link href="/complaints" className="hover:text-white transition-colors">File a Complaint</Link></li>
-              <li><Link href="/legacy" className="hover:text-white transition-colors">Legacy Services</Link></li>
             </ul>
-          </div>
-
-          {/* Resources */}
-          <div>
-            <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">
-              Resources
-            </h3>
-            <ul className="space-y-2 text-sm">
-              <li>
-                <a href="https://www.bocra.org.bw/tariffs" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  Tariffs <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.bocra.org.bw/faqs" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  FAQs <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.bocra.org.bw/privacy-notice" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  Privacy Notice <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://staffmail.bocra.org.bw" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  BOCRA Staff Mail <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-              <li>
-                <a href="https://www.bocra.org.bw/annual-reports" target="_blank" rel="noopener noreferrer" className="hover:text-white transition-colors inline-flex items-center gap-1">
-                  Annual Reports <ExternalLink className="w-3 h-3 opacity-50" />
-                </a>
-              </li>
-            </ul>
-          </div>
-
-          {/* Contact */}
-          <div>
-            <h3 className="font-semibold text-white mb-3 text-sm uppercase tracking-wider">
-              Contact
-            </h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start gap-2">
-                <MapPin className="w-4 h-4 shrink-0 mt-0.5 text-ceda-amber" />
-                <span>Plot 50671, Independence Avenue<br />Gaborone, Botswana</span>
-              </li>
-              <li className="flex items-center gap-2">
-                <Phone className="w-4 h-4 shrink-0 text-ceda-green" />
-                <a href="tel:+2673957755" className="hover:text-white transition-colors">+267 395 7755</a>
-              </li>
-              <li className="flex items-center gap-2">
-                <Mail className="w-4 h-4 shrink-0 text-ceda-blue" />
-                <a href="mailto:info@bocra.org.bw" className="hover:text-white transition-colors">info@bocra.org.bw</a>
-              </li>
-              <li className="flex items-center gap-2">
-                <Clock className="w-4 h-4 shrink-0 text-ceda-orange" />
-                <span>Mon&ndash;Fri: 07:30&ndash;16:30</span>
-              </li>
-            </ul>
-            {/* Map placeholder */}
-            <div className="mt-4 rounded-lg overflow-hidden border border-white/10 h-28 bg-white/5 flex items-center justify-center text-xs text-white/30">
-              <a
-                href="https://maps.google.com/?q=-24.6546,25.9258"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="hover:text-white/60 transition-colors flex flex-col items-center gap-1"
-              >
-                <MapPin className="w-5 h-5" />
-                View on Google Maps
-              </a>
-            </div>
           </div>
         </div>
-
-        <div className="border-t border-white/20 mt-8 pt-8 flex flex-col sm:flex-row items-center justify-between gap-4 text-sm">
-          <p>&copy; {new Date().getFullYear()} Botswana Communications Regulatory Authority. All rights reserved.</p>
-          <div className="flex items-center gap-4 text-white/40 text-xs">
-            <a href="https://www.bocra.org.bw/privacy-notice" target="_blank" rel="noopener noreferrer" className="hover:text-white/70 transition-colors">Privacy</a>
-            <a href="https://www.bocra.org.bw/terms" target="_blank" rel="noopener noreferrer" className="hover:text-white/70 transition-colors">Terms</a>
-            <a href="https://www.bocra.org.bw/faqs" target="_blank" rel="noopener noreferrer" className="hover:text-white/70 transition-colors">FAQs</a>
-          </div>
+        <div className="mt-10 flex flex-col gap-2 border-t border-white/10 pt-6 text-xs text-white/50 sm:flex-row sm:justify-between">
+          <p>&copy; {new Date().getFullYear()} CEDA Innovation Portal · hackathon prototype</p>
+          <p>Personal data handled under the Data Protection Act, 2024</p>
         </div>
       </div>
     </footer>

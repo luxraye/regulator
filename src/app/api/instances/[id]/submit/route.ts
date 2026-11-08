@@ -67,7 +67,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       reviewNotes: instance.status === "FLAGGED" ? instance.reviewNotes : null,
     },
   });
-  if (updated.count === 0) return badRequest("This instance was already submitted");
+  if (updated.count === 0) return badRequest("This idea was already submitted");
 
   await audit(user.id, submissionNumber > 1 ? "IDEA_RESUBMITTED" : "IDEA_SUBMITTED", {
     instanceId: instance.id,
