@@ -1,70 +1,32 @@
-import { auth } from "@/lib/auth";
 import { NextResponse } from "next/server";
+import { auth } from "@/lib/auth";
 
-const protectedRoutes: Record<string, string[]> = {
-  "/dashboard/admin": ["ADMIN", "SUPERADMIN"],
-  "/dashboard/superadmin": ["SUPERADMIN"],
-  "/dashboard/licensee": ["LICENSEE"],
-  "/dashboard/citizen": ["PUBLIC"],
-};
-
-const protectedApiRoutes: Record<string, string[]> = {
-  "/api/instances/provision": ["ADMIN", "SUPERADMIN"],
-  "/api/templates": ["SUPERADMIN"],
-  "/api/dashboard": ["ADMIN", "SUPERADMIN"],
-  "/api/users": ["SUPERADMIN"],
-  "/api/bookmarks": ["PUBLIC"],
-  "/api/starred-events": ["PUBLIC"],
-};
+/**
+ * Page-level access control. API routes check roles themselves (see lib/session.ts),
+ * so this only guards dashboard pages and sends people to the right place.
+ */
+const pageRoles: [prefix: string, roles: string[]][] = [
+  ["/dashboard/superadmin", ["SUPERADMIN"]],
+  ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
+  ["/dashboard/licensee", ["LICENSEE"]],
+  ["/dashboard/citizen", ["PUBLIC"]],
+];
 
 export default auth((req) => {
-  const { pathname } = req.nextUrl;
+  const { pathname, search } = req.nextUrl;
 
-  const isProtected =
-    pathname.startsWith("/dashboard") ||
-    pathname.startsWith("/api/instances") ||
-    pathname.startsWith("/api/templates") ||
-    pathname.startsWith("/api/dashboard") ||
-    pathname.startsWith("/api/users") ||
-    pathname.startsWith("/api/upload") ||
-    pathname.startsWith("/api/bookmarks") ||
-    pathname.startsWith("/api/starred-events");
-
-  if (isProtected) {
-    if (!req.auth) {
-      if (pathname.startsWith("/api/")) {
-        return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-      }
-      return NextResponse.redirect(new URL("/login", req.url));
-    }
-
-    const userRole = (req.auth.user as any)?.role;
-
-    for (const [route, roles] of Object.entries(protectedRoutes)) {
-      if (pathname.startsWith(route) && !roles.includes(userRole)) {
-        return NextResponse.redirect(new URL("/dashboard", req.url));
-      }
-    }
-
-    for (const [route, roles] of Object.entries(protectedApiRoutes)) {
-      if (pathname.startsWith(route) && !roles.includes(userRole)) {
-        return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-      }
-    }
+  if (!req.auth) {
+    const login = new URL("/login", req.url);
+    login.searchParams.set("callbackUrl", pathname + search);
+    return NextResponse.redirect(login);
   }
 
+  const role = (req.auth.user as { role?: string } | undefined)?.role ?? "";
+  const rule = pageRoles.find(([prefix]) => pathname.startsWith(prefix));
+  if (rule && !rule[1].includes(role)) {
+    return NextResponse.redirect(new URL("/dashboard", req.url));
+  }
   return NextResponse.next();
 });
 
-export const config = {
-  matcher: [
-    "/dashboard/:path*",
-    "/api/instances/:path*",
-    "/api/templates/:path*",
-    "/api/dashboard/:path*",
-    "/api/users/:path*",
-    "/api/upload/:path*",
-    "/api/bookmarks/:path*",
-    "/api/starred-events/:path*",
-  ],
-};
+export const config = { matcher: ["/dashboard/:path*"] };

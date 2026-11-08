@@ -41,14 +41,14 @@ export function AnalyticsCharts({
         </div>
         <div className="bg-white rounded-xl border border-border p-5 text-center">
           <p className="text-3xl font-bold text-bocra-green">
-            {statusData.find((d) => d.name === "APPROVED")?.value || 0}
+            {statusData.find((d) => d.name === "Approved")?.value || 0}
           </p>
           <p className="text-sm text-muted-foreground">Approved</p>
         </div>
         <div className="bg-white rounded-xl border border-border p-5 text-center">
           <p className="text-3xl font-bold text-bocra-orange">
-            {(statusData.find((d) => d.name === "FLAGGED")?.value || 0) +
-              (statusData.find((d) => d.name === "REJECTED")?.value || 0)}
+            {(statusData.find((d) => d.name === "Needs changes")?.value || 0) +
+              (statusData.find((d) => d.name === "Rejected")?.value || 0)}
           </p>
           <p className="text-sm text-muted-foreground">Flagged / Rejected</p>
         </div>

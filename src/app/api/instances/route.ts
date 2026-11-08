@@ -1,31 +1,26 @@
-import { NextRequest, NextResponse } from "next/server";
+import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireUser, STAFF_ROLES } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
-export async function GET(req: NextRequest) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-  }
+const listSelect = {
+  id: true,
+  status: true,
+  deadline: true,
+  createdAt: true,
+  submittedAt: true,
+  reviewedAt: true,
+  submissionCount: true,
+  template: { select: { id: true, code: true, name: true } },
+  licensee: { select: { id: true, name: true, organizationName: true } },
+} as const;
 
-  const role = (session.user as any).role;
-  const userId = (session.user as any).id;
+export async function GET() {
+  const { user, error } = await requireUser();
+  if (error) return error;
 
-  let instances;
-  if (role === "ADMIN" || role === "SUPERADMIN") {
-    instances = await prisma.instance.findMany({
-      include: { template: true, licensee: true },
-      orderBy: { createdAt: "desc" },
-    });
-  } else {
-    instances = await prisma.instance.findMany({
-      where: { licenseeId: userId },
-      include: { template: true },
-      orderBy: { createdAt: "desc" },
-    });
-  }
-
+  const where = STAFF_ROLES.includes(user.role) ? {} : { licenseeId: user.id };
+  const instances = await prisma.instance.findMany({ where, select: listSelect, orderBy: { createdAt: "desc" } });
   return NextResponse.json(instances);
 }

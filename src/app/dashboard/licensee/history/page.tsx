@@ -2,7 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { redirect } from "next/navigation";
+import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 export default async function LicenseeHistoryPage() {
   const session = await auth();
@@ -39,7 +42,10 @@ export default async function LicenseeHistoryPage() {
                   <div>
                     <p className="font-medium text-sm">{instance.template.name}</p>
                     <p className="text-xs text-muted-foreground">
-                      Submitted {instance.submittedAt ? new Date(instance.submittedAt).toLocaleDateString() : "N/A"}
+                      Submitted {formatDate(instance.submittedAt)} ·{" "}
+                      <Link href={`/dashboard/licensee/instance-runner/${instance.id}`} className="text-bocra-blue hover:underline">
+                        View receipt
+                      </Link>
                     </p>
                   </div>
                   <StatusBadge status={instance.status} />
@@ -58,17 +64,3 @@ export default async function LicenseeHistoryPage() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    SUBMITTED: { label: "Submitted", className: "bg-indigo-100 text-indigo-700" },
-    APPROVED: { label: "Approved", className: "bg-green-100 text-green-700" },
-    FLAGGED: { label: "Flagged", className: "bg-orange-100 text-orange-700" },
-    REJECTED: { label: "Rejected", className: "bg-red-100 text-red-700" },
-  };
-  const s = map[status] || { label: status, className: "bg-gray-100 text-gray-600" };
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${s.className}`}>
-      {s.label}
-    </span>
-  );
-}

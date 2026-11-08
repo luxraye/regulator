@@ -1,57 +1,41 @@
 import { NextRequest, NextResponse } from "next/server";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcryptjs";
+import { prisma } from "@/lib/prisma";
+import { badRequest } from "@/lib/session";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
-  try {
-    const { name, email, password, organizationName, licenseNumber, accountType } =
-      await req.json();
+  const body = await req.json().catch(() => null);
+  if (!body) return badRequest("Invalid request");
 
-    if (!name || !email || !password) {
-      return NextResponse.json(
-        { error: "Name, email, and password are required" },
-        { status: 400 }
-      );
-    }
+  const name = String(body.name ?? "").trim();
+  const email = String(body.email ?? "").trim().toLowerCase();
+  const password = String(body.password ?? "");
+  const organizationName = String(body.organizationName ?? "").trim();
+  const licenseNumber = String(body.licenseNumber ?? "").trim();
+  const isCitizen = body.accountType !== "licensee";
 
-    const isCitizen = accountType === "citizen";
+  if (!name || !email || !password) return badRequest("Name, email, and password are required");
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return badRequest("Email address looks invalid");
+  if (password.length < 8) return badRequest("Password must be at least 8 characters");
+  if (!isCitizen && !organizationName) return badRequest("Organization name is required for licensee accounts");
+  if (!isCitizen && !licenseNumber) return badRequest("Licence number is required for licensee accounts");
 
-    if (!isCitizen && !organizationName) {
-      return NextResponse.json(
-        { error: "Organization name is required for licensee accounts" },
-        { status: 400 }
-      );
-    }
-
-    const existing = await prisma.user.findUnique({ where: { email } });
-    if (existing) {
-      return NextResponse.json(
-        { error: "Email already registered" },
-        { status: 409 }
-      );
-    }
-
-    const passwordHash = await bcrypt.hash(password, 12);
-
-    await prisma.user.create({
-      data: {
-        name,
-        email,
-        passwordHash,
-        role: isCitizen ? "PUBLIC" : "LICENSEE",
-        organizationName: isCitizen ? null : organizationName,
-        licenseNumber: isCitizen ? null : licenseNumber || null,
-      },
-    });
-
-    return NextResponse.json({ message: "Account created" }, { status: 201 });
-  } catch (error) {
-    console.error("Registration error:", error);
-    return NextResponse.json(
-      { error: "Internal server error" },
-      { status: 500 }
-    );
+  if (await prisma.user.findUnique({ where: { email } })) {
+    return NextResponse.json({ error: "Email already registered" }, { status: 409 });
   }
+
+  await prisma.user.create({
+    data: {
+      name: name.slice(0, 200),
+      email,
+      passwordHash: await bcrypt.hash(password, 12),
+      role: isCitizen ? "PUBLIC" : "LICENSEE",
+      organizationName: isCitizen ? null : organizationName.slice(0, 200),
+      licenseNumber: isCitizen ? null : licenseNumber.slice(0, 50),
+    },
+  });
+
+  return NextResponse.json({ message: "Account created" }, { status: 201 });
 }

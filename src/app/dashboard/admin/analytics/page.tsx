@@ -1,28 +1,29 @@
 import { prisma } from "@/lib/prisma";
 import { AnalyticsCharts } from "./analytics-charts";
+import { instanceStatusMeta, scaleLabels, typeLabels } from "@/lib/labels";
 
 export const dynamic = "force-dynamic";
 
 export default async function AnalyticsPage() {
   const instances = await prisma.instance.findMany({
-    include: { template: true, licensee: true },
+    select: { status: true, template: { select: { scale: true, dataType: true } } },
   });
 
   const statusCounts = instances.reduce((acc, i) => {
-    acc[i.status] = (acc[i.status] || 0) + 1;
+    const label = instanceStatusMeta[i.status]?.label ?? i.status;
+    acc[label] = (acc[label] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const scaleCounts = instances.reduce((acc, i) => {
-    const label = i.template.scale === "SCALE_1" ? "Large (Scale 1)" :
-                  i.template.scale === "SCALE_2" ? "Medium (Scale 2)" : "Small (Scale 3)";
+    const label = `Scale ${scaleLabels[i.template.scale] ?? i.template.scale}`;
     acc[label] = (acc[label] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);
 
   const typeCounts = instances.reduce((acc, i) => {
-    const label = i.template.dataType === "TYPE_A" ? "Financial (A)" :
-                  i.template.dataType === "TYPE_B" ? "Technical (B)" : "Public Service (C)";
+    const t = typeLabels[i.template.dataType];
+    const label = t ? `${t.full.split(" (")[0]} (${t.short})` : i.template.dataType;
     acc[label] = (acc[label] || 0) + 1;
     return acc;
   }, {} as Record<string, number>);

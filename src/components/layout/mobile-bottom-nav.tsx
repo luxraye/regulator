@@ -12,6 +12,7 @@ import {
   ClipboardCheck,
   BarChart3,
   PlusCircle,
+  History,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 
@@ -31,12 +32,14 @@ const citizenTabs: TabItem[] = [
 const licenseeTabs: TabItem[] = [
   { href: "/dashboard/licensee", label: "Home", icon: <LayoutDashboard size={20} /> },
   { href: "/dashboard/licensee/instances", label: "Instances", icon: <FileBox size={20} /> },
+  { href: "/dashboard/licensee/history", label: "History", icon: <History size={20} /> },
 ];
 
 const adminTabs: TabItem[] = [
   { href: "/dashboard/admin", label: "Home", icon: <LayoutDashboard size={20} /> },
   { href: "/dashboard/admin/provision", label: "Provision", icon: <PlusCircle size={20} /> },
   { href: "/dashboard/admin/review", label: "Review", icon: <ClipboardCheck size={20} /> },
+  { href: "/dashboard/admin/complaints", label: "Complaints", icon: <MessageSquareWarning size={20} /> },
   { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 size={20} /> },
 ];
 

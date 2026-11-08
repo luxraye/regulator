@@ -1,19 +1,9 @@
 export const dynamic = "force-dynamic";
 
-import {
-  Fingerprint,
-  FileSearch,
-  ShieldCheck,
-  BarChart3,
-  ExternalLink,
-  Database,
-  Eye,
-  Lock,
-  Activity,
-  FileWarning,
-} from "lucide-react";
+import { FileSearch, ShieldCheck, ExternalLink, Database } from "lucide-react";
 import Link from "next/link";
 import { prisma } from "@/lib/prisma";
+import { HashVerifier, ReceiptInspector } from "./verify-tools";
 
 export default async function VerificationToolsPage() {
   const [totalInstances, submittedCount, flaggedCount, auditCount] = await Promise.all([
@@ -22,51 +12,6 @@ export default async function VerificationToolsPage() {
     prisma.instance.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
     prisma.auditLog.count(),
   ]);
-
-  const internalTools = [
-    {
-      icon: <Eye className="w-6 h-6" />,
-      title: "Review Queue",
-      description: "Review submitted instances with raw data, file integrity checks, and automated analysis.",
-      href: "/dashboard/admin/review",
-      color: "text-bocra-blue bg-bocra-blue/10",
-    },
-    {
-      icon: <BarChart3 className="w-6 h-6" />,
-      title: "Analytics Dashboard",
-      description: "Compliance rates, sector breakdowns, submission timelines, and trend analysis.",
-      href: "/dashboard/admin/analytics",
-      color: "text-bocra-green bg-bocra-green/10",
-    },
-    {
-      icon: <Activity className="w-6 h-6" />,
-      title: "Audit Trail",
-      description: "Immutable log of every action: provisions, submissions, reviews, and status changes.",
-      href: "/dashboard/superadmin/audit",
-      color: "text-bocra-amber bg-bocra-amber/10",
-    },
-    {
-      icon: <Fingerprint className="w-6 h-6" />,
-      title: "Hash Verifier",
-      description: "Verify the SHA-256 integrity of any submitted file against the stored hash.",
-      href: "/dashboard/superadmin/verify-hash",
-      color: "text-bocra-orange bg-bocra-orange/10",
-    },
-    {
-      icon: <Lock className="w-6 h-6" />,
-      title: "JWT Inspector",
-      description: "Decode and verify submission receipts to confirm authenticity and tamper-proof status.",
-      href: "/dashboard/superadmin/verify-jwt",
-      color: "text-purple-600 bg-purple-100",
-    },
-    {
-      icon: <FileWarning className="w-6 h-6" />,
-      title: "Flagged Submissions",
-      description: `${flaggedCount} submissions flagged or rejected. Review corrective actions and follow-ups.`,
-      href: "/dashboard/admin/instances",
-      color: "text-red-600 bg-red-100",
-    },
-  ];
 
   const externalLinks = [
     {
@@ -137,22 +82,15 @@ export default async function VerificationToolsPage() {
         </div>
       </div>
 
-      {/* Internal tools */}
-      <h2 className="text-lg font-semibold text-bocra-navy mb-4">Platform Tools</h2>
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mb-10">
-        {internalTools.map((tool) => (
-          <Link
-            key={tool.title}
-            href={tool.href}
-            className="group bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-bocra-blue/30 transition-all"
-          >
-            <div className={`w-10 h-10 rounded-lg ${tool.color} flex items-center justify-center mb-3`}>
-              {tool.icon}
-            </div>
-            <h3 className="font-semibold text-bocra-navy text-sm mb-1">{tool.title}</h3>
-            <p className="text-xs text-muted-foreground leading-relaxed">{tool.description}</p>
-          </Link>
-        ))}
+      <div className="mb-10 grid gap-6 lg:grid-cols-2">
+        <HashVerifier />
+        <ReceiptInspector />
+      </div>
+
+      <div className="mb-10 flex flex-wrap gap-3 text-sm">
+        <Link href="/dashboard/admin/review" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-bocra-light">Review queue →</Link>
+        <Link href="/dashboard/superadmin/audit" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-bocra-light">Audit trail →</Link>
+        <Link href="/dashboard/admin/instances?filter=flagged" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-bocra-light">Flagged submissions ({flaggedCount}) →</Link>
       </div>
 
       {/* External links */}

@@ -2,8 +2,10 @@ export const dynamic = "force-dynamic";
 
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { StatusBadge } from "@/components/ui/status-badge";
 import { redirect } from "next/navigation";
 import Link from "next/link";
+import { formatDate } from "@/lib/utils";
 
 export default async function LicenseeInstancesPage() {
   const session = await auth();
@@ -47,31 +49,28 @@ export default async function LicenseeInstancesPage() {
                     <td className="px-6 py-4 font-medium">{instance.template.name}</td>
                     <td className="px-6 py-4 text-muted-foreground">{instance.template.code}</td>
                     <td className="px-6 py-4 text-muted-foreground">
-                      {new Date(instance.deadline).toLocaleDateString()}
+                      {formatDate(instance.deadline)}
                     </td>
                     <td className="px-6 py-4">
                       <StatusBadge status={instance.status} />
                     </td>
                     <td className="px-6 py-4">
-                      {(instance.status === "PENDING" || instance.status === "IN_PROGRESS") && (
-                        <Link
-                          href={`/dashboard/licensee/instance-runner/${instance.id}`}
-                          className="text-bocra-blue hover:underline text-sm font-medium"
-                        >
-                          Open Runner
-                        </Link>
-                      )}
-                      {instance.status === "SUBMITTED" && (
-                        <span className="text-muted-foreground text-sm">Awaiting review</span>
-                      )}
-                      {(instance.status === "APPROVED" || instance.status === "FLAGGED" || instance.status === "REJECTED") && (
-                        <Link
-                          href={`/dashboard/licensee/instance-runner/${instance.id}`}
-                          className="text-bocra-blue hover:underline text-sm font-medium"
-                        >
-                          View Details
-                        </Link>
-                      )}
+                      <Link
+                        href={`/dashboard/licensee/instance-runner/${instance.id}`}
+                        className={
+                          ["PENDING", "IN_PROGRESS", "FLAGGED"].includes(instance.status)
+                            ? "inline-block rounded-lg bg-bocra-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-bocra-blue/90"
+                            : "text-sm font-medium text-bocra-blue hover:underline"
+                        }
+                      >
+                        {instance.status === "PENDING"
+                          ? "Start"
+                          : instance.status === "IN_PROGRESS"
+                            ? "Continue"
+                            : instance.status === "FLAGGED"
+                              ? "Fix & resubmit"
+                              : "View receipt"}
+                      </Link>
                     </td>
                   </tr>
                 ))}
@@ -84,20 +83,3 @@ export default async function LicenseeInstancesPage() {
   );
 }
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-600" },
-    PENDING: { label: "Pending", className: "bg-amber-100 text-amber-700" },
-    IN_PROGRESS: { label: "In Progress", className: "bg-blue-100 text-blue-700" },
-    SUBMITTED: { label: "Submitted", className: "bg-indigo-100 text-indigo-700" },
-    APPROVED: { label: "Approved", className: "bg-green-100 text-green-700" },
-    FLAGGED: { label: "Flagged", className: "bg-orange-100 text-orange-700" },
-    REJECTED: { label: "Rejected", className: "bg-red-100 text-red-700" },
-  };
-  const s = map[status] || { label: status, className: "bg-gray-100 text-gray-600" };
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${s.className}`}>
-      {s.label}
-    </span>
-  );
-}

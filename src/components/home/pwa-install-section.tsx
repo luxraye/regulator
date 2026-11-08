@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import { Smartphone, Download, QrCode, Check, Share2, Phone } from "lucide-react";
+import { Smartphone, QrCode, Check, Share2, Phone } from "lucide-react";
 import Link from "next/link";
 
 export function PWAInstallSection() {

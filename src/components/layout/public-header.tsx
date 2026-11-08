@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSession } from "next-auth/react";
-import { Menu, X, ChevronDown, ExternalLink, Landmark, Globe2, Search } from "lucide-react";
+import { Menu, X, ChevronDown, ExternalLink, Landmark, Globe2 } from "lucide-react";
 import { useState, useRef, useEffect } from "react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { SearchTrigger } from "@/components/layout/search-modal";
@@ -31,13 +31,8 @@ export function PublicHeader() {
   const dropdownRef = useRef<HTMLDivElement>(null);
   const { locale, setLocale, t } = useLanguage();
 
-  const dashboardHref = session?.user?.role === "LICENSEE"
-    ? "/dashboard/licensee"
-    : session?.user?.role === "ADMIN"
-    ? "/dashboard/admin"
-    : session?.user?.role === "SUPERADMIN"
-    ? "/dashboard/superadmin"
-    : "/login";
+  // /dashboard sends each role to its own home page.
+  const dashboardHref = session?.user ? "/dashboard" : "/login";
 
   useEffect(() => {
     function handleClickOutside(e: MouseEvent) {

@@ -2,7 +2,6 @@
 
 import { useState, useEffect, useRef, useCallback } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
 import {
   Search,
   X,
@@ -16,7 +15,6 @@ import {
   Scale,
   HelpCircle,
   MessageSquareWarning,
-  Phone,
   Command,
 } from "lucide-react";
 import { searchItems, type SearchItem } from "@/lib/search-index";

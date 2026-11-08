@@ -152,12 +152,14 @@ export default function RegisterPage() {
                 </div>
                 <div>
                   <label className="block text-sm font-medium mb-1.5">
-                    License Number <span className="text-muted-foreground font-normal">(optional)</span>
+                    Licence Number
                   </label>
                   <input
                     type="text"
                     value={form.licenseNumber}
                     onChange={(e) => update("licenseNumber", e.target.value)}
+                    placeholder="e.g. LIC-TEL-004"
+                    required
                     className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
                   />
                 </div>

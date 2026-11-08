@@ -7,7 +7,6 @@ import {
   MessageSquareWarning,
   Bookmark,
   Star,
-  ArrowRight,
   FileText,
   Bell,
   Shield,

@@ -1,144 +1,164 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import Link from "next/link";
+import { CheckCircle2, Loader2 } from "lucide-react";
+import { scaleLabels, typeLabels } from "@/lib/labels";
+import type { InstanceSchema } from "@/lib/instance-schema";
+import { cn } from "@/lib/utils";
 
 interface Template {
   id: string;
   code: string;
   name: string;
-  description: string;
+  description: string | null;
   scale: string;
   dataType: string;
+  schema: InstanceSchema;
 }
 
 interface Licensee {
   id: string;
   name: string;
-  organizationName: string;
-  email: string;
+  organizationName: string | null;
+  licenseNumber: string | null;
+}
+
+function defaultDeadline() {
+  const d = new Date(Date.now() + 30 * 86_400_000);
+  return d.toISOString().slice(0, 10);
 }
 
 export default function ProvisionPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
   const [licensees, setLicensees] = useState<Licensee[]>([]);
-  const [selectedTemplate, setSelectedTemplate] = useState("");
-  const [selectedLicensee, setSelectedLicensee] = useState("");
-  const [deadline, setDeadline] = useState("");
-  const [loading, setLoading] = useState(false);
+  const [templateId, setTemplateId] = useState("");
+  const [selected, setSelected] = useState<string[]>([]);
+  const [deadline, setDeadline] = useState(defaultDeadline);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [done, setDone] = useState<number | null>(null);
 
   useEffect(() => {
-    fetch("/api/templates").then((r) => r.json()).then(setTemplates).catch(() => {});
-    fetch("/api/users?role=LICENSEE").then((r) => r.json()).then(setLicensees).catch(() => {});
+    fetch("/api/templates").then((r) => (r.ok ? r.json() : [])).then(setTemplates);
+    fetch("/api/users?role=LICENSEE").then((r) => (r.ok ? r.json() : [])).then(setLicensees);
   }, []);
 
-  async function handleSubmit(e: React.FormEvent) {
+  const template = useMemo(() => templates.find((t) => t.id === templateId), [templates, templateId]);
+  const toggle = (id: string) => setSelected((s) => (s.includes(id) ? s.filter((x) => x !== id) : [...s, id]));
+
+  async function submit(e: React.FormEvent) {
     e.preventDefault();
     setError("");
-    setSuccess("");
-    setLoading(true);
-
+    setDone(null);
+    setSaving(true);
     const res = await fetch("/api/instances/provision", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({
-        templateId: selectedTemplate,
-        licenseeId: selectedLicensee,
-        deadline,
-      }),
+      body: JSON.stringify({ templateId, licenseeIds: selected, deadline }),
     });
-
-    setLoading(false);
-
-    if (!res.ok) {
-      const data = await res.json();
-      setError(data.error || "Failed to provision instance");
-      return;
-    }
-
-    setSuccess("Instance provisioned successfully!");
-    setSelectedTemplate("");
-    setSelectedLicensee("");
-    setDeadline("");
+    const data = await res.json().catch(() => ({}));
+    setSaving(false);
+    if (!res.ok) return setError(data.error || "Could not provision");
+    setDone(data.created.length);
+    setSelected([]);
   }
 
   return (
-    <div>
+    <div className="max-w-4xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-bocra-navy">Provision Instance</h1>
-        <p className="text-muted-foreground mt-1">
-          Assign a compliance instance to a licensee
-        </p>
+        <h1 className="text-2xl font-bold text-bocra-navy">Provision instances</h1>
+        <p className="mt-1 text-muted-foreground">Send a compliance template to one or more licensees with a deadline. Each one is notified.</p>
       </div>
 
-      <div className="bg-white rounded-xl border border-border p-6 max-w-2xl">
-        <form onSubmit={handleSubmit} className="space-y-5">
-          {error && (
-            <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-200">
-              {error}
-            </div>
+      {done !== null && (
+        <div className="mb-4 flex items-center justify-between gap-3 rounded-lg border border-green-200 bg-green-50 p-3 text-sm text-green-800">
+          <span className="flex items-center gap-2"><CheckCircle2 size={16} /> {done} instance{done === 1 ? "" : "s"} issued.</span>
+          <Link href="/dashboard/admin/instances?filter=open" className="font-medium underline">View open instances</Link>
+        </div>
+      )}
+      {error && <div className="mb-4 rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+
+      <form onSubmit={submit} className="space-y-6">
+        <section className="rounded-xl border border-border bg-white p-5">
+          <h2 className="mb-3 font-semibold text-bocra-navy">1. Template</h2>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {templates.map((t) => (
+              <button
+                type="button"
+                key={t.id}
+                onClick={() => setTemplateId(t.id)}
+                className={cn(
+                  "rounded-lg border p-3 text-left transition-colors",
+                  templateId === t.id ? "border-bocra-blue bg-bocra-blue/5 ring-1 ring-bocra-blue" : "border-border hover:bg-bocra-light"
+                )}
+              >
+                <p className="text-sm font-medium">{t.name}</p>
+                <p className="text-xs text-muted-foreground">
+                  <span className="font-mono">{t.code}</span> · {typeLabels[t.dataType]?.full.split(" (")[0]} · Scale {scaleLabels[t.scale]?.split(" · ")[0]}
+                </p>
+              </button>
+            ))}
+          </div>
+          {template && (
+            <p className="mt-3 text-xs text-muted-foreground">
+              Asks for {template.schema.fields.length} fields and {template.schema.required_files.length} file
+              {template.schema.required_files.length === 1 ? "" : "s"}. {template.description}
+            </p>
           )}
-          {success && (
-            <div className="bg-green-50 text-green-600 text-sm p-3 rounded-lg border border-green-200">
-              {success}
-            </div>
-          )}
+        </section>
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Template</label>
-            <select
-              value={selectedTemplate}
-              onChange={(e) => setSelectedTemplate(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-              required
+        <section className="rounded-xl border border-border bg-white p-5">
+          <div className="mb-3 flex items-center justify-between">
+            <h2 className="font-semibold text-bocra-navy">2. Licensees</h2>
+            <button
+              type="button"
+              onClick={() => setSelected(selected.length === licensees.length ? [] : licensees.map((l) => l.id))}
+              className="text-xs font-medium text-bocra-blue hover:underline"
             >
-              <option value="">Select a template...</option>
-              {templates.map((t) => (
-                <option key={t.id} value={t.id}>
-                  {t.code} - {t.name}
-                </option>
-              ))}
-            </select>
+              {selected.length === licensees.length ? "Clear" : "Select all"}
+            </button>
           </div>
-
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Licensee</label>
-            <select
-              value={selectedLicensee}
-              onChange={(e) => setSelectedLicensee(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-              required
-            >
-              <option value="">Select a licensee...</option>
-              {licensees.map((l) => (
-                <option key={l.id} value={l.id}>
-                  {l.organizationName} ({l.name})
-                </option>
-              ))}
-            </select>
+          <div className="grid gap-2 sm:grid-cols-2">
+            {licensees.map((l) => (
+              <label
+                key={l.id}
+                className={cn(
+                  "flex cursor-pointer items-center gap-3 rounded-lg border p-3 transition-colors",
+                  selected.includes(l.id) ? "border-bocra-blue bg-bocra-blue/5" : "border-border hover:bg-bocra-light"
+                )}
+              >
+                <input type="checkbox" checked={selected.includes(l.id)} onChange={() => toggle(l.id)} className="h-4 w-4 accent-bocra-blue" />
+                <span>
+                  <span className="block text-sm font-medium">{l.organizationName}</span>
+                  <span className="block text-xs text-muted-foreground">{l.licenseNumber ?? "—"} · {l.name}</span>
+                </span>
+              </label>
+            ))}
           </div>
+        </section>
 
-          <div>
-            <label className="block text-sm font-medium mb-1.5">Deadline</label>
-            <input
-              type="date"
-              value={deadline}
-              onChange={(e) => setDeadline(e.target.value)}
-              className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-              required
-            />
-          </div>
+        <section className="rounded-xl border border-border bg-white p-5">
+          <h2 className="mb-3 font-semibold text-bocra-navy">3. Deadline</h2>
+          <input
+            type="date"
+            value={deadline}
+            min={new Date().toISOString().slice(0, 10)}
+            onChange={(e) => setDeadline(e.target.value)}
+            className="rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
+            required
+          />
+        </section>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="px-6 py-2.5 bg-bocra-navy text-white rounded-lg font-medium hover:bg-bocra-navy/90 transition-colors disabled:opacity-50"
-          >
-            {loading ? "Provisioning..." : "Provision Instance"}
-          </button>
-        </form>
-      </div>
+        <button
+          type="submit"
+          disabled={saving || !templateId || selected.length === 0}
+          className="flex items-center gap-2 rounded-lg bg-bocra-navy px-6 py-2.5 text-sm font-medium text-white hover:bg-bocra-navy/90 disabled:opacity-40"
+        >
+          {saving && <Loader2 size={15} className="animate-spin" />}
+          Issue {selected.length || ""} instance{selected.length === 1 ? "" : "s"}
+        </button>
+      </form>
     </div>
   );
 }

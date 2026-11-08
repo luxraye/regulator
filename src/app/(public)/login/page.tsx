@@ -30,7 +30,9 @@ export default function LoginPage() {
       return;
     }
 
-    router.push("/dashboard");
+    // Only follow same-site callback paths.
+    const callback = new URLSearchParams(window.location.search).get("callbackUrl");
+    router.push(callback && callback.startsWith("/") && !callback.startsWith("//") ? callback : "/dashboard");
     router.refresh();
   }
 

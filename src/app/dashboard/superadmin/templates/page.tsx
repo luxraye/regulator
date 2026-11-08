@@ -1,194 +1,209 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useEffect, useMemo, useState } from "react";
+import { ChevronDown, ChevronRight, Loader2, Plus } from "lucide-react";
+import { DATA_TYPES, SCALES, scaleLabels, typeLabels } from "@/lib/labels";
+import { parseSchema, type InstanceSchema } from "@/lib/instance-schema";
+import { formatDate } from "@/lib/utils";
 
 interface Template {
   id: string;
   code: string;
   name: string;
-  description: string;
+  description: string | null;
   scale: string;
   dataType: string;
+  schema: InstanceSchema;
   createdAt: string;
+  _count?: { instances: number };
 }
+
+const STARTER = JSON.stringify(
+  {
+    fields: [
+      { key: "reporting_period", label: "Reporting Period", type: "text", required: true, hint: "Q1 2026", validation: { pattern: "^Q[1-4] \\d{4}$" } },
+      { key: "active_subscribers", label: "Active Subscribers", type: "number", required: true, validation: { min: 0 } },
+      { key: "notes", label: "Notes", type: "textarea", required: false },
+    ],
+    required_files: [{ key: "supporting_report", label: "Supporting Report", extensions: [".pdf", ".xlsx"], maxSizeMB: 10 }],
+  },
+  null,
+  2
+);
+
+const EMPTY = { code: "", name: "", description: "", scale: "SCALE_1", dataType: "TYPE_A", schema: STARTER };
 
 export default function TemplatesPage() {
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [loading, setLoading] = useState(true);
   const [showForm, setShowForm] = useState(false);
-  const [form, setForm] = useState({
-    code: "",
-    name: "",
-    description: "",
-    scale: "SCALE_1",
-    dataType: "TYPE_A",
-    schema: '{\n  "fields": [],\n  "required_files": []\n}',
-  });
-  const [loading, setLoading] = useState(false);
+  const [expanded, setExpanded] = useState<string | null>(null);
+  const [form, setForm] = useState(EMPTY);
+  const [saving, setSaving] = useState(false);
   const [error, setError] = useState("");
 
   useEffect(() => {
     fetch("/api/templates")
-      .then((r) => r.json())
+      .then((r) => (r.ok ? r.json() : []))
       .then(setTemplates)
-      .catch(() => {});
+      .finally(() => setLoading(false));
   }, []);
 
-  async function handleCreate(e: React.FormEvent) {
-    e.preventDefault();
-    setError("");
-    setLoading(true);
-
+  const schemaCheck = useMemo(() => {
     try {
-      const schemaObj = JSON.parse(form.schema);
-      const res = await fetch("/api/templates", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ ...form, schema: schemaObj }),
-      });
-
-      if (!res.ok) {
-        const data = await res.json();
-        setError(data.error || "Failed to create template");
-        setLoading(false);
-        return;
-      }
-
-      const created = await res.json();
-      setTemplates((prev) => [created, ...prev]);
-      setShowForm(false);
-      setForm({ code: "", name: "", description: "", scale: "SCALE_1", dataType: "TYPE_A", schema: '{\n  "fields": [],\n  "required_files": []\n}' });
-    } catch {
-      setError("Invalid JSON schema");
+      const parsed = parseSchema(JSON.parse(form.schema));
+      return parsed.error ? { error: parsed.error } : { ok: parsed.schema };
+    } catch (e) {
+      return { error: `Not valid JSON: ${(e as Error).message}` };
     }
-    setLoading(false);
+  }, [form.schema]);
+
+  const taken = templates.find((t) => t.scale === form.scale && t.dataType === form.dataType);
+
+  async function create(e: React.FormEvent) {
+    e.preventDefault();
+    if ("error" in schemaCheck) return setError(schemaCheck.error!);
+    setError("");
+    setSaving(true);
+    const res = await fetch("/api/templates", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ ...form, code: form.code.toUpperCase(), schema: schemaCheck.ok }),
+    });
+    const data = await res.json().catch(() => ({}));
+    setSaving(false);
+    if (!res.ok) return setError(data.error || "Could not create template");
+    setTemplates((prev) => [{ ...data, _count: { instances: 0 } }, ...prev]);
+    setShowForm(false);
+    setForm(EMPTY);
   }
 
-  const scaleLabel = (s: string) =>
-    s === "SCALE_1" ? "Scale 1 (Large)" : s === "SCALE_2" ? "Scale 2 (Medium)" : "Scale 3 (Small)";
-  const typeLabel = (t: string) =>
-    t === "TYPE_A" ? "Type A (Financial)" : t === "TYPE_B" ? "Type B (Technical)" : "Type C (Public)";
+  const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
+    setForm((p) => ({ ...p, [k]: e.target.value }));
+  const input = "w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue";
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
           <h1 className="text-2xl font-bold text-bocra-navy">Templates</h1>
-          <p className="text-muted-foreground mt-1">Manage instance templates</p>
+          <p className="mt-1 text-muted-foreground">The forms licensees fill in. Each sits in one cell of the classification matrix.</p>
         </div>
         <button
-          onClick={() => setShowForm(!showForm)}
-          className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
+          onClick={() => setShowForm((s) => !s)}
+          className="flex items-center gap-1.5 rounded-lg bg-bocra-navy px-4 py-2 text-sm font-medium text-white hover:bg-bocra-navy/90"
         >
-          {showForm ? "Cancel" : "+ New Template"}
+          <Plus size={16} /> {showForm ? "Close" : "New template"}
         </button>
       </div>
 
       {showForm && (
-        <div className="bg-white rounded-xl border border-border p-6 mb-6">
-          <form onSubmit={handleCreate} className="space-y-4">
-            {error && (
-              <div className="bg-red-50 text-red-600 text-sm p-3 rounded-lg border border-red-200">{error}</div>
-            )}
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Code</label>
-                <input
-                  value={form.code}
-                  onChange={(e) => setForm((p) => ({ ...p, code: e.target.value }))}
-                  placeholder="e.g. A1_2026"
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-                  required
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Name</label>
-                <input
-                  value={form.name}
-                  onChange={(e) => setForm((p) => ({ ...p, name: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-                  required
-                />
-              </div>
+        <form onSubmit={create} className="mb-6 space-y-4 rounded-xl border border-border bg-white p-6">
+          {error && <div className="rounded-lg border border-red-200 bg-red-50 p-3 text-sm text-red-700">{error}</div>}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Code</label>
+              <input value={form.code} onChange={set("code")} placeholder="D1_2026" className={`${input} font-mono uppercase`} required />
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Description</label>
-              <input
-                value={form.description}
-                onChange={(e) => setForm((p) => ({ ...p, description: e.target.value }))}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-              />
+              <label className="mb-1.5 block text-sm font-medium">Name</label>
+              <input value={form.name} onChange={set("name")} placeholder="Infrastructure Census - Major Telecom" className={input} required />
             </div>
-            <div className="grid grid-cols-2 gap-4">
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Scale</label>
-                <select
-                  value={form.scale}
-                  onChange={(e) => setForm((p) => ({ ...p, scale: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm"
-                >
-                  <option value="SCALE_1">Scale 1 (Large Telecom)</option>
-                  <option value="SCALE_2">Scale 2 (Medium ISP/Broadcaster)</option>
-                  <option value="SCALE_3">Scale 3 (Small VANS/Courier)</option>
-                </select>
-              </div>
-              <div>
-                <label className="block text-sm font-medium mb-1.5">Data Type</label>
-                <select
-                  value={form.dataType}
-                  onChange={(e) => setForm((p) => ({ ...p, dataType: e.target.value }))}
-                  className="w-full px-3 py-2 border border-border rounded-lg text-sm"
-                >
-                  <option value="TYPE_A">Type A (Financial)</option>
-                  <option value="TYPE_B">Type B (Technical)</option>
-                  <option value="TYPE_C">Type C (Public Service)</option>
-                </select>
-              </div>
+          </div>
+          <div>
+            <label className="mb-1.5 block text-sm font-medium">Description</label>
+            <input value={form.description} onChange={set("description")} className={input} />
+          </div>
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div>
+              <label className="mb-1.5 block text-sm font-medium">Operator scale</label>
+              <select value={form.scale} onChange={set("scale")} className={`${input} bg-white`}>
+                {SCALES.map((s) => <option key={s} value={s}>{scaleLabels[s]}</option>)}
+              </select>
             </div>
             <div>
-              <label className="block text-sm font-medium mb-1.5">Schema (JSON)</label>
-              <textarea
-                value={form.schema}
-                onChange={(e) => setForm((p) => ({ ...p, schema: e.target.value }))}
-                rows={10}
-                className="w-full px-3 py-2 border border-border rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-bocra-blue"
-              />
+              <label className="mb-1.5 block text-sm font-medium">Data type</label>
+              <select value={form.dataType} onChange={set("dataType")} className={`${input} bg-white`}>
+                {DATA_TYPES.map((t) => <option key={t} value={t}>{typeLabels[t].short} · {typeLabels[t].full}</option>)}
+              </select>
             </div>
-            <button
-              type="submit"
-              disabled={loading}
-              className="px-6 py-2.5 bg-bocra-navy text-white rounded-lg font-medium hover:bg-bocra-navy/90 transition-colors disabled:opacity-50"
-            >
-              {loading ? "Creating..." : "Create Template"}
-            </button>
-          </form>
-        </div>
+          </div>
+          {taken && (
+            <p className="text-xs text-amber-700">
+              {taken.code} already covers this cell. You can still add another, for example a new reporting year.
+            </p>
+          )}
+          <div>
+            <div className="mb-1.5 flex items-center justify-between">
+              <label className="text-sm font-medium">Schema (JSON)</label>
+              <span className={`text-xs ${"error" in schemaCheck ? "text-red-600" : "text-green-700"}`}>
+                {"error" in schemaCheck
+                  ? schemaCheck.error
+                  : `${schemaCheck.ok!.fields.length} fields, ${schemaCheck.ok!.required_files.length} files`}
+              </span>
+            </div>
+            <textarea value={form.schema} onChange={set("schema")} rows={14} spellCheck={false} className={`${input} font-mono text-xs`} />
+            <p className="mt-1 text-xs text-muted-foreground">
+              Field types: text, number, textarea, date, select (with &quot;options&quot;). Validation: min, max, pattern.
+              Files: key, label, extensions, maxSizeMB, optional.
+            </p>
+          </div>
+          <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-bocra-navy px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+            {saving && <Loader2 size={14} className="animate-spin" />} Create template
+          </button>
+        </form>
       )}
 
-      <div className="bg-white rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th className="px-6 py-3 font-medium text-muted-foreground">Code</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Name</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Scale</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Type</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Created</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
+      <div className="overflow-hidden rounded-xl border border-border bg-white">
+        {loading ? (
+          <p className="py-12 text-center text-sm text-muted-foreground">Loading…</p>
+        ) : (
+          <ul className="divide-y divide-border">
             {templates.map((t) => (
-              <tr key={t.id} className="hover:bg-bocra-light/50">
-                <td className="px-6 py-3 font-mono font-medium">{t.code}</td>
-                <td className="px-6 py-3">{t.name}</td>
-                <td className="px-6 py-3 text-muted-foreground">{scaleLabel(t.scale)}</td>
-                <td className="px-6 py-3 text-muted-foreground">{typeLabel(t.dataType)}</td>
-                <td className="px-6 py-3 text-muted-foreground">
-                  {new Date(t.createdAt).toLocaleDateString()}
-                </td>
-              </tr>
+              <li key={t.id}>
+                <button onClick={() => setExpanded(expanded === t.id ? null : t.id)} className="flex w-full items-center gap-3 px-5 py-3 text-left hover:bg-bocra-light/60">
+                  {expanded === t.id ? <ChevronDown size={16} /> : <ChevronRight size={16} />}
+                  <span className="w-24 shrink-0 font-mono text-sm font-medium">{t.code}</span>
+                  <span className="min-w-0 flex-1">
+                    <span className="block truncate text-sm font-medium">{t.name}</span>
+                    <span className="block text-xs text-muted-foreground">
+                      {typeLabels[t.dataType]?.full} · Scale {scaleLabels[t.scale]}
+                    </span>
+                  </span>
+                  <span className="hidden text-xs text-muted-foreground sm:block">
+                    {t._count?.instances ?? 0} instance{t._count?.instances === 1 ? "" : "s"} · {formatDate(t.createdAt)}
+                  </span>
+                </button>
+                {expanded === t.id && (
+                  <div className="grid gap-4 border-t border-border bg-bocra-light/40 px-5 py-4 text-sm sm:grid-cols-2">
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Fields</p>
+                      <ul className="space-y-1">
+                        {t.schema.fields.map((f) => (
+                          <li key={f.key}>
+                            {f.label} <span className="text-xs text-muted-foreground">({f.type}{f.required ? ", required" : ""})</span>
+                          </li>
+                        ))}
+                      </ul>
+                    </div>
+                    <div>
+                      <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-muted-foreground">Files</p>
+                      <ul className="space-y-1">
+                        {t.schema.required_files.map((f) => (
+                          <li key={f.key}>
+                            {f.label} <span className="text-xs text-muted-foreground">({f.extensions.join(", ")} · {f.maxSizeMB} MB)</span>
+                          </li>
+                        ))}
+                        {t.schema.required_files.length === 0 && <li className="text-muted-foreground">None</li>}
+                      </ul>
+                    </div>
+                    {t.description && <p className="text-muted-foreground sm:col-span-2">{t.description}</p>}
+                  </div>
+                )}
+              </li>
             ))}
-          </tbody>
-        </table>
+          </ul>
+        )}
       </div>
     </div>
   );

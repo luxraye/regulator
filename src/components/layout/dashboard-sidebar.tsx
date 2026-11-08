@@ -22,6 +22,7 @@ import {
   Bookmark,
   Star,
   MessageSquareWarning,
+  ScrollText,
 } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
@@ -51,6 +52,7 @@ const adminNav: NavItem[] = [
   { href: "/dashboard/admin/provision", label: "Provision", icon: <PlusCircle size={20} /> },
   { href: "/dashboard/admin/instances", label: "All Instances", icon: <FileBox size={20} /> },
   { href: "/dashboard/admin/review", label: "Review Queue", icon: <ClipboardCheck size={20} /> },
+  { href: "/dashboard/admin/complaints", label: "Complaints", icon: <MessageSquareWarning size={20} /> },
   { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 size={20} /> },
 ];
 
@@ -60,6 +62,7 @@ const superAdminNav: NavItem[] = [
   { href: "/dashboard/superadmin/users", label: "Users", icon: <Users size={20} /> },
   { href: "/dashboard/superadmin/matrix", label: "Matrix", icon: <Grid3X3 size={20} /> },
   { href: "/dashboard/superadmin/tools", label: "Verification", icon: <Wrench size={20} /> },
+  { href: "/dashboard/superadmin/audit", label: "Audit Trail", icon: <ScrollText size={20} /> },
   { href: "/dashboard/superadmin/settings", label: "Settings", icon: <Settings size={20} /> },
 ];
 
@@ -80,7 +83,7 @@ export function DashboardSidebar() {
   return (
     <aside
       className={cn(
-        "bg-bocra-navy text-white flex flex-col transition-all duration-200 min-h-screen",
+        "bg-bocra-navy text-white flex flex-col transition-all duration-200 h-screen",
         collapsed ? "w-16" : "w-64"
       )}
     >
@@ -104,7 +107,7 @@ export function DashboardSidebar() {
         </button>
       </div>
 
-      <nav className="flex-1 py-4 space-y-1 px-2">
+      <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
         {nav.map((item) => {
           const overviewPaths = ["/dashboard/admin", "/dashboard/licensee", "/dashboard/citizen"];
           const isActive = pathname === item.href || 

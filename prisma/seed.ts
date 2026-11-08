@@ -1,5 +1,9 @@
 import { PrismaClient, Role, Scale, DataType, InstanceStatus, ComplaintStatus } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
+import crypto from "crypto";
+import { signSubmission } from "../src/lib/jwt-sign";
+import { canonicalFields } from "../src/lib/instance-schema";
+import { sha256 } from "../src/lib/hash";
 
 const prisma = new PrismaClient();
 
@@ -127,8 +131,8 @@ async function main() {
           },
         ],
         required_files: [
-          { key: "financial_statements", label: "Audited Financial Statements", extensions: [".pdf", ".xlsx"], maxSizeMB: 50 },
-          { key: "transaction_logs", label: "Mobile Money Transaction Logs", extensions: [".csv", ".json"], maxSizeMB: 100 },
+          { key: "financial_statements", label: "Audited Financial Statements", extensions: [".pdf", ".xlsx"], maxSizeMB: 4 },
+          { key: "transaction_logs", label: "Mobile Money Transaction Logs", extensions: [".csv", ".json"], maxSizeMB: 4 },
         ],
       },
     },
@@ -175,7 +179,7 @@ async function main() {
           },
         ],
         required_files: [
-          { key: "performance_logs", label: "Network Performance Logs", extensions: [".csv"], maxSizeMB: 50 },
+          { key: "performance_logs", label: "Network Performance Logs", extensions: [".csv"], maxSizeMB: 4 },
         ],
       },
     },
@@ -222,80 +226,197 @@ async function main() {
           },
         ],
         required_files: [
-          { key: "complaint_register", label: "Complaint Register", extensions: [".csv", ".xlsx"], maxSizeMB: 20 },
+          { key: "complaint_register", label: "Complaint Register", extensions: [".csv", ".xlsx"], maxSizeMB: 4 },
         ],
       },
     },
   });
 
+  const extraTemplates = [
+    {
+      code: "D1_2026",
+      name: "Infrastructure Census - Major Telecom",
+      description: "Annual count of towers, fibre and sites, used for national coverage planning and infrastructure sharing.",
+      scale: Scale.SCALE_1,
+      dataType: DataType.TYPE_D,
+      schema: {
+        fields: [
+          { key: "reporting_year", label: "Reporting Year", type: "text", required: true, hint: "2026", validation: { pattern: "^20\\d{2}$" } },
+          { key: "tower_count", label: "Towers in Service", type: "number", required: true, validation: { min: 0 } },
+          { key: "shared_towers", label: "Towers Shared with Other Operators", type: "number", required: true, validation: { min: 0 } },
+          { key: "fibre_km", label: "Fibre Route Length (km)", type: "number", required: true, validation: { min: 0 } },
+          { key: "coverage_percentage", label: "Population Coverage (%)", type: "number", required: true, validation: { min: 0, max: 100 } },
+          { key: "rural_sites_added", label: "New Rural Sites This Year", type: "number", required: false, validation: { min: 0 } },
+        ],
+        required_files: [{ key: "site_register", label: "Site Register (GPS)", extensions: [".csv", ".xlsx"], maxSizeMB: 4 }],
+      },
+    },
+    {
+      code: "E2_2026",
+      name: "Cybersecurity & Data Protection Return",
+      description: "Security posture and incident reporting for large operators under the Cybercrime and Data Protection Acts.",
+      scale: Scale.SCALE_2,
+      dataType: DataType.TYPE_E,
+      schema: {
+        fields: [
+          { key: "security_incidents", label: "Reportable Security Incidents", type: "number", required: true, validation: { min: 0 } },
+          { key: "data_breaches", label: "Personal Data Breaches", type: "number", required: true, validation: { min: 0 } },
+          { key: "iso27001_status", label: "ISO 27001 Status", type: "select", required: true, options: ["Certified", "In progress", "Not started"] },
+          { key: "last_pen_test", label: "Date of Last Penetration Test", type: "date", required: true },
+          { key: "dpo_name", label: "Data Protection Officer", type: "text", required: true },
+        ],
+        required_files: [
+          { key: "incident_log", label: "Incident Log", extensions: [".csv", ".pdf"], maxSizeMB: 4 },
+          { key: "pen_test_summary", label: "Penetration Test Summary", extensions: [".pdf"], maxSizeMB: 4, optional: true },
+        ],
+      },
+    },
+    {
+      code: "F4_2026",
+      name: "Licence Conditions & Governance - Courier",
+      description: "Short governance return for small courier and postal licensees.",
+      scale: Scale.SCALE_4,
+      dataType: DataType.TYPE_F,
+      schema: {
+        fields: [
+          { key: "licence_number", label: "Licence Number", type: "text", required: true },
+          { key: "employees", label: "Employees in Botswana", type: "number", required: true, validation: { min: 0 } },
+          { key: "citizen_ownership", label: "Citizen Ownership (%)", type: "number", required: true, validation: { min: 0, max: 100 } },
+          { key: "branches", label: "Branches / Drop-off Points", type: "number", required: true, validation: { min: 0 } },
+        ],
+        required_files: [{ key: "tax_clearance", label: "BURS Tax Clearance Certificate", extensions: [".pdf"], maxSizeMB: 4 }],
+      },
+    },
+  ];
+
+  for (const t of extraTemplates) {
+    await prisma.template.upsert({
+      where: { code: t.code },
+      update: {},
+      create: { ...t, createdById: superAdmin.id },
+    });
+  }
+
   console.log("Templates seeded.");
 
-  // Sample Instances
-  const crypto = require("crypto");
+  // ===== Sample instances =====
+  // Recreated on every seed so dates stay relative to today and receipts are valid.
+  const day = 86_400_000;
+  const ago = (d: number) => new Date(Date.now() - d * day);
+  const ahead = (d: number) => new Date(Date.now() + d * day);
 
-  await prisma.instance.upsert({
-    where: { id: "inst-mascom-a1" },
-    update: {},
-    create: {
-      id: "inst-mascom-a1",
-      templateId: templateA1.id,
-      licenseeId: mascom.id,
-      assignedById: admin.id,
-      status: InstanceStatus.PENDING,
-      deadline: new Date("2026-04-30"),
-      encryptionKey: crypto.randomBytes(32).toString("hex"),
-    },
-  });
+  const demoIds = ["inst-mascom-a1", "inst-orange-a1", "inst-btc-b2", "inst-mascom-c3", "inst-btc-a1", "inst-orange-b2"];
+  await prisma.auditLog.deleteMany({ where: { instanceId: { in: demoIds } } });
+  await prisma.instance.deleteMany({ where: { id: { in: demoIds } } });
 
-  await prisma.instance.upsert({
-    where: { id: "inst-orange-a1" },
-    update: {},
-    create: {
-      id: "inst-orange-a1",
-      templateId: templateA1.id,
-      licenseeId: orange.id,
-      assignedById: admin.id,
-      status: InstanceStatus.SUBMITTED,
-      deadline: new Date("2026-04-15"),
-      encryptionKey: crypto.randomBytes(32).toString("hex"),
-      submittedAt: new Date("2026-03-20"),
-    },
-  });
+  type Demo = {
+    id: string;
+    template: { id: string; code: string; name: string };
+    licensee: { id: string; organizationName: string | null };
+    status: InstanceStatus;
+    deadline: Date;
+    createdAt: Date;
+    fields?: Record<string, string>;
+    files?: { key: string; name: string; type: string; body: string }[];
+    submittedAt?: Date;
+    review?: { status: InstanceStatus; at: Date; notes: string };
+  };
 
-  await prisma.instance.upsert({
-    where: { id: "inst-btc-b2" },
-    update: {},
-    create: {
-      id: "inst-btc-b2",
-      templateId: templateB2.id,
-      licenseeId: btc.id,
-      assignedById: admin.id,
-      status: InstanceStatus.APPROVED,
-      deadline: new Date("2026-03-31"),
-      encryptionKey: crypto.randomBytes(32).toString("hex"),
-      submittedAt: new Date("2026-03-15"),
-      reviewedAt: new Date("2026-03-18"),
-      reviewedById: admin.id,
-      reviewNotes: "All metrics within acceptable range. Approved.",
+  const demos: Demo[] = [
+    { id: "inst-mascom-a1", template: templateA1, licensee: mascom, status: InstanceStatus.PENDING, deadline: ahead(21), createdAt: ago(5) },
+    {
+      id: "inst-btc-a1", template: templateA1, licensee: btc, status: InstanceStatus.IN_PROGRESS, deadline: ahead(4), createdAt: ago(12),
+      fields: { revenue_total: "1240000000", mobile_money_transactions: "3880000" },
     },
-  });
+    {
+      id: "inst-orange-a1", template: templateA1, licensee: orange, status: InstanceStatus.SUBMITTED, deadline: ahead(10), createdAt: ago(20), submittedAt: ago(1),
+      fields: { revenue_total: "2105000000", mobile_money_transactions: "9120000", mobile_money_volume: "4380000000", compliance_notes: "Orange Money float fully backed by trust account at Stanbic. Q3 agent audit attached in the transaction logs." },
+      files: [
+        { key: "financial_statements", name: "orange-fy2026-statements.xlsx", type: "text/csv", body: "line_item,amount_bwp\nService revenue,1980000000\nOther revenue,125000000\nOperating costs,1460000000\n" },
+        { key: "transaction_logs", name: "orange-money-q3.csv", type: "text/csv", body: "month,transactions,volume_bwp\nJul,3010000,1440000000\nAug,3050000,1462000000\nSep,3060000,1478000000\n" },
+      ],
+    },
+    {
+      id: "inst-btc-b2", template: templateB2, licensee: btc, status: InstanceStatus.APPROVED, deadline: ago(30), createdAt: ago(60), submittedAt: ago(35),
+      fields: { spectrum_band: "2600", coverage_percentage: "87", uptime_percentage: "99.4", qos_score: "84" },
+      files: [{ key: "performance_logs", name: "btc-network-perf.csv", type: "text/csv", body: "week,uptime,latency_ms\n1,99.5,38\n2,99.2,41\n3,99.6,37\n4,99.3,40\n" }],
+      review: { status: InstanceStatus.APPROVED, at: ago(33), notes: "All metrics within acceptable range. Approved." },
+    },
+    {
+      id: "inst-orange-b2", template: templateB2, licensee: orange, status: InstanceStatus.SUBMITTED, deadline: ago(2), createdAt: ago(40), submittedAt: ago(0.2),
+      fields: { spectrum_band: "1800", coverage_percentage: "91", uptime_percentage: "96.1", qos_score: "71" },
+      files: [{ key: "performance_logs", name: "orange-network-perf.csv", type: "text/csv", body: "week,uptime,latency_ms\n1,97.0,52\n2,95.4,61\n3,96.2,55\n4,95.8,58\n" }],
+    },
+    {
+      id: "inst-mascom-c3", template: templateC3, licensee: mascom, status: InstanceStatus.FLAGGED, deadline: ahead(7), createdAt: ago(25), submittedAt: ago(9),
+      fields: { complaints_received: "412", complaints_resolved: "305", avg_resolution_days: "38", summary: "Most complaints relate to unsolicited data bundle subscriptions after USSD time-outs and to delayed porting." },
+      files: [{ key: "complaint_register", name: "mascom-complaints-q3.csv", type: "text/csv", body: "ref,category,opened,closed\nMSC-1,Billing,2026-07-02,2026-08-20\nMSC-2,Porting,2026-07-05,\n" }],
+      review: { status: InstanceStatus.FLAGGED, at: ago(6), notes: "Resolution time of 38 days exceeds the 30-day regulatory threshold. Please attach a corrective action plan in the summary and resubmit." },
+    },
+  ];
 
-  await prisma.instance.upsert({
-    where: { id: "inst-mascom-c3" },
-    update: {},
-    create: {
-      id: "inst-mascom-c3",
-      templateId: templateC3.id,
-      licenseeId: mascom.id,
-      assignedById: admin.id,
-      status: InstanceStatus.FLAGGED,
-      deadline: new Date("2026-03-25"),
-      encryptionKey: crypto.randomBytes(32).toString("hex"),
-      submittedAt: new Date("2026-03-19"),
-      reviewedAt: new Date("2026-03-21"),
-      reviewedById: admin.id,
-      reviewNotes: "Resolution time exceeds regulatory threshold. Please provide corrective action plan.",
-    },
+  for (const d of demos) {
+    const fileRows = (d.files ?? []).map((f) => {
+      const content = Buffer.from(f.body);
+      const hash = sha256(content);
+      return { fileKey: f.key, fileName: f.name, fileExtension: f.name.slice(f.name.lastIndexOf(".")), mimeType: f.type, fileSize: content.length, clientHash: hash, serverHash: hash, content, uploadedAt: d.submittedAt ?? d.createdAt };
+    });
+    const fieldRows = Object.entries(d.fields ?? {}).map(([fieldKey, fieldValue]) => ({ fieldKey, fieldValue }));
+
+    let submissionJwt: string | undefined;
+    let dataHash: string | undefined;
+    if (d.submittedAt) {
+      dataHash = sha256(canonicalFields(d.fields ?? {}));
+      submissionJwt = signSubmission({
+        instanceId: d.id,
+        templateCode: d.template.code,
+        licenseeId: d.licensee.id,
+        licenseeOrg: d.licensee.organizationName,
+        submittedAt: d.submittedAt.toISOString(),
+        submissionNumber: 1,
+        dataHash,
+        fieldCount: fieldRows.length,
+        fileHashes: fileRows.map((f) => ({ fileKey: f.fileKey, fileName: f.fileName, hash: f.serverHash })),
+      });
+    }
+
+    await prisma.instance.create({
+      data: {
+        id: d.id,
+        templateId: d.template.id,
+        licenseeId: d.licensee.id,
+        assignedById: admin.id,
+        status: d.status,
+        deadline: d.deadline,
+        createdAt: d.createdAt,
+        encryptionKey: crypto.randomBytes(32).toString("hex"),
+        submittedAt: d.submittedAt,
+        submissionJwt,
+        dataHash,
+        submissionCount: d.submittedAt ? 1 : 0,
+        reviewedAt: d.review?.at,
+        reviewedById: d.review ? admin.id : undefined,
+        reviewNotes: d.review?.notes,
+        fields: { create: fieldRows },
+        files: { create: fileRows },
+      },
+    });
+
+    const log = [{ actorId: admin.id, action: "INSTANCE_PROVISIONED", createdAt: d.createdAt, metadata: { templateCode: d.template.code, licenseeOrg: d.licensee.organizationName } }];
+    if (d.submittedAt) log.push({ actorId: d.licensee.id, action: "INSTANCE_SUBMITTED", createdAt: d.submittedAt, metadata: { dataHash, fileCount: fileRows.length } } as never);
+    if (d.review) log.push({ actorId: admin.id, action: `INSTANCE_${d.review.status}`, createdAt: d.review.at, metadata: { reviewNotes: d.review.notes } } as never);
+    await prisma.auditLog.createMany({ data: log.map((l) => ({ ...l, instanceId: d.id })) });
+  }
+
+  // Unread notifications so the bell has something to show.
+  await prisma.notification.deleteMany({ where: { userId: { in: [admin.id, superAdmin.id, mascom.id, citizen.id] } } });
+  await prisma.notification.createMany({
+    data: [
+      ...[admin.id, superAdmin.id].map((userId) => ({ userId, title: "New submission received", body: "Orange Botswana submitted Spectrum Usage Report - ISP (B2_2026).", link: "/dashboard/admin/instances/inst-orange-b2", createdAt: ago(0.2) })),
+      { userId: mascom.id, title: "C3_2026 sent back for changes", body: "Resolution time of 38 days exceeds the 30-day regulatory threshold.", link: "/dashboard/licensee/instance-runner/inst-mascom-c3", createdAt: ago(6) },
+      { userId: mascom.id, title: "New compliance instance assigned", body: "Financial Audit - Major Telecom (A1_2026) has been issued to Mascom Wireless.", link: "/dashboard/licensee/instance-runner/inst-mascom-a1", createdAt: ago(5) },
+      { userId: citizen.id, title: "Complaint BOCRA-B2E1-44FA: Under review", body: "BOCRA engineering has requested tower maintenance logs from Orange.", link: "/dashboard/citizen/complaints", createdAt: ago(3) },
+    ],
   });
 
   console.log("Sample instances seeded.");

@@ -1,8 +1,12 @@
 export const dynamic = "force-dynamic";
 
 import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/session";
+import { formatDate } from "@/lib/utils";
+import { RoleSelect } from "./role-select";
 
 export default async function UsersPage() {
+  const me = await getSessionUser();
   const users = await prisma.user.findMany({
     orderBy: { createdAt: "desc" },
     select: {
@@ -16,15 +20,6 @@ export default async function UsersPage() {
     },
   });
 
-  const roleBadge = (role: string) => {
-    const map: Record<string, string> = {
-      SUPERADMIN: "bg-purple-100 text-purple-700",
-      ADMIN: "bg-blue-100 text-blue-700",
-      LICENSEE: "bg-green-100 text-green-700",
-      PUBLIC: "bg-gray-100 text-gray-600",
-    };
-    return map[role] || "bg-gray-100 text-gray-600";
-  };
 
   return (
     <div>
@@ -51,14 +46,12 @@ export default async function UsersPage() {
                 <td className="px-6 py-3 font-medium">{user.name}</td>
                 <td className="px-6 py-3 text-muted-foreground">{user.email}</td>
                 <td className="px-6 py-3">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${roleBadge(user.role)}`}>
-                    {user.role}
-                  </span>
+                  <RoleSelect userId={user.id} role={user.role} disabled={user.id === me?.id} />
                 </td>
                 <td className="px-6 py-3 text-muted-foreground">{user.organizationName || "—"}</td>
                 <td className="px-6 py-3 text-muted-foreground font-mono">{user.licenseNumber || "—"}</td>
                 <td className="px-6 py-3 text-muted-foreground">
-                  {new Date(user.createdAt).toLocaleDateString()}
+                  {formatDate(user.createdAt)}
                 </td>
               </tr>
             ))}

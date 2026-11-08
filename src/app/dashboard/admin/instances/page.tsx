@@ -1,82 +1,116 @@
-import { prisma } from "@/lib/prisma";
 import Link from "next/link";
+import type { InstanceStatus, Prisma } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { instanceStatusMeta } from "@/lib/labels";
+import { cn, formatDate, relativeDeadline } from "@/lib/utils";
 
 export const dynamic = "force-dynamic";
 
-export default async function AdminInstancesPage() {
-  const instances = await prisma.instance.findMany({
-    include: { template: true, licensee: true },
-    orderBy: { createdAt: "desc" },
-  });
+const FILTERS: { key: string; label: string; statuses?: InstanceStatus[] }[] = [
+  { key: "all", label: "All" },
+  { key: "open", label: "Open", statuses: ["PENDING", "IN_PROGRESS"] },
+  { key: "review", label: "Awaiting review", statuses: ["SUBMITTED"] },
+  { key: "flagged", label: "Needs changes", statuses: ["FLAGGED"] },
+  { key: "closed", label: "Closed", statuses: ["APPROVED", "REJECTED"] },
+];
+
+export default async function AdminInstancesPage({ searchParams }: { searchParams: { filter?: string } }) {
+  const active = FILTERS.find((f) => f.key === searchParams.filter) ?? FILTERS[0];
+  const where: Prisma.InstanceWhereInput = active.statuses ? { status: { in: active.statuses } } : {};
+
+  const [instances, counts] = await Promise.all([
+    prisma.instance.findMany({
+      where,
+      select: {
+        id: true,
+        status: true,
+        deadline: true,
+        createdAt: true,
+        submittedAt: true,
+        template: { select: { name: true, code: true } },
+        licensee: { select: { organizationName: true } },
+      },
+      orderBy: { createdAt: "desc" },
+    }),
+    prisma.instance.groupBy({ by: ["status"], _count: true }),
+  ]);
+  const countFor = (statuses?: InstanceStatus[]) =>
+    counts.filter((c) => !statuses || statuses.includes(c.status)).reduce((s, c) => s + c._count, 0);
 
   return (
     <div>
-      <div className="mb-6 flex items-center justify-between">
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-bocra-navy">All Instances</h1>
-          <p className="text-muted-foreground mt-1">{instances.length} total instances</p>
+          <h1 className="text-2xl font-bold text-bocra-navy">All instances</h1>
+          <p className="mt-1 text-muted-foreground">Every compliance instance issued to licensees</p>
         </div>
         <Link
           href="/dashboard/admin/provision"
-          className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
+          className="rounded-lg bg-bocra-navy px-4 py-2 text-sm font-medium text-white transition-colors hover:bg-bocra-navy/90"
         >
-          + Provision New
+          + Provision new
         </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm">
-          <thead>
-            <tr className="border-b border-border text-left">
-              <th className="px-6 py-3 font-medium text-muted-foreground">Template</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Licensee</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Deadline</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Status</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Created</th>
-            </tr>
-          </thead>
-          <tbody className="divide-y divide-border">
-            {instances.map((instance) => (
-              <tr key={instance.id} className="hover:bg-bocra-light/50">
-                <td className="px-6 py-3">
-                  <p className="font-medium">{instance.template.name}</p>
-                  <p className="text-xs text-muted-foreground">{instance.template.code}</p>
-                </td>
-                <td className="px-6 py-3">
-                  <p>{instance.licensee.organizationName}</p>
-                </td>
-                <td className="px-6 py-3 text-muted-foreground">
-                  {new Date(instance.deadline).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-3">
-                  <StatusBadge status={instance.status} />
-                </td>
-                <td className="px-6 py-3 text-muted-foreground">
-                  {new Date(instance.createdAt).toLocaleDateString()}
-                </td>
-              </tr>
-            ))}
-          </tbody>
-        </table>
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+        {FILTERS.map((f) => (
+          <Link
+            key={f.key}
+            href={f.key === "all" ? "/dashboard/admin/instances" : `/dashboard/admin/instances?filter=${f.key}`}
+            className={cn(
+              "whitespace-nowrap rounded-full border px-3 py-1.5 text-sm font-medium transition-colors",
+              f.key === active.key ? "border-bocra-navy bg-bocra-navy text-white" : "border-border bg-white hover:bg-bocra-light"
+            )}
+          >
+            {f.label} <span className="opacity-60">{countFor(f.statuses)}</span>
+          </Link>
+        ))}
       </div>
-    </div>
-  );
-}
 
-function StatusBadge({ status }: { status: string }) {
-  const map: Record<string, { label: string; className: string }> = {
-    DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-600" },
-    PENDING: { label: "Pending", className: "bg-amber-100 text-amber-700" },
-    IN_PROGRESS: { label: "In Progress", className: "bg-blue-100 text-blue-700" },
-    SUBMITTED: { label: "Submitted", className: "bg-indigo-100 text-indigo-700" },
-    APPROVED: { label: "Approved", className: "bg-green-100 text-green-700" },
-    FLAGGED: { label: "Flagged", className: "bg-orange-100 text-orange-700" },
-    REJECTED: { label: "Rejected", className: "bg-red-100 text-red-700" },
-  };
-  const s = map[status] || { label: status, className: "bg-gray-100 text-gray-600" };
-  return (
-    <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${s.className}`}>
-      {s.label}
-    </span>
+      <div className="overflow-x-auto rounded-xl border border-border bg-white">
+        {instances.length === 0 ? (
+          <p className="px-6 py-12 text-center text-muted-foreground">No instances here.</p>
+        ) : (
+          <table className="w-full text-sm">
+            <thead>
+              <tr className="border-b border-border text-left">
+                <th className="px-5 py-3 font-medium text-muted-foreground">Template</th>
+                <th className="px-5 py-3 font-medium text-muted-foreground">Licensee</th>
+                <th className="px-5 py-3 font-medium text-muted-foreground">Deadline</th>
+                <th className="px-5 py-3 font-medium text-muted-foreground">Status</th>
+              </tr>
+            </thead>
+            <tbody className="divide-y divide-border">
+              {instances.map((i) => {
+                const d = relativeDeadline(i.deadline);
+                const open = !["APPROVED", "REJECTED", "SUBMITTED"].includes(i.status);
+                return (
+                  <tr key={i.id} className="group hover:bg-bocra-light/60">
+                    <td className="px-5 py-3">
+                      <Link href={`/dashboard/admin/instances/${i.id}`} className="block">
+                        <p className="font-medium text-bocra-navy group-hover:text-bocra-blue">{i.template.name}</p>
+                        <p className="font-mono text-xs text-muted-foreground">{i.template.code}</p>
+                      </Link>
+                    </td>
+                    <td className="px-5 py-3">{i.licensee.organizationName}</td>
+                    <td className="px-5 py-3">
+                      <p className="text-muted-foreground">{formatDate(i.deadline)}</p>
+                      {open && <p className={cn("text-xs", d.overdue ? "text-red-600" : "text-muted-foreground")}>{d.text}</p>}
+                    </td>
+                    <td className="px-5 py-3">
+                      <StatusBadge status={i.status} />
+                    </td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
+        )}
+      </div>
+      <p className="mt-3 text-xs text-muted-foreground">
+        Statuses: {Object.values(instanceStatusMeta).filter((m) => m.label !== "Draft").map((m) => m.label).join(" → ")}
+      </p>
+    </div>
   );
 }

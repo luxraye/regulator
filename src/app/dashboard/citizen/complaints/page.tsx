@@ -12,7 +12,9 @@ interface Complaint {
   description: string;
   status: string;
   isAnonymous: boolean;
+  adminNotes: string | null;
   createdAt: string;
+  updatedAt: string;
 }
 
 const statusConfig: Record<string, { label: string; color: string; icon: React.ReactNode }> = {
@@ -93,6 +95,12 @@ export default function CitizenComplaintsPage() {
                     <p className="text-xs text-muted-foreground mt-1 line-clamp-2">
                       {c.description}
                     </p>
+                    {c.adminNotes && (
+                      <div className="mt-3 rounded-lg border-l-4 border-bocra-blue bg-bocra-light p-3">
+                        <p className="text-xs font-medium text-bocra-navy">BOCRA response</p>
+                        <p className="mt-0.5 text-xs text-muted-foreground">{c.adminNotes}</p>
+                      </div>
+                    )}
                   </div>
                   <div className="text-xs text-muted-foreground shrink-0">
                     {new Date(c.createdAt).toLocaleDateString("en-BW", {

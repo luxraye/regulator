@@ -1,70 +1,45 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { auth } from "@/lib/auth";
+import { requireUser, badRequest, notFound, STAFF_ROLES } from "@/lib/session";
+import { audit, notify } from "@/lib/audit";
 
 export const dynamic = "force-dynamic";
 
-export async function POST(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
-  const session = await auth();
-  if (!session?.user) {
-    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+const OUTCOMES = {
+  APPROVED: "approved",
+  FLAGGED: "sent back for changes",
+  REJECTED: "rejected",
+} as const;
+
+export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
+  const { user, error } = await requireUser(STAFF_ROLES);
+  if (error) return error;
+
+  const body = await req.json().catch(() => ({}));
+  const status = body?.status as keyof typeof OUTCOMES;
+  const reviewNotes = typeof body?.reviewNotes === "string" ? body.reviewNotes.trim().slice(0, 5000) : "";
+
+  if (!(status in OUTCOMES)) return badRequest("Status must be APPROVED, FLAGGED or REJECTED");
+  if (status !== "APPROVED" && !reviewNotes) {
+    return badRequest("Please add notes so the licensee knows what to fix");
   }
 
-  const role = (session.user as any).role;
-  if (role !== "ADMIN" && role !== "SUPERADMIN") {
-    return NextResponse.json({ error: "Forbidden" }, { status: 403 });
-  }
-
-  const { status, reviewNotes } = await req.json();
-
-  if (!["APPROVED", "FLAGGED", "REJECTED"].includes(status)) {
-    return NextResponse.json({ error: "Invalid status" }, { status: 400 });
-  }
-
-  const instance = await prisma.instance.findUnique({
-    where: { id: params.id },
-  });
-
-  if (!instance) {
-    return NextResponse.json({ error: "Instance not found" }, { status: 404 });
-  }
-
-  if (instance.status !== "SUBMITTED") {
-    return NextResponse.json(
-      { error: "Can only review submitted instances" },
-      { status: 400 }
-    );
-  }
+  const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
+  if (!instance) return notFound("Instance not found");
+  if (instance.status !== "SUBMITTED") return badRequest("Only submitted instances can be reviewed");
 
   const updated = await prisma.instance.update({
     where: { id: params.id },
-    data: {
-      status,
-      reviewNotes,
-      reviewedById: (session.user as any).id,
-      reviewedAt: new Date(),
-    },
+    data: { status, reviewNotes: reviewNotes || null, reviewedById: user.id, reviewedAt: new Date() },
   });
 
-  await prisma.auditLog.create({
-    data: {
-      actorId: (session.user as any).id,
-      action: `INSTANCE_${status}`,
-      instanceId: params.id,
-      metadata: { reviewNotes },
-    },
-  });
+  await audit(user.id, `INSTANCE_${status}`, { instanceId: instance.id, metadata: { reviewNotes } });
+  await notify(
+    instance.licenseeId,
+    `${instance.template.code} ${OUTCOMES[status]}`,
+    reviewNotes || `Your ${instance.template.name} submission was ${OUTCOMES[status]}.`,
+    `/dashboard/licensee/instance-runner/${instance.id}`
+  );
 
-  await prisma.notification.create({
-    data: {
-      userId: instance.licenseeId,
-      title: `Instance ${status.toLowerCase()}`,
-      body: reviewNotes || `Your submission has been ${status.toLowerCase()}.`,
-    },
-  });
-
-  return NextResponse.json(updated);
+  return NextResponse.json({ id: updated.id, status: updated.status });
 }

@@ -1,32 +1,46 @@
-import { auth } from "@/lib/auth";
+import { notFound, redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
-
-export const dynamic = "force-dynamic";
-import { redirect } from "next/navigation";
+import { getSessionUser } from "@/lib/session";
+import { fileMetaSelect, schemaOf } from "@/lib/instances";
 import { InstanceRunnerClient } from "./runner-client";
 
-export default async function InstanceRunnerPage({
-  params,
-}: {
-  params: { id: string };
-}) {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+export const dynamic = "force-dynamic";
+
+export default async function InstanceRunnerPage({ params }: { params: { id: string } }) {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
   const instance = await prisma.instance.findUnique({
     where: { id: params.id },
-    include: { template: true, fields: true, files: true },
+    select: {
+      id: true,
+      status: true,
+      deadline: true,
+      reviewNotes: true,
+      reviewedAt: true,
+      submittedAt: true,
+      submissionJwt: true,
+      dataHash: true,
+      submissionCount: true,
+      licenseeId: true,
+      template: true,
+      fields: { select: { fieldKey: true, fieldValue: true } },
+      files: { select: fileMetaSelect },
+    },
   });
 
-  if (!instance) redirect("/dashboard/licensee/instances");
+  if (!instance || instance.licenseeId !== user.id) notFound();
 
-  if (instance.licenseeId !== (session.user as any).id) {
-    redirect("/dashboard/licensee");
-  }
-
+  const { template, ...rest } = instance;
+  delete (rest as { licenseeId?: string }).licenseeId;
   return (
     <InstanceRunnerClient
-      instance={JSON.parse(JSON.stringify(instance))}
+      instance={JSON.parse(
+        JSON.stringify({
+          ...rest,
+          template: { name: template.name, code: template.code, description: template.description, schema: schemaOf(template) },
+        })
+      )}
     />
   );
 }
