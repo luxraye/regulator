@@ -24,7 +24,7 @@ export function PublicHeader() {
   const dashboardHref = session?.user ? "/dashboard" : "/login";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ceda-navy/95 text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur">
+    <header className="fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur">
       <div className="border-b border-white/10">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <span className="truncate text-xs text-white/50">Citizen Entrepreneurial Development Agency · Botswana</span>
