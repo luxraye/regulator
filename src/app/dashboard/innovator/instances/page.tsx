@@ -1,85 +1,71 @@
+import Link from "next/link";
+import { redirect } from "next/navigation";
+import { ArrowRight, Lightbulb } from "lucide-react";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/session";
+import { StatusBadge } from "@/components/ui/status-badge";
+import { JourneyTracker } from "@/components/ideas/journey-tracker";
+import { formatDate, formatPula } from "@/lib/utils";
+
 export const dynamic = "force-dynamic";
 
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { redirect } from "next/navigation";
-import Link from "next/link";
-import { formatDate } from "@/lib/utils";
+export default async function MyIdeasPage() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
 
-export default async function LicenseeInstancesPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
-
-  const userId = (session.user as any).id;
-
-  const instances = await prisma.instance.findMany({
-    where: { innovatorId: userId },
-    include: { template: true },
+  const ideas = await prisma.instance.findMany({
+    where: { innovatorId: user.id },
+    select: {
+      id: true, title: true, referenceCode: true, status: true, submittedAt: true, createdAt: true, awardAmount: true,
+      template: { select: { name: true, closesAt: true } },
+    },
     orderBy: { createdAt: "desc" },
   });
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-bocra-navy">My Instances</h1>
-        <p className="text-muted-foreground mt-1">View and interact with your compliance instances</p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ceda-navy">My ideas</h1>
+          <p className="mt-1 text-muted-foreground">Every application you have started, and where it is now.</p>
+        </div>
+        <Link href="/dashboard/innovator/calls" className="inline-flex items-center gap-1 rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white">
+          Browse open calls <ArrowRight size={15} />
+        </Link>
       </div>
 
-      <div className="bg-white rounded-xl border border-border">
-        {instances.length === 0 ? (
-          <div className="px-6 py-12 text-center text-muted-foreground">
-            No instances assigned yet.
-          </div>
-        ) : (
-          <div className="overflow-x-auto">
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="border-b border-border text-left">
-                  <th className="px-6 py-3 font-medium text-muted-foreground">Template</th>
-                  <th className="px-6 py-3 font-medium text-muted-foreground">Code</th>
-                  <th className="px-6 py-3 font-medium text-muted-foreground">Deadline</th>
-                  <th className="px-6 py-3 font-medium text-muted-foreground">Status</th>
-                  <th className="px-6 py-3 font-medium text-muted-foreground">Action</th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-border">
-                {instances.map((instance) => (
-                  <tr key={instance.id} className="hover:bg-bocra-light/50">
-                    <td className="px-6 py-4 font-medium">{instance.template.name}</td>
-                    <td className="px-6 py-4 text-muted-foreground">{instance.template.code}</td>
-                    <td className="px-6 py-4 text-muted-foreground">
-                      {formatDate(instance.deadline)}
-                    </td>
-                    <td className="px-6 py-4">
-                      <StatusBadge status={instance.status} />
-                    </td>
-                    <td className="px-6 py-4">
-                      <Link
-                        href={`/dashboard/innovator/instance-runner/${instance.id}`}
-                        className={
-                          ["PENDING", "IN_PROGRESS", "FLAGGED"].includes(instance.status)
-                            ? "inline-block rounded-lg bg-bocra-blue px-3 py-1.5 text-xs font-medium text-white hover:bg-bocra-blue/90"
-                            : "text-sm font-medium text-bocra-blue hover:underline"
-                        }
-                      >
-                        {instance.status === "PENDING"
-                          ? "Start"
-                          : instance.status === "IN_PROGRESS"
-                            ? "Continue"
-                            : instance.status === "FLAGGED"
-                              ? "Fix & resubmit"
-                              : "View receipt"}
-                      </Link>
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        )}
-      </div>
+      {ideas.length === 0 ? (
+        <div className="rounded-xl border border-border bg-white px-6 py-14 text-center">
+          <Lightbulb className="mx-auto mb-2 text-ceda-amber" />
+          <p className="font-medium text-ceda-navy">No ideas yet</p>
+          <p className="text-sm text-muted-foreground">Pick an open call and start your first application.</p>
+        </div>
+      ) : (
+        <ul className="space-y-4">
+          {ideas.map((i) => (
+            <li key={i.id}>
+              <Link href={`/dashboard/innovator/instance-runner/${i.id}`} className="group block rounded-xl border border-border bg-white p-5 transition-shadow hover:shadow-md">
+                <div className="flex flex-wrap items-start justify-between gap-3">
+                  <div className="min-w-0">
+                    <p className="font-mono text-[11px] text-muted-foreground">{i.referenceCode}</p>
+                    <p className="font-semibold text-ceda-navy group-hover:text-ceda-blue">{i.title}</p>
+                    <p className="text-xs text-muted-foreground">
+                      {i.template.name} · {i.submittedAt ? `submitted ${formatDate(i.submittedAt)}` : `started ${formatDate(i.createdAt)}, call closes ${formatDate(i.template.closesAt)}`}
+                    </p>
+                  </div>
+                  <div className="flex items-center gap-2">
+                    {i.status === "AWARDED" && <span className="text-sm font-bold text-ceda-green">{formatPula(i.awardAmount)}</span>}
+                    <StatusBadge status={i.status} />
+                  </div>
+                </div>
+                <div className="mt-4 max-w-xl">
+                  <JourneyTracker status={i.status} />
+                </div>
+              </Link>
+            </li>
+          ))}
+        </ul>
+      )}
     </div>
   );
 }
-

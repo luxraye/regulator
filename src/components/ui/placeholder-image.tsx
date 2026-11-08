@@ -12,7 +12,7 @@ export function PlaceholderImage({
   className = "",
 }: PlaceholderImageProps) {
   return (
-    <div className={`bg-bocra-light overflow-hidden ${className}`}>
+    <div className={`bg-ceda-light overflow-hidden ${className}`}>
       {/* eslint-disable-next-line @next/next/no-img-element */}
       <img
         src={src}

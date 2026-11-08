@@ -7,17 +7,17 @@ export function CookieBanner() {
   const [visible, setVisible] = useState(false);
 
   useEffect(() => {
-    const consent = localStorage.getItem("bocra-cookie-consent");
+    const consent = localStorage.getItem("ceda-cookie-consent");
     if (!consent) setVisible(true);
   }, []);
 
   function handleAccept() {
-    localStorage.setItem("bocra-cookie-consent", "accepted");
+    localStorage.setItem("ceda-cookie-consent", "accepted");
     setVisible(false);
   }
 
   function handleReject() {
-    localStorage.setItem("bocra-cookie-consent", "rejected");
+    localStorage.setItem("ceda-cookie-consent", "rejected");
     setVisible(false);
   }
 
@@ -25,8 +25,8 @@ export function CookieBanner() {
 
   return (
     <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-in slide-in-from-bottom duration-300">
-      <div className="max-w-4xl mx-auto bg-bocra-navy text-white rounded-2xl shadow-2xl border border-white/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
-        <Cookie className="w-8 h-8 text-bocra-amber shrink-0 hidden sm:block" />
+      <div className="max-w-4xl mx-auto bg-ceda-navy text-white rounded-2xl shadow-2xl border border-white/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+        <Cookie className="w-8 h-8 text-ceda-amber shrink-0 hidden sm:block" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">We value your privacy</p>
           <p className="text-xs text-white/60 mt-1 leading-relaxed">
@@ -43,7 +43,7 @@ export function CookieBanner() {
           </button>
           <button
             onClick={handleAccept}
-            className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-lg bg-bocra-blue hover:bg-bocra-blue/80 transition-colors"
+            className="flex-1 sm:flex-none px-4 py-2 text-sm font-medium rounded-lg bg-ceda-blue hover:bg-ceda-blue/80 transition-colors"
           >
             Accept All
           </button>

@@ -10,7 +10,7 @@ export function TranslatedHero() {
   return (
     <>
       {/* Hero */}
-      <section className="bg-bocra-navy text-white relative overflow-hidden">
+      <section className="bg-ceda-navy text-white relative overflow-hidden">
         {/* Connectivity web pattern */}
         <div className="absolute inset-0 opacity-[0.04]" aria-hidden>
           <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
@@ -37,7 +37,7 @@ export function TranslatedHero() {
             <p className="text-white/50 text-sm font-medium italic mb-1">
               {t("hero.tagline")}
             </p>
-            <p className="text-bocra-amber text-xs font-semibold uppercase tracking-widest mb-4">
+            <p className="text-ceda-amber text-xs font-semibold uppercase tracking-widest mb-4">
               Fair Play, Fair Game
             </p>
             <h1 className="text-4xl lg:text-5xl font-bold leading-tight mb-6">
@@ -49,7 +49,7 @@ export function TranslatedHero() {
             <div className="grid grid-cols-2 gap-3 max-w-lg w-full sm:w-auto">
               <Link
                 href="#how-instances-work"
-                className="px-4 py-3 bg-bocra-blue rounded-lg font-medium hover:bg-bocra-blue/80 transition-colors text-center min-h-12 flex items-center justify-center"
+                className="px-4 py-3 bg-ceda-blue rounded-lg font-medium hover:bg-ceda-blue/80 transition-colors text-center min-h-12 flex items-center justify-center"
               >
                 {t("hero.cta.instances")}
               </Link>
@@ -83,7 +83,7 @@ export function TranslatedHero() {
       </section>
 
       {/* Sectors */}
-      <section className="bg-bocra-light py-6">
+      <section className="bg-ceda-light py-6">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex flex-wrap justify-center gap-8">
             {[
@@ -92,7 +92,7 @@ export function TranslatedHero() {
               { icon: <Mail className="w-6 h-6" />, key: "sector.postal" as const },
               { icon: <Globe className="w-6 h-6" />, key: "sector.internet" as const },
             ].map((s) => (
-              <div key={s.key} className="flex items-center gap-2 text-bocra-navy font-medium text-sm">
+              <div key={s.key} className="flex items-center gap-2 text-ceda-navy font-medium text-sm">
                 {s.icon}
                 <span>{t(s.key)}</span>
               </div>

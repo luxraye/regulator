@@ -28,10 +28,10 @@ export function TranslatedInstanceSection() {
     <section id="how-instances-work" className="py-20 lg:py-28 scroll-mt-16">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-16">
-          <span className="inline-block px-3 py-1 rounded-full bg-bocra-blue/10 text-bocra-blue text-sm font-medium mb-4">
+          <span className="inline-block px-3 py-1 rounded-full bg-ceda-blue/10 text-ceda-blue text-sm font-medium mb-4">
             {t("instance.badge")}
           </span>
-          <h2 className="text-3xl lg:text-4xl font-bold text-bocra-navy mb-4">
+          <h2 className="text-3xl lg:text-4xl font-bold text-ceda-navy mb-4">
             {t("instance.title")}
           </h2>
           <p className="text-muted-foreground max-w-3xl mx-auto text-lg leading-relaxed">
@@ -70,7 +70,7 @@ export function TranslatedInstanceSection() {
         <InstanceDeepDive />
 
         <div className="mt-10" />
-        <div className="bg-bocra-navy rounded-2xl p-8 text-white">
+        <div className="bg-ceda-navy rounded-2xl p-8 text-white">
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
             <div className="max-w-2xl">
               <h3 className="text-2xl font-bold mb-3">Try It Yourself</h3>
@@ -84,14 +84,14 @@ export function TranslatedInstanceSection() {
             <div className="flex flex-col sm:flex-row gap-3 shrink-0">
               <Link
                 href="/api/sandbox/download"
-                className="inline-flex items-center gap-2 px-5 py-3 bg-white text-bocra-navy rounded-lg font-medium hover:bg-white/90 transition-colors text-center justify-center"
+                className="inline-flex items-center gap-2 px-5 py-3 bg-white text-ceda-navy rounded-lg font-medium hover:bg-white/90 transition-colors text-center justify-center"
               >
                 <Download className="w-4 h-4" />
                 Download Sandbox
               </Link>
               <Link
                 href="/login"
-                className="inline-flex items-center gap-2 px-5 py-3 bg-bocra-blue rounded-lg font-medium hover:bg-bocra-blue/80 transition-colors text-center justify-center"
+                className="inline-flex items-center gap-2 px-5 py-3 bg-ceda-blue rounded-lg font-medium hover:bg-ceda-blue/80 transition-colors text-center justify-center"
               >
                 Licensee Portal
                 <ArrowRight className="w-4 h-4" />

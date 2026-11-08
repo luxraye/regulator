@@ -72,3 +72,27 @@ export const BOTSWANA_DISTRICTS = [
   "Southern",
   "Chobe",
 ];
+
+/** Plain-language names for audit actions, as an innovator would read them. */
+export const auditActionLabels: Record<string, string> = {
+  IDEA_STARTED: "Application started",
+  IDEA_SUBMITTED: "Signed and submitted",
+  IDEA_RESUBMITTED: "Resubmitted after feedback",
+  EVALUATORS_ASSIGNED: "Passed screening; evaluators assigned",
+  EVALUATION_SUBMITTED: "Evaluator scorecard submitted",
+  IDEA_SHORTLISTED: "Shortlisted for the panel",
+  IDEA_FLAGGED: "Changes requested",
+  IDEA_APPROVED: "Approved by the panel",
+  IDEA_AWARDED: "Award confirmed",
+  IDEA_REJECTED: "Not selected",
+  FILE_DOWNLOADED: "Document opened",
+  CONFLICT_DECLARED: "Evaluator declared a conflict",
+  NO_CONFLICT_DECLARED: "Evaluator declared no conflict",
+  DATA_EXPORTED: "Personal data exported",
+  CALL_CREATED: "Call created",
+  CALL_UPDATED: "Call updated",
+  REPORT_EXPORTED: "Report exported",
+  USER_CREATED: "Staff account created",
+  USER_ROLE_CHANGED: "Role changed",
+};
+export const actionLabel = (a: string) => auditActionLabels[a] ?? a.toLowerCase().replace(/_/g, " ");

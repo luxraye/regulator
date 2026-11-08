@@ -503,7 +503,7 @@ async function main() {
     ];
     if (submittedAt) log.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash } });
 
-    for (const [i, e] of (story.evaluations ?? []).entries()) {
+    for (const [i, e] of Array.from((story.evaluations ?? []).entries())) {
       const evaluator = users[e.evaluator];
       const assignedAt = new Date((submittedAt ?? createdAt).getTime() + DAY);
       const scores = e.scores ? Object.fromEntries(CRITERIA.map((c, j) => [c.key, e.scores![j]])) : undefined;

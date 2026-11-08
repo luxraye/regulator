@@ -139,20 +139,20 @@ export default function USSDDemoPage() {
   }
 
   return (
-    <div className="min-h-[80vh] bg-bocra-light py-12">
+    <div className="min-h-[80vh] bg-ceda-light py-12">
       <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <span className="inline-flex items-center gap-2 px-3 py-1 bg-bocra-navy/10 rounded-full text-bocra-navy text-sm font-medium mb-4">
+          <span className="inline-flex items-center gap-2 px-3 py-1 bg-ceda-navy/10 rounded-full text-ceda-navy text-sm font-medium mb-4">
             <Phone className="w-3.5 h-3.5" />
             Rural Access Concept
           </span>
-          <h1 className="text-3xl font-bold text-bocra-navy mb-3">
+          <h1 className="text-3xl font-bold text-ceda-navy mb-3">
             USSD Complaint Service
           </h1>
           <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
             Not everyone has a smartphone or reliable internet. This concept
             demonstrates how citizens could file and track complaints by simply
-            dialing <strong className="text-bocra-navy">*123#</strong> from any
+            dialing <strong className="text-ceda-navy">*123#</strong> from any
             phone — even a basic feature phone with no data connection.
           </p>
         </div>
@@ -177,7 +177,7 @@ export default function USSDDemoPage() {
                   {/* USSD dialog */}
                   <div className="bg-white mx-3 mt-2 rounded-xl overflow-hidden shadow-lg">
                     {/* Header */}
-                    <div className="bg-bocra-navy px-4 py-2.5 flex items-center gap-2">
+                    <div className="bg-ceda-navy px-4 py-2.5 flex items-center gap-2">
                       {history.length > 1 && (
                         <button onClick={handleBack} className="text-white/70 hover:text-white">
                           <ArrowLeft className="w-4 h-4" />
@@ -204,9 +204,9 @@ export default function USSDDemoPage() {
                                 setInputValue(opt.key);
                                 setTimeout(() => handleSend(), 0);
                               }}
-                              className="w-full text-left px-3 py-2 rounded-lg text-[12px] hover:bg-bocra-light active:bg-bocra-light/80 transition-colors flex items-center gap-2"
+                              className="w-full text-left px-3 py-2 rounded-lg text-[12px] hover:bg-ceda-light active:bg-ceda-light/80 transition-colors flex items-center gap-2"
                             >
-                              <span className="w-5 h-5 rounded-full bg-bocra-navy text-white text-[10px] font-bold flex items-center justify-center shrink-0">
+                              <span className="w-5 h-5 rounded-full bg-ceda-navy text-white text-[10px] font-bold flex items-center justify-center shrink-0">
                                 {opt.key}
                               </span>
                               <span className="text-gray-700">{opt.label}</span>
@@ -218,7 +218,7 @@ export default function USSDDemoPage() {
                       {screen.final && (
                         <button
                           onClick={handleReset}
-                          className="mt-4 w-full py-2 bg-bocra-navy text-white rounded-lg text-[11px] font-medium"
+                          className="mt-4 w-full py-2 bg-ceda-navy text-white rounded-lg text-[11px] font-medium"
                         >
                           Main Menu (0)
                         </button>
@@ -235,11 +235,11 @@ export default function USSDDemoPage() {
                           onChange={(e) => setInputValue(e.target.value)}
                           onKeyDown={(e) => e.key === "Enter" && handleSend()}
                           placeholder={screen.input?.placeholder || "Enter option..."}
-                          className="flex-1 text-[12px] px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-bocra-blue"
+                          className="flex-1 text-[12px] px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-ceda-blue"
                         />
                         <button
                           onClick={handleSend}
-                          className="px-3 py-1.5 bg-bocra-blue text-white text-[11px] font-medium rounded-lg"
+                          className="px-3 py-1.5 bg-ceda-blue text-white text-[11px] font-medium rounded-lg"
                         >
                           Send
                         </button>
@@ -258,16 +258,16 @@ export default function USSDDemoPage() {
 
           {/* Explanation */}
           <div>
-            <h2 className="text-xl font-bold text-bocra-navy mb-4">
+            <h2 className="text-xl font-bold text-ceda-navy mb-4">
               How It Would Work
             </h2>
             <div className="space-y-4">
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-ceda-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
                   1
                 </div>
                 <div>
-                  <p className="font-medium text-bocra-navy text-sm">Citizen dials *123#</p>
+                  <p className="font-medium text-ceda-navy text-sm">Citizen dials *123#</p>
                   <p className="text-xs text-muted-foreground">
                     Works on any phone — no smartphone, no data, no app needed.
                     The USSD session runs over the cellular network itself.
@@ -275,11 +275,11 @@ export default function USSDDemoPage() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-ceda-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
                   2
                 </div>
                 <div>
-                  <p className="font-medium text-bocra-navy text-sm">Navigate the menu</p>
+                  <p className="font-medium text-ceda-navy text-sm">Navigate the menu</p>
                   <p className="text-xs text-muted-foreground">
                     Simple numbered menus guide the user through filing or
                     tracking a complaint. No typing URLs or downloading apps.
@@ -287,11 +287,11 @@ export default function USSDDemoPage() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-ceda-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
                   3
                 </div>
                 <div>
-                  <p className="font-medium text-bocra-navy text-sm">Describe the issue</p>
+                  <p className="font-medium text-ceda-navy text-sm">Describe the issue</p>
                   <p className="text-xs text-muted-foreground">
                     The citizen selects the provider, category, and types a
                     brief description — all via the USSD text interface.
@@ -299,11 +299,11 @@ export default function USSDDemoPage() {
                 </div>
               </div>
               <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-green text-white flex items-center justify-center text-sm font-bold shrink-0">
+                <div className="w-8 h-8 rounded-full bg-ceda-green text-white flex items-center justify-center text-sm font-bold shrink-0">
                   4
                 </div>
                 <div>
-                  <p className="font-medium text-bocra-navy text-sm">Receive tracking code via SMS</p>
+                  <p className="font-medium text-ceda-navy text-sm">Receive tracking code via SMS</p>
                   <p className="text-xs text-muted-foreground">
                     A unique tracking code is sent by SMS. The citizen can
                     check status anytime by dialing *123# again and selecting
@@ -315,7 +315,7 @@ export default function USSDDemoPage() {
 
             {/* Tech note */}
             <div className="mt-8 p-4 bg-white rounded-xl border border-border">
-              <h3 className="text-sm font-semibold text-bocra-navy mb-2">
+              <h3 className="text-sm font-semibold text-ceda-navy mb-2">
                 Technical Architecture
               </h3>
               <p className="text-xs text-muted-foreground leading-relaxed">
@@ -329,7 +329,7 @@ export default function USSDDemoPage() {
               <p className="text-xs text-muted-foreground leading-relaxed mt-2">
                 This means a complaint filed via USSD from a village in
                 Kgalagadi appears in the same BOCRA admin dashboard as one
-                filed online from Gaborone — <strong className="text-bocra-navy">one system, equal access</strong>.
+                filed online from Gaborone — <strong className="text-ceda-navy">one system, equal access</strong>.
               </p>
             </div>
 
@@ -337,13 +337,13 @@ export default function USSDDemoPage() {
             <div className="mt-6 flex flex-wrap gap-3">
               <Link
                 href="/complaints"
-                className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
+                className="px-4 py-2 bg-ceda-navy text-white rounded-lg text-sm font-medium hover:bg-ceda-navy/90 transition-colors"
               >
                 File a Complaint Online
               </Link>
               <Link
                 href="/"
-                className="px-4 py-2 bg-bocra-light text-bocra-navy rounded-lg text-sm font-medium hover:bg-bocra-light/80 border border-border transition-colors"
+                className="px-4 py-2 bg-ceda-light text-ceda-navy rounded-lg text-sm font-medium hover:bg-ceda-light/80 border border-border transition-colors"
               >
                 Back to Homepage
               </Link>

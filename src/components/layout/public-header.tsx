@@ -45,7 +45,7 @@ export function PublicHeader() {
   }, []);
 
   return (
-    <header className="bg-bocra-navy/95 backdrop-blur text-white sticky top-0 z-50 border-b border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
+    <header className="bg-ceda-navy/95 backdrop-blur text-white sticky top-0 z-50 border-b border-white/10 shadow-[0_2px_8px_rgba(0,0,0,0.18)]">
       {/* Top utility bar */}
       <div className="border-b border-white/10">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between h-8">
@@ -78,10 +78,10 @@ export function PublicHeader() {
         <div className="flex items-center justify-between h-14">
           <Link href="/" className="flex items-center gap-3">
             <div className="flex gap-1">
-              <span className="w-3 h-3 rounded-full bg-bocra-blue" />
-              <span className="w-3 h-3 rounded-full bg-bocra-green" />
-              <span className="w-3 h-3 rounded-full bg-bocra-amber" />
-              <span className="w-3 h-3 rounded-full bg-bocra-orange" />
+              <span className="w-3 h-3 rounded-full bg-ceda-blue" />
+              <span className="w-3 h-3 rounded-full bg-ceda-green" />
+              <span className="w-3 h-3 rounded-full bg-ceda-amber" />
+              <span className="w-3 h-3 rounded-full bg-ceda-orange" />
             </div>
             <span className="font-bold text-lg tracking-tight">BOCRA</span>
           </Link>
@@ -116,14 +116,14 @@ export function PublicHeader() {
                 <ChevronDown className={`w-3.5 h-3.5 transition-transform ${portalsOpen ? "rotate-180" : ""}`} />
               </button>
               {portalsOpen && (
-                <div className="absolute top-full right-0 mt-1 w-56 bg-white text-bocra-navy rounded-lg shadow-xl border border-border overflow-hidden z-50">
+                <div className="absolute top-full right-0 mt-1 w-56 bg-white text-ceda-navy rounded-lg shadow-xl border border-border overflow-hidden z-50">
                   {portalLinks.map((p) => (
                     <a
                       key={p.label}
                       href={p.url}
                       target="_blank"
                       rel="noopener noreferrer"
-                      className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-bocra-light transition-colors"
+                      className="flex items-center justify-between px-4 py-2.5 text-sm hover:bg-ceda-light transition-colors"
                     >
                       {p.label}
                       <ExternalLink className="w-3 h-3 text-muted-foreground" />
@@ -137,7 +137,7 @@ export function PublicHeader() {
 
             <Link
               href={dashboardHref}
-              className="ml-2 px-4 py-2 bg-bocra-blue rounded-md text-sm font-medium hover:bg-bocra-blue/80 transition-colors"
+              className="ml-2 px-4 py-2 bg-ceda-blue rounded-md text-sm font-medium hover:bg-ceda-blue/80 transition-colors"
             >
               {session ? "Dashboard" : "Sign In"}
             </Link>
@@ -195,7 +195,7 @@ export function PublicHeader() {
             </div>
             <Link
               href={dashboardHref}
-              className="block px-3 py-2 bg-bocra-blue rounded-md text-sm font-medium mt-2"
+              className="block px-3 py-2 bg-ceda-blue rounded-md text-sm font-medium mt-2"
               onClick={() => setMobileOpen(false)}
             >
               {session ? "Dashboard" : "Sign In"}

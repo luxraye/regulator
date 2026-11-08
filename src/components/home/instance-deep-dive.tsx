@@ -19,7 +19,7 @@ const lifecycleSteps = [
     description:
       "BOCRA Admin selects a template from the Classification Matrix and assigns it to your organization with a deadline.",
     icon: <Layers className="w-5 h-5" />,
-    color: "bg-bocra-blue",
+    color: "bg-ceda-blue",
   },
   {
     number: "02",
@@ -27,7 +27,7 @@ const lifecycleSteps = [
     description:
       "The Instance Runner presents a schema-driven wizard. Every field, file requirement, and validation rule is defined upfront — no guesswork.",
     icon: <ClipboardCheck className="w-5 h-5" />,
-    color: "bg-bocra-green",
+    color: "bg-ceda-green",
   },
   {
     number: "03",
@@ -35,7 +35,7 @@ const lifecycleSteps = [
     description:
       "Files are SHA-256 hashed on upload. The system verifies nothing was altered in transit. Data is validated against the schema in real-time.",
     icon: <Fingerprint className="w-5 h-5" />,
-    color: "bg-bocra-amber",
+    color: "bg-ceda-amber",
   },
   {
     number: "04",
@@ -43,7 +43,7 @@ const lifecycleSteps = [
     description:
       "A JWT-signed digital receipt is generated, cryptographically binding the submission to your identity. Data moves to the immutable Compliance Vault.",
     icon: <Lock className="w-5 h-5" />,
-    color: "bg-bocra-orange",
+    color: "bg-ceda-orange",
   },
   {
     number: "05",
@@ -51,7 +51,7 @@ const lifecycleSteps = [
     description:
       "BOCRA reviews submissions with full raw data, file access, and automated analytics. Approve, flag, or request corrections.",
     icon: <Eye className="w-5 h-5" />,
-    color: "bg-bocra-blue",
+    color: "bg-ceda-blue",
   },
 ];
 
@@ -77,18 +77,18 @@ function Collapsible({
     <div className="border border-border rounded-2xl overflow-hidden bg-white transition-all">
       <button
         onClick={() => setOpen(!open)}
-        className="w-full flex items-center justify-between p-6 text-left hover:bg-bocra-light/50 transition-colors"
+        className="w-full flex items-center justify-between p-6 text-left hover:bg-ceda-light/50 transition-colors"
       >
         <div>
-          <h3 className="text-lg font-bold text-bocra-navy">{title}</h3>
+          <h3 className="text-lg font-bold text-ceda-navy">{title}</h3>
           <p className="text-sm text-muted-foreground mt-0.5">{subtitle}</p>
         </div>
         <div
-          className={`w-10 h-10 rounded-full bg-bocra-blue/10 flex items-center justify-center shrink-0 transition-transform duration-300 ${
+          className={`w-10 h-10 rounded-full bg-ceda-blue/10 flex items-center justify-center shrink-0 transition-transform duration-300 ${
             open ? "rotate-180" : ""
           }`}
         >
-          <ChevronDown className="w-5 h-5 text-bocra-blue" />
+          <ChevronDown className="w-5 h-5 text-ceda-blue" />
         </div>
       </button>
       <div
@@ -115,7 +115,7 @@ export function InstanceDeepDive() {
         <div className="grid grid-cols-1 md:grid-cols-5 gap-4">
           {lifecycleSteps.map((step, i) => (
             <div key={step.number} className="relative">
-              <div className="bg-bocra-light border border-border rounded-xl p-5 h-full">
+              <div className="bg-ceda-light border border-border rounded-xl p-5 h-full">
                 <div
                   className={`w-10 h-10 rounded-lg ${step.color} text-white flex items-center justify-center mb-3`}
                 >
@@ -124,7 +124,7 @@ export function InstanceDeepDive() {
                 <div className="text-xs font-mono text-muted-foreground mb-1">
                   Step {step.number}
                 </div>
-                <h4 className="font-semibold text-bocra-navy text-sm mb-2">
+                <h4 className="font-semibold text-ceda-navy text-sm mb-2">
                   {step.title}
                 </h4>
                 <p className="text-xs text-muted-foreground leading-relaxed">
@@ -148,18 +148,18 @@ export function InstanceDeepDive() {
       >
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-4">
           {matrixSample.map((m) => (
-            <div key={m.code} className="bg-bocra-light rounded-lg p-4 border border-border">
-              <span className="inline-block font-mono font-bold text-bocra-blue text-lg">
+            <div key={m.code} className="bg-ceda-light rounded-lg p-4 border border-border">
+              <span className="inline-block font-mono font-bold text-ceda-blue text-lg">
                 {m.code}
               </span>
-              <p className="text-sm font-medium text-bocra-navy mt-1">{m.label}</p>
+              <p className="text-sm font-medium text-ceda-navy mt-1">{m.label}</p>
               <p className="text-xs text-muted-foreground mt-1">{m.example}</p>
             </div>
           ))}
         </div>
         <Link
           href="/login"
-          className="text-sm text-bocra-blue hover:underline font-medium inline-flex items-center gap-1"
+          className="text-sm text-ceda-blue hover:underline font-medium inline-flex items-center gap-1"
         >
           View full matrix <ArrowRight className="w-3 h-3" />
         </Link>

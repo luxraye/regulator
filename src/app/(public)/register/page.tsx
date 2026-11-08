@@ -55,12 +55,12 @@ export default function RegisterPage() {
         <div className="bg-white rounded-xl shadow-sm border border-border p-8">
           <div className="text-center mb-6">
             <div className="flex justify-center gap-1.5 mb-4">
-              <span className="w-3 h-3 rounded-full bg-bocra-blue" />
-              <span className="w-3 h-3 rounded-full bg-bocra-green" />
-              <span className="w-3 h-3 rounded-full bg-bocra-amber" />
-              <span className="w-3 h-3 rounded-full bg-bocra-orange" />
+              <span className="w-3 h-3 rounded-full bg-ceda-blue" />
+              <span className="w-3 h-3 rounded-full bg-ceda-green" />
+              <span className="w-3 h-3 rounded-full bg-ceda-amber" />
+              <span className="w-3 h-3 rounded-full bg-ceda-orange" />
             </div>
-            <h1 className="text-2xl font-bold text-bocra-navy">Create Account</h1>
+            <h1 className="text-2xl font-bold text-ceda-navy">Create Account</h1>
             <p className="text-muted-foreground text-sm mt-1">
               Choose your account type to get started
             </p>
@@ -73,11 +73,11 @@ export default function RegisterPage() {
               onClick={() => setAccountType("citizen")}
               className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm ${
                 accountType === "citizen"
-                  ? "border-bocra-blue bg-bocra-blue/5 text-bocra-navy"
+                  ? "border-ceda-blue bg-ceda-blue/5 text-ceda-navy"
                   : "border-border text-muted-foreground hover:border-gray-300"
               }`}
             >
-              <User className={`w-5 h-5 ${accountType === "citizen" ? "text-bocra-blue" : ""}`} />
+              <User className={`w-5 h-5 ${accountType === "citizen" ? "text-ceda-blue" : ""}`} />
               <span className="font-medium">Citizen</span>
               <span className="text-xs text-center leading-tight">
                 Track complaints, bookmark documents
@@ -88,11 +88,11 @@ export default function RegisterPage() {
               onClick={() => setAccountType("licensee")}
               className={`flex flex-col items-center gap-2 p-4 rounded-xl border-2 transition-all text-sm ${
                 accountType === "licensee"
-                  ? "border-bocra-blue bg-bocra-blue/5 text-bocra-navy"
+                  ? "border-ceda-blue bg-ceda-blue/5 text-ceda-navy"
                   : "border-border text-muted-foreground hover:border-gray-300"
               }`}
             >
-              <Building2 className={`w-5 h-5 ${accountType === "licensee" ? "text-bocra-blue" : ""}`} />
+              <Building2 className={`w-5 h-5 ${accountType === "licensee" ? "text-ceda-blue" : ""}`} />
               <span className="font-medium">Licensee</span>
               <span className="text-xs text-center leading-tight">
                 Submit compliance data, run Instances
@@ -112,7 +112,7 @@ export default function RegisterPage() {
                 type="text"
                 value={form.name}
                 onChange={(e) => update("name", e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ceda-blue focus:border-transparent text-sm"
                 required
               />
             </div>
@@ -122,7 +122,7 @@ export default function RegisterPage() {
                 type="email"
                 value={form.email}
                 onChange={(e) => update("email", e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ceda-blue focus:border-transparent text-sm"
                 required
               />
             </div>
@@ -132,7 +132,7 @@ export default function RegisterPage() {
                 type="password"
                 value={form.password}
                 onChange={(e) => update("password", e.target.value)}
-                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
+                className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ceda-blue focus:border-transparent text-sm"
                 minLength={8}
                 required
               />
@@ -146,7 +146,7 @@ export default function RegisterPage() {
                     type="text"
                     value={form.organizationName}
                     onChange={(e) => update("organizationName", e.target.value)}
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ceda-blue focus:border-transparent text-sm"
                     required
                   />
                 </div>
@@ -160,7 +160,7 @@ export default function RegisterPage() {
                     onChange={(e) => update("licenseNumber", e.target.value)}
                     placeholder="e.g. LIC-TEL-004"
                     required
-                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-bocra-blue focus:border-transparent text-sm"
+                    className="w-full px-3 py-2 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-ceda-blue focus:border-transparent text-sm"
                   />
                 </div>
               </>
@@ -169,7 +169,7 @@ export default function RegisterPage() {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-2.5 bg-bocra-navy text-white rounded-lg font-medium hover:bg-bocra-navy/90 transition-colors disabled:opacity-50"
+              className="w-full py-2.5 bg-ceda-navy text-white rounded-lg font-medium hover:bg-ceda-navy/90 transition-colors disabled:opacity-50"
             >
               {loading
                 ? "Creating account..."
@@ -181,7 +181,7 @@ export default function RegisterPage() {
 
           <p className="text-center text-sm text-muted-foreground mt-6">
             Already have an account?{" "}
-            <Link href="/login" className="text-bocra-blue hover:underline">
+            <Link href="/login" className="text-ceda-blue hover:underline">
               Sign In
             </Link>
           </p>

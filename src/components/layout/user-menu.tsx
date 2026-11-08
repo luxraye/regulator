@@ -8,7 +8,7 @@ export function MobileSignOut() {
   return (
     <button
       onClick={() => signOut({ callbackUrl: "/" })}
-      className="rounded-lg p-2 text-bocra-navy hover:bg-bocra-light md:hidden"
+      className="rounded-lg p-2 text-ceda-navy hover:bg-ceda-light md:hidden"
       aria-label="Sign out"
     >
       <LogOut size={20} />

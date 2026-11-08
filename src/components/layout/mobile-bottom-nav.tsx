@@ -3,87 +3,31 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import {
-  LayoutDashboard,
-  MessageSquareWarning,
-  Bookmark,
-  Star,
-  FileBox,
-  ClipboardCheck,
-  BarChart3,
-  PlusCircle,
-  History,
-} from "lucide-react";
 import { cn } from "@/lib/utils";
-
-interface TabItem {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const citizenTabs: TabItem[] = [
-  { href: "/dashboard/citizen", label: "Home", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/citizen/complaints", label: "Complaints", icon: <MessageSquareWarning size={20} /> },
-  { href: "/dashboard/citizen/bookmarks", label: "Bookmarks", icon: <Bookmark size={20} /> },
-  { href: "/dashboard/citizen/events", label: "Events", icon: <Star size={20} /> },
-];
-
-const licenseeTabs: TabItem[] = [
-  { href: "/dashboard/innovator", label: "Home", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/innovator/instances", label: "Instances", icon: <FileBox size={20} /> },
-  { href: "/dashboard/innovator/history", label: "History", icon: <History size={20} /> },
-];
-
-const adminTabs: TabItem[] = [
-  { href: "/dashboard/admin", label: "Home", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/admin/provision", label: "Provision", icon: <PlusCircle size={20} /> },
-  { href: "/dashboard/admin/review", label: "Review", icon: <ClipboardCheck size={20} /> },
-  { href: "/dashboard/admin/complaints", label: "Complaints", icon: <MessageSquareWarning size={20} /> },
-  { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 size={20} /> },
-];
+import { navFor, isActive } from "@/lib/nav";
 
 export function MobileBottomNav() {
   const pathname = usePathname();
   const { data: session } = useSession();
-  const role = session?.user?.role;
-
-  const tabs = role === "PUBLIC"
-    ? citizenTabs
-    : role === "INNOVATOR"
-    ? licenseeTabs
-    : role === "ADMIN" || role === "SUPERADMIN"
-    ? adminTabs
-    : [];
-
+  const tabs = navFor(session?.user?.role).filter((t) => t.mobile);
   if (tabs.length === 0) return null;
 
   return (
-    <nav className="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-bocra-navy border-t border-white/10 safe-bottom">
+    <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-ceda-navy md:hidden">
       <div className="flex items-stretch">
-        {tabs.map((tab) => {
-          const isActive =
-            pathname === tab.href ||
-            (tab.href !== "/dashboard/citizen" &&
-              tab.href !== "/dashboard/innovator" &&
-              tab.href !== "/dashboard/admin" &&
-              pathname.startsWith(tab.href));
-          return (
-            <Link
-              key={tab.href}
-              href={tab.href}
-              className={cn(
-                "flex-1 flex flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors min-h-[56px]",
-                isActive
-                  ? "text-bocra-blue"
-                  : "text-white/50 active:text-white/80"
-              )}
-            >
-              {tab.icon}
-              <span>{tab.label}</span>
-            </Link>
-          );
-        })}
+        {tabs.map((tab) => (
+          <Link
+            key={tab.href}
+            href={tab.href}
+            className={cn(
+              "flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
+              isActive(pathname, tab.href) ? "text-ceda-amber" : "text-white/60 active:text-white/80"
+            )}
+          >
+            {tab.icon}
+            <span>{tab.short ?? tab.label}</span>
+          </Link>
+        ))}
       </div>
     </nav>
   );

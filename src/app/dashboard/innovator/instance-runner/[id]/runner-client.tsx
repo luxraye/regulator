@@ -13,6 +13,7 @@ import {
   Save,
   Send,
   Shield,
+  Trophy,
   Upload,
 } from "lucide-react";
 import {
@@ -26,13 +27,19 @@ import {
   type SchemaField,
 } from "@/lib/instance-schema";
 import { hashFileClient } from "@/lib/hash-client";
-import { cn, formatDate, relativeDeadline } from "@/lib/utils";
+import { cn, formatDate, formatPula, relativeDeadline } from "@/lib/utils";
+import { JourneyTracker, statusExplainer } from "@/components/ideas/journey-tracker";
+import { MessageThread } from "@/components/ideas/message-thread";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ReceiptPanel } from "@/components/dashboard/receipt-panel";
 import { FileList, type StoredFile } from "@/components/dashboard/file-list";
 
 interface RunnerInstance {
   id: string;
+  title: string;
+  referenceCode: string;
+  awardAmount: number | null;
+  feedback: { average: number | null; perCriterion: Record<string, number>; comments: string[] } | null;
   status: string;
   deadline: string;
   reviewNotes: string | null;
@@ -41,14 +48,21 @@ interface RunnerInstance {
   submissionJwt: string | null;
   dataHash: string | null;
   submissionCount: number;
-  template: { name: string; code: string; description: string | null; schema: InstanceSchema };
+  template: {
+    name: string;
+    code: string;
+    description: string | null;
+    closesAt: string;
+    fundingSummary: string | null;
+    schema: InstanceSchema;
+  };
   fields: { fieldKey: string; fieldValue: string }[];
   files: StoredFile[];
 }
 
 type UploadState = { status: "hashing" | "uploading" } | { status: "error"; message: string };
 
-const STEPS = ["Data entry", "Files", "Review & submit"];
+const STEPS = ["Your idea", "Documents", "Review & submit"];
 
 export function InstanceRunnerClient({ instance }: { instance: RunnerInstance }) {
   const router = useRouter();
@@ -64,13 +78,14 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
     Object.fromEntries(instance.files.map((f) => [f.fileKey, f]))
   );
   const [uploads, setUploads] = useState<Record<string, UploadState>>({});
+  const [title, setTitle] = useState(instance.title);
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [banner, setBanner] = useState<{ text: string; items?: string[] } | null>(null);
 
-  const deadline = relativeDeadline(instance.deadline);
+  const deadline = relativeDeadline(instance.template.closesAt);
   const labels = useMemo(() => Object.fromEntries(schema.fields.map((f) => [f.key, f.label])), [schema]);
   const missingFiles = schema.required_files.filter((rf) => !rf.optional && !files[rf.key]);
   const busyUploading = Object.values(uploads).some((u) => u.status !== "error");
@@ -94,7 +109,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
       const res = await fetch(`/api/instances/${instance.id}/fields`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ fields: values }),
+        body: JSON.stringify({ fields: values, title }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -116,6 +131,10 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
   async function next() {
     setBanner(null);
     if (step === 0) {
+      if (title.trim().length < 4) {
+        setBanner({ text: "Give your idea a title of at least 4 characters." });
+        return;
+      }
       const all = validateFields(schema.fields, values);
       setErrors(all);
       if (Object.keys(all).length) return;
@@ -202,26 +221,28 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
     <div className="mb-6">
       <Link
         href="/dashboard/innovator/instances"
-        className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-bocra-navy"
+        className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy"
       >
-        <ArrowLeft size={14} /> My instances
+        <ArrowLeft size={14} /> My ideas
       </Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-bold text-bocra-navy">{instance.template.name}</h1>
+        <div className="min-w-0">
+          <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
+          <h1 className="text-2xl font-bold text-ceda-navy">{editable ? title || "Untitled idea" : instance.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-mono">{instance.template.code}</span> · Due {formatDate(instance.deadline)}
-            {editable && (
+            {instance.template.name} · Call closes {formatDate(instance.template.closesAt)}
+            {instance.status === "DRAFT" && (
               <span className={cn("ml-1", deadline.overdue ? "text-red-600" : deadline.soon ? "text-amber-700" : "")}>
-                ({deadline.text})
+                ({deadline.overdue ? "closed" : deadline.text.replace("due", "closes")})
               </span>
             )}
           </p>
-          {instance.template.description && (
-            <p className="mt-2 max-w-2xl text-sm text-muted-foreground">{instance.template.description}</p>
-          )}
         </div>
         <StatusBadge status={instance.status} />
+      </div>
+      <div className="mt-5 rounded-xl border border-border bg-white px-3 py-4 sm:px-6">
+        <JourneyTracker status={instance.status} />
+        <p className="mt-3 text-center text-sm text-muted-foreground">{statusExplainer(instance.status)}</p>
       </div>
     </div>
   );
@@ -230,18 +251,18 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
     <div
       className={cn(
         "mb-6 flex gap-3 rounded-xl border p-4",
-        instance.status === "APPROVED" ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"
+        ["APPROVED", "AWARDED"].includes(instance.status) ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50"
       )}
     >
-      <AlertTriangle size={18} className={cn("shrink-0", instance.status === "APPROVED" ? "text-green-700" : "text-amber-700")} />
+      <AlertTriangle size={18} className={cn("shrink-0", ["APPROVED", "AWARDED"].includes(instance.status) ? "text-green-700" : "text-amber-700")} />
       <div className="text-sm">
-        <p className="font-medium text-bocra-navy">
-          {instance.status === "FLAGGED" ? "BOCRA asked for changes" : "Reviewer notes"}
+        <p className="font-medium text-ceda-navy">
+          {instance.status === "FLAGGED" ? "CEDA asked for changes" : "Note from CEDA"}
           {instance.reviewedAt && <span className="font-normal text-muted-foreground"> · {formatDate(instance.reviewedAt)}</span>}
         </p>
         <p className="mt-1 text-muted-foreground">{instance.reviewNotes}</p>
         {instance.status === "FLAGGED" && (
-          <p className="mt-2 text-xs text-amber-800">Update the data or files below, then resubmit.</p>
+          <p className="mt-2 text-xs text-amber-800">Update your answers or documents below, then sign and resubmit.</p>
         )}
       </div>
     </div>
@@ -253,17 +274,29 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
       <div>
         {header}
         {reviewNote}
-        {instance.status === "SUBMITTED" && (
+        {instance.status === "AWARDED" && (
+          <div className="mb-6 flex items-center gap-4 rounded-xl bg-gradient-to-r from-ceda-navy to-ceda-blue p-5 text-white">
+            <Trophy size={32} className="shrink-0 text-ceda-amber" />
+            <div>
+              <p className="text-sm text-white/70">Award confirmed</p>
+              <p className="text-2xl font-bold">{formatPula(instance.awardAmount)}</p>
+              <p className="text-sm text-white/80">A CEDA officer will contact you about disbursement, mentorship and reporting.</p>
+            </div>
+          </div>
+        )}
+        {["SUBMITTED", "UNDER_REVIEW", "SHORTLISTED"].includes(instance.status) && (
           <div className="mb-6 flex items-center gap-3 rounded-xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900">
             <CheckCircle2 size={18} className="shrink-0" />
-            Submitted {formatDate(instance.submittedAt, true)}. The data is locked while BOCRA reviews it.
+            Submitted {formatDate(instance.submittedAt, true)}. Your answers and documents are locked and signed while CEDA reviews them.
           </div>
         )}
         <div className="grid gap-6 lg:grid-cols-5">
-          <div className="lg:col-span-3">
+          <div className="space-y-6 lg:col-span-3">
+            {instance.feedback && <FeedbackPanel feedback={instance.feedback} schema={schema} />}
             <DataList schema={schema} values={values} />
           </div>
           <div className="space-y-6 lg:col-span-2">
+            <MessageThread instanceId={instance.id} />
             <FileList instanceId={instance.id} files={Object.values(files)} />
             {instance.submissionJwt && (
               <ReceiptPanel instanceId={instance.id} submissionJwt={instance.submissionJwt} dataHash={instance.dataHash} />
@@ -291,12 +324,12 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
               <span
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
-                  i < step ? "bg-bocra-green text-white" : i === step ? "bg-bocra-blue text-white" : "bg-gray-200 text-gray-500"
+                  i < step ? "bg-ceda-green text-white" : i === step ? "bg-ceda-blue text-white" : "bg-gray-200 text-gray-500"
                 )}
               >
                 {i < step ? <CheckCircle2 size={16} /> : i + 1}
               </span>
-              <span className={cn("text-sm", i <= step ? "font-medium text-bocra-navy" : "text-muted-foreground")}>
+              <span className={cn("text-sm", i <= step ? "font-medium text-ceda-navy" : "text-muted-foreground")}>
                 {label}
               </span>
             </button>
@@ -321,6 +354,22 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
       <div className="rounded-xl border border-border bg-white p-5 sm:p-6">
         {step === 0 && (
           <div className="grid gap-5 sm:grid-cols-2">
+            <div className="sm:col-span-2">
+              <label htmlFor="idea-title" className="mb-1.5 block text-sm font-medium">
+                Idea title<span className="ml-1 text-red-500">*</span>
+              </label>
+              <input
+                id="idea-title"
+                value={title}
+                maxLength={140}
+                onChange={(e) => {
+                  setTitle(e.target.value);
+                  setDirty(true);
+                }}
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue"
+              />
+              <p className="mt-1 text-xs text-muted-foreground">One line evaluators will see first, e.g. &ldquo;Solar cold rooms for Tlokweng vegetable farmers&rdquo;.</p>
+            </div>
             {schema.fields.map((field) => (
               <FieldInput
                 key={field.key}
@@ -341,7 +390,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
         {step === 1 && (
           <div className="space-y-4">
             {schema.required_files.length === 0 && (
-              <p className="text-sm text-muted-foreground">This template doesn&apos;t need any files.</p>
+              <p className="text-sm text-muted-foreground">This call doesn&apos;t need any documents.</p>
             )}
             {schema.required_files.map((rf) => {
               const stored = files[rf.key];
@@ -361,10 +410,10 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                     </div>
                     <label
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-bocra-blue",
+                        "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-ceda-blue",
                         stored
-                          ? "border-border hover:bg-bocra-light"
-                          : "border-bocra-blue bg-bocra-blue text-white hover:bg-bocra-blue/90",
+                          ? "border-border hover:bg-ceda-light"
+                          : "border-ceda-blue bg-ceda-blue text-white hover:bg-ceda-blue/90",
                         busy && "pointer-events-none opacity-70"
                       )}
                     >
@@ -411,7 +460,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
         {step === 2 && (
           <div className="space-y-5">
             <DataList schema={schema} values={values} />
-            <div className="rounded-lg bg-bocra-light p-4">
+            <div className="rounded-lg bg-ceda-light p-4">
               <h4 className="mb-2 text-sm font-medium">Files</h4>
               {schema.required_files.length === 0 && <p className="text-sm text-muted-foreground">None required.</p>}
               {schema.required_files.map((rf) => (
@@ -426,8 +475,9 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
             <div className="flex gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
               <Shield size={20} className="shrink-0" />
               <p>
-                Submitting locks this instance. You&apos;ll get a signed receipt covering the data above and the SHA-256
-                hash of every file, so neither side can change them afterwards without it showing.
+                Submitting locks your application. You&apos;ll get a signed receipt covering your answers and the SHA-256
+                hash of every document, so neither you nor CEDA can change them afterwards without it showing. This is
+                your proof of what was submitted, and when.
               </p>
             </div>
           </div>
@@ -437,7 +487,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
           <button
             onClick={() => setStep((s) => Math.max(s - 1, 0))}
             disabled={step === 0}
-            className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground hover:text-bocra-navy disabled:opacity-30"
+            className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground hover:text-ceda-navy disabled:opacity-30"
           >
             <ArrowLeft size={16} /> Back
           </button>
@@ -448,7 +498,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
             <button
               onClick={saveDraft}
               disabled={saving || !dirty}
-              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-bocra-light disabled:opacity-40"
+              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-ceda-light disabled:opacity-40"
             >
               <Save size={15} /> Save draft
             </button>
@@ -456,7 +506,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
               <button
                 onClick={next}
                 disabled={saving || (step === 1 && busyUploading)}
-                className="flex items-center gap-2 rounded-lg bg-bocra-blue px-4 py-2 text-sm font-medium text-white hover:bg-bocra-blue/90 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white hover:bg-ceda-blue/90 disabled:opacity-50"
               >
                 Next <ArrowRight size={16} />
               </button>
@@ -464,7 +514,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
               <button
                 onClick={submit}
                 disabled={submitting}
-                className="flex items-center gap-2 rounded-lg bg-bocra-green px-5 py-2 text-sm font-medium text-white hover:bg-bocra-green/90 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-ceda-green px-5 py-2 text-sm font-medium text-white hover:bg-ceda-green/90 disabled:opacity-50"
               >
                 {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
                 {submitting ? "Signing…" : instance.status === "FLAGGED" ? "Sign & resubmit" : "Sign & submit"}
@@ -473,21 +523,88 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
           </div>
         </div>
       </div>
+      {instance.status === "FLAGGED" && (
+        <div className="mt-6 grid gap-6 lg:grid-cols-2">
+          {instance.feedback && <FeedbackPanel feedback={instance.feedback} schema={schema} />}
+          <MessageThread instanceId={instance.id} title="Questions about the requested changes" />
+        </div>
+      )}
     </div>
+  );
+}
+
+function FeedbackPanel({
+  feedback,
+  schema,
+}: {
+  feedback: NonNullable<RunnerInstance["feedback"]>;
+  schema: InstanceSchema;
+}) {
+  return (
+    <section className="rounded-xl border border-border bg-white p-5">
+      <div className="mb-3 flex items-baseline justify-between gap-3">
+        <h3 className="font-semibold text-ceda-navy">Evaluator feedback</h3>
+        {feedback.average != null && (
+          <span className="text-sm text-muted-foreground">
+            Average score <span className="text-lg font-bold text-ceda-navy">{feedback.average}</span>/100
+          </span>
+        )}
+      </div>
+      {schema.criteria.length > 0 && Object.keys(feedback.perCriterion).length > 0 && (
+        <div className="mb-4 space-y-2">
+          {schema.criteria.map((c) => {
+            const v = feedback.perCriterion[c.key];
+            return (
+              <div key={c.key} className="text-sm">
+                <div className="flex justify-between">
+                  <span>
+                    {c.label} <span className="text-xs text-muted-foreground">({c.weight}%)</span>
+                  </span>
+                  <span className="font-medium">{v ?? "—"}/5</span>
+                </div>
+                <div className="mt-1 h-1.5 rounded-full bg-gray-100">
+                  <div className="h-1.5 rounded-full bg-ceda-blue" style={{ width: `${((v ?? 0) / 5) * 100}%` }} />
+                </div>
+              </div>
+            );
+          })}
+        </div>
+      )}
+      {feedback.comments.length === 0 ? (
+        <p className="text-sm text-muted-foreground">No written comments.</p>
+      ) : (
+        <ul className="space-y-3">
+          {feedback.comments.map((c, i) => (
+            <li key={i} className="rounded-lg bg-ceda-light p-3 text-sm">
+              <p className="mb-1 text-xs font-medium text-muted-foreground">Evaluator {i + 1}</p>
+              <p className="whitespace-pre-wrap">{c}</p>
+            </li>
+          ))}
+        </ul>
+      )}
+      <p className="mt-3 text-xs text-muted-foreground">Evaluators are anonymous. Scores are 1 to 5 per criterion, weighted to a total out of 100.</p>
+    </section>
   );
 }
 
 function DataList({ schema, values }: { schema: InstanceSchema; values: Record<string, string> }) {
   return (
     <div className="rounded-xl border border-border bg-white p-5">
-      <h3 className="mb-3 font-semibold text-bocra-navy">Data</h3>
+      <h3 className="mb-3 font-semibold text-ceda-navy">Your application</h3>
       <dl className="divide-y divide-border text-sm">
-        {schema.fields.map((f) => (
-          <div key={f.key} className="flex justify-between gap-4 py-2">
-            <dt className="text-muted-foreground">{f.label}</dt>
-            <dd className="text-right font-medium">{values[f.key] || "—"}</dd>
-          </div>
-        ))}
+        {schema.fields.map((f) =>
+          f.type === "textarea" ? (
+            <div key={f.key} className="py-3">
+              <dt className="text-muted-foreground">{f.label}</dt>
+              <dd className="mt-1 whitespace-pre-wrap">{values[f.key] || "—"}</dd>
+            </div>
+          ) : (
+            <div key={f.key} className="flex justify-between gap-4 py-2">
+              <dt className="text-muted-foreground">{f.label}</dt>
+              <dd className="text-right font-medium">{values[f.key] || "—"}</dd>
+            </div>
+          )
+        )}
       </dl>
     </div>
   );
@@ -508,7 +625,7 @@ function FieldInput({
 }) {
   const id = `field-${field.key}`;
   const base = cn(
-    "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-bocra-blue",
+    "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue",
     error ? "border-red-400" : "border-border"
   );
   const range = [

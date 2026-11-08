@@ -1,56 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
-import type { InstanceStatus, Role } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { requireUser, badRequest, notFound, PANEL_ROLES } from "@/lib/session";
 import { audit, notify, notifyRoles } from "@/lib/audit";
 import { formatPula } from "@/lib/utils";
+import { ACTIONS } from "@/lib/decisions";
 
 export const dynamic = "force-dynamic";
-
-/**
- * Every decision an idea can receive, who may take it, and from which status.
- * Screening is done by programme admins; final decisions by the adjudication panel.
- */
-const ACTIONS: Record<
-  string,
-  { to: InstanceStatus; from: InstanceStatus[]; roles: Role[]; needsNotes: boolean; verb: string }
-> = {
-  REQUEST_CHANGES: {
-    to: "FLAGGED",
-    from: ["SUBMITTED", "UNDER_REVIEW", "SHORTLISTED"],
-    roles: ["ADMIN", "SUPERADMIN", "ADJUDICATOR"],
-    needsNotes: true,
-    verb: "needs changes",
-  },
-  SEND_TO_PANEL: {
-    to: "SHORTLISTED",
-    from: ["UNDER_REVIEW"],
-    roles: ["ADMIN", "SUPERADMIN"],
-    needsNotes: false,
-    verb: "has been sent to the adjudication panel",
-  },
-  APPROVE: {
-    to: "APPROVED",
-    from: ["SHORTLISTED"],
-    roles: ["ADJUDICATOR", "SUPERADMIN"],
-    needsNotes: true,
-    verb: "has been approved",
-  },
-  AWARD: {
-    to: "AWARDED",
-    from: ["SHORTLISTED", "APPROVED"],
-    roles: ["ADJUDICATOR", "SUPERADMIN"],
-    needsNotes: true,
-    verb: "has won an award",
-  },
-  REJECT: {
-    to: "REJECTED",
-    from: ["SUBMITTED", "UNDER_REVIEW", "SHORTLISTED"],
-    roles: ["ADMIN", "SUPERADMIN", "ADJUDICATOR"],
-    needsNotes: true,
-    verb: "was not selected",
-  },
-};
 
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { user, error } = await requireUser(PANEL_ROLES);

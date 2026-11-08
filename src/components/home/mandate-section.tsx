@@ -57,17 +57,17 @@ const mandateTabs = [
 ];
 
 function getActiveTabClasses(tabId: string) {
-  if (tabId === "telecoms") return "bg-bocra-blue text-white shadow-md";
-  if (tabId === "broadcasting") return "bg-bocra-green text-white shadow-md";
-  if (tabId === "postal") return "bg-bocra-amber text-bocra-navy shadow-md";
-  return "bg-bocra-orange text-bocra-navy shadow-md";
+  if (tabId === "telecoms") return "bg-ceda-blue text-white shadow-md";
+  if (tabId === "broadcasting") return "bg-ceda-green text-white shadow-md";
+  if (tabId === "postal") return "bg-ceda-amber text-ceda-navy shadow-md";
+  return "bg-ceda-orange text-ceda-navy shadow-md";
 }
 
 function getIconBgClasses(tabId: string) {
-  if (tabId === "telecoms") return "bg-bocra-blue text-white";
-  if (tabId === "broadcasting") return "bg-bocra-green text-white";
-  if (tabId === "postal") return "bg-bocra-amber text-bocra-navy";
-  return "bg-bocra-orange text-bocra-navy";
+  if (tabId === "telecoms") return "bg-ceda-blue text-white";
+  if (tabId === "broadcasting") return "bg-ceda-green text-white";
+  if (tabId === "postal") return "bg-ceda-amber text-ceda-navy";
+  return "bg-ceda-orange text-ceda-navy";
 }
 
 export function MandateSection() {
@@ -78,7 +78,7 @@ export function MandateSection() {
     <section className="py-16 lg:py-24">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="text-center mb-10">
-          <h2 className="text-3xl font-bold text-bocra-navy mb-4">
+          <h2 className="text-3xl font-bold text-ceda-navy mb-4">
             Our Regulatory Mandate
           </h2>
           <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -95,7 +95,7 @@ export function MandateSection() {
               className={`flex items-center gap-2 px-5 py-2.5 rounded-full text-sm font-medium transition-all ${
                 activeTab === tab.id
                   ? getActiveTabClasses(tab.id)
-                  : "bg-bocra-light text-bocra-navy hover:bg-gray-200"
+                  : "bg-ceda-light text-ceda-navy hover:bg-gray-200"
               }`}
             >
               {tab.icon}
@@ -111,7 +111,7 @@ export function MandateSection() {
                 {active.icon}
               </div>
               <div>
-                <h3 className="text-xl font-bold text-bocra-navy">{active.label}</h3>
+                <h3 className="text-xl font-bold text-ceda-navy">{active.label}</h3>
                 <p className="text-muted-foreground mt-1 leading-relaxed">{active.description}</p>
               </div>
             </div>
@@ -119,10 +119,10 @@ export function MandateSection() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
               {active.items.map((item) => {
                 const inner = (
-                  <div className="flex items-start gap-3 p-4 rounded-xl bg-bocra-light hover:bg-gray-100 transition-colors group">
-                    <div className="w-2 h-2 rounded-full bg-bocra-blue mt-2 shrink-0" />
+                  <div className="flex items-start gap-3 p-4 rounded-xl bg-ceda-light hover:bg-gray-100 transition-colors group">
+                    <div className="w-2 h-2 rounded-full bg-ceda-blue mt-2 shrink-0" />
                     <div>
-                      <p className="font-medium text-sm text-bocra-navy group-hover:text-bocra-blue transition-colors">
+                      <p className="font-medium text-sm text-ceda-navy group-hover:text-ceda-blue transition-colors">
                         {item.title}
                         {item.url && <ArrowRight className="inline w-3 h-3 ml-1 opacity-0 group-hover:opacity-100 transition-opacity" />}
                       </p>

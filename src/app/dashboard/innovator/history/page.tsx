@@ -1,66 +1,57 @@
-export const dynamic = "force-dynamic";
-
-import { auth } from "@/lib/auth";
-import { prisma } from "@/lib/prisma";
-import { StatusBadge } from "@/components/ui/status-badge";
-import { redirect } from "next/navigation";
 import Link from "next/link";
+import { redirect } from "next/navigation";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/session";
+import { actionLabel } from "@/lib/labels";
 import { formatDate } from "@/lib/utils";
 
-export default async function LicenseeHistoryPage() {
-  const session = await auth();
-  if (!session?.user) redirect("/login");
+export const dynamic = "force-dynamic";
 
-  const userId = (session.user as any).id;
+/** Hidden from innovators so evaluator identities and blind-review steps stay private. */
+const HIDDEN = ["CONFLICT_DECLARED", "NO_CONFLICT_DECLARED", "FILE_DOWNLOADED", "EVALUATION_SUBMITTED"];
 
-  const instances = await prisma.instance.findMany({
-    where: {
-      innovatorId: userId,
-      status: { in: ["SUBMITTED", "APPROVED", "FLAGGED", "REJECTED"] },
-    },
-    include: { template: true },
-    orderBy: { submittedAt: "desc" },
+export default async function ActivityPage() {
+  const user = await getSessionUser();
+  if (!user) redirect("/login");
+
+  const entries = await prisma.auditLog.findMany({
+    where: { instance: { innovatorId: user.id }, action: { notIn: HIDDEN } },
+    orderBy: { createdAt: "desc" },
+    take: 100,
+    include: { instance: { select: { id: true, title: true, referenceCode: true } } },
   });
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-bocra-navy">Submission History</h1>
-        <p className="text-muted-foreground mt-1">Past submissions and their review outcomes</p>
+        <h1 className="text-2xl font-bold text-ceda-navy">Activity</h1>
+        <p className="mt-1 text-muted-foreground">A timeline of everything that has happened to your applications.</p>
       </div>
-
-      <div className="bg-white rounded-xl border border-border">
-        {instances.length === 0 ? (
-          <div className="px-6 py-12 text-center text-muted-foreground">
-            No submission history yet.
-          </div>
+      <div className="rounded-xl border border-border bg-white p-5">
+        {entries.length === 0 ? (
+          <p className="py-10 text-center text-muted-foreground">No activity yet.</p>
         ) : (
-          <div className="divide-y divide-border">
-            {instances.map((instance) => (
-              <div key={instance.id} className="px-6 py-4">
-                <div className="flex items-center justify-between">
-                  <div>
-                    <p className="font-medium text-sm">{instance.template.name}</p>
-                    <p className="text-xs text-muted-foreground">
-                      Submitted {formatDate(instance.submittedAt)} ·{" "}
-                      <Link href={`/dashboard/innovator/instance-runner/${instance.id}`} className="text-bocra-blue hover:underline">
-                        View receipt
+          <ol className="relative ml-2 border-l border-border">
+            {entries.map((e) => (
+              <li key={e.id} className="mb-5 ml-5 last:mb-0">
+                <span className="absolute -left-[5px] mt-1.5 h-2.5 w-2.5 rounded-full bg-ceda-blue" />
+                <p className="text-sm font-medium text-ceda-navy">{actionLabel(e.action)}</p>
+                <p className="text-xs text-muted-foreground">
+                  {formatDate(e.createdAt, true)}
+                  {e.instance && (
+                    <>
+                      {" · "}
+                      <Link href={`/dashboard/innovator/instance-runner/${e.instance.id}`} className="text-ceda-blue hover:underline">
+                        {e.instance.referenceCode} {e.instance.title}
                       </Link>
-                    </p>
-                  </div>
-                  <StatusBadge status={instance.status} />
-                </div>
-                {instance.reviewNotes && (
-                  <p className="mt-2 text-sm text-muted-foreground bg-bocra-light p-3 rounded-lg">
-                    <span className="font-medium">Review notes:</span> {instance.reviewNotes}
-                  </p>
-                )}
-              </div>
+                    </>
+                  )}
+                </p>
+              </li>
             ))}
-          </div>
+          </ol>
         )}
       </div>
     </div>
   );
 }
-

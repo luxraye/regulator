@@ -16,7 +16,7 @@ const config: Config = {
         border: "var(--border)",
         input: "var(--input)",
         ring: "var(--ring)",
-        bocra: {
+        ceda: {
           navy: "#003366",
           blue: "#0066CC",
           green: "#28A745",

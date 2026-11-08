@@ -4,9 +4,10 @@ import { useState } from "react";
 import { Loader2 } from "lucide-react";
 
 const ROLES = [
-  { value: "PUBLIC", label: "Citizen" },
-  { value: "INNOVATOR", label: "Licensee" },
-  { value: "ADMIN", label: "Admin" },
+  { value: "INNOVATOR", label: "Innovator" },
+  { value: "EVALUATOR", label: "Evaluator" },
+  { value: "ADJUDICATOR", label: "Adjudicator" },
+  { value: "ADMIN", label: "Programme admin" },
   { value: "SUPERADMIN", label: "Super admin" },
 ];
 

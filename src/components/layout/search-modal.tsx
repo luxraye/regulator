@@ -36,8 +36,8 @@ const categoryIcons: Record<string, React.ReactNode> = {
 };
 
 const categoryColors: Record<string, string> = {
-  Pages: "bg-bocra-blue/10 text-bocra-blue",
-  Mandate: "bg-bocra-navy/10 text-bocra-navy",
+  Pages: "bg-ceda-blue/10 text-ceda-blue",
+  Mandate: "bg-ceda-navy/10 text-ceda-navy",
   Compliance: "bg-green-50 text-green-600",
   "News & Media": "bg-blue-50 text-blue-600",
   Documents: "bg-green-50 text-green-600",
@@ -166,12 +166,12 @@ export function SearchModal({
             {query && (
               <button
                 onClick={() => setQuery("")}
-                className="p-1 hover:bg-bocra-light rounded-md"
+                className="p-1 hover:bg-ceda-light rounded-md"
               >
                 <X className="w-4 h-4 text-muted-foreground" />
               </button>
             )}
-            <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] text-muted-foreground bg-bocra-light rounded border border-border font-mono">
+            <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] text-muted-foreground bg-ceda-light rounded border border-border font-mono">
               ESC
             </kbd>
           </div>
@@ -191,7 +191,7 @@ export function SearchModal({
                     <button
                       key={term}
                       onClick={() => setQuery(term)}
-                      className="px-3 py-1.5 bg-bocra-light text-bocra-navy text-sm rounded-lg hover:bg-gray-200 transition-colors"
+                      className="px-3 py-1.5 bg-ceda-light text-ceda-navy text-sm rounded-lg hover:bg-gray-200 transition-colors"
                     >
                       {term}
                     </button>
@@ -200,7 +200,7 @@ export function SearchModal({
                 <div className="mt-6 pt-4 border-t border-border">
                   <p className="text-xs text-muted-foreground">
                     Search across {70}+ pages, documents, legislation, portals, and services.
-                    Use <kbd className="px-1 py-0.5 bg-bocra-light rounded text-[10px] font-mono">Ctrl+K</kbd> to
+                    Use <kbd className="px-1 py-0.5 bg-ceda-light rounded text-[10px] font-mono">Ctrl+K</kbd> to
                     open search from anywhere.
                   </p>
                 </div>
@@ -208,7 +208,7 @@ export function SearchModal({
             ) : results.length === 0 ? (
               <div className="p-10 text-center">
                 <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm font-medium text-bocra-navy">
+                <p className="text-sm font-medium text-ceda-navy">
                   No results for &ldquo;{query}&rdquo;
                 </p>
                 <p className="text-xs text-muted-foreground mt-1">
@@ -218,7 +218,7 @@ export function SearchModal({
                       onClose();
                       router.push("/legacy");
                     }}
-                    className="text-bocra-blue hover:underline"
+                    className="text-ceda-blue hover:underline"
                   >
                     browse Legacy Services
                   </button>
@@ -244,7 +244,7 @@ export function SearchModal({
                           onClick={() => navigate(item)}
                           onMouseEnter={() => setSelectedIndex(idx)}
                           className={`w-full flex items-center gap-3 px-5 py-2.5 text-left transition-colors ${
-                            isSelected ? "bg-bocra-light" : "hover:bg-bocra-light/50"
+                            isSelected ? "bg-ceda-light" : "hover:bg-ceda-light/50"
                           }`}
                         >
                           <div
@@ -255,7 +255,7 @@ export function SearchModal({
                             {categoryIcons[item.category] || <ArrowRight className="w-3.5 h-3.5" />}
                           </div>
                           <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-bocra-navy truncate">
+                            <p className="text-sm font-medium text-ceda-navy truncate">
                               {item.title}
                             </p>
                             <p className="text-xs text-muted-foreground truncate">

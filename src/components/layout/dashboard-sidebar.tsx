@@ -3,151 +3,64 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession, signOut } from "next-auth/react";
-import {
-  LayoutDashboard,
-  FileBox,
-  ClipboardCheck,
-  BarChart3,
-  Users,
-  Settings,
-  Layers,
-  PlusCircle,
-  History,
-  LogOut,
-  ChevronLeft,
-  ChevronRight,
-  Grid3X3,
-  FlaskConical,
-  Wrench,
-  Bookmark,
-  Star,
-  MessageSquareWarning,
-  ScrollText,
-} from "lucide-react";
+import { LogOut, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import { cn } from "@/lib/utils";
-
-interface NavItem {
-  href: string;
-  label: string;
-  icon: React.ReactNode;
-}
-
-const citizenNav: NavItem[] = [
-  { href: "/dashboard/citizen", label: "Overview", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/citizen/complaints", label: "My Complaints", icon: <MessageSquareWarning size={20} /> },
-  { href: "/dashboard/citizen/bookmarks", label: "Bookmarks", icon: <Bookmark size={20} /> },
-  { href: "/dashboard/citizen/events", label: "Starred Events", icon: <Star size={20} /> },
-];
-
-const licenseeNav: NavItem[] = [
-  { href: "/dashboard/innovator", label: "Overview", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/innovator/instances", label: "My Instances", icon: <FileBox size={20} /> },
-  { href: "/dashboard/innovator/playground", label: "Playground", icon: <FlaskConical size={20} /> },
-  { href: "/dashboard/innovator/history", label: "History", icon: <History size={20} /> },
-];
-
-const adminNav: NavItem[] = [
-  { href: "/dashboard/admin", label: "Overview", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/admin/provision", label: "Provision", icon: <PlusCircle size={20} /> },
-  { href: "/dashboard/admin/instances", label: "All Instances", icon: <FileBox size={20} /> },
-  { href: "/dashboard/admin/review", label: "Review Queue", icon: <ClipboardCheck size={20} /> },
-  { href: "/dashboard/admin/complaints", label: "Complaints", icon: <MessageSquareWarning size={20} /> },
-  { href: "/dashboard/admin/analytics", label: "Analytics", icon: <BarChart3 size={20} /> },
-];
-
-const superAdminNav: NavItem[] = [
-  ...adminNav,
-  { href: "/dashboard/superadmin/templates", label: "Templates", icon: <Layers size={20} /> },
-  { href: "/dashboard/superadmin/users", label: "Users", icon: <Users size={20} /> },
-  { href: "/dashboard/superadmin/matrix", label: "Matrix", icon: <Grid3X3 size={20} /> },
-  { href: "/dashboard/superadmin/tools", label: "Verification", icon: <Wrench size={20} /> },
-  { href: "/dashboard/superadmin/audit", label: "Audit Trail", icon: <ScrollText size={20} /> },
-  { href: "/dashboard/superadmin/settings", label: "Settings", icon: <Settings size={20} /> },
-];
+import { navFor, isActive } from "@/lib/nav";
+import { roleLabels } from "@/lib/labels";
+import { Logo, LogoMark } from "@/components/brand/logo";
 
 export function DashboardSidebar() {
   const pathname = usePathname();
   const { data: session } = useSession();
   const [collapsed, setCollapsed] = useState(false);
-
-  const role = session?.user?.role;
-  const nav = role === "SUPERADMIN"
-    ? superAdminNav
-    : role === "ADMIN"
-    ? adminNav
-    : role === "PUBLIC"
-    ? citizenNav
-    : licenseeNav;
+  const nav = navFor(session?.user?.role);
 
   return (
-    <aside
-      className={cn(
-        "bg-bocra-navy text-white flex flex-col transition-all duration-200 h-screen",
-        collapsed ? "w-16" : "w-64"
-      )}
-    >
-      <div className="flex items-center justify-between p-4 border-b border-white/10">
-        {!collapsed && (
-          <div className="flex items-center gap-2">
-            <div className="flex gap-1">
-              <span className="w-2 h-2 rounded-full bg-bocra-blue" />
-              <span className="w-2 h-2 rounded-full bg-bocra-green" />
-              <span className="w-2 h-2 rounded-full bg-bocra-amber" />
-              <span className="w-2 h-2 rounded-full bg-bocra-orange" />
-            </div>
-            <span className="font-bold text-sm">BOCRA Portal</span>
-          </div>
-        )}
+    <aside className={cn("flex h-screen flex-col bg-ceda-navy text-white transition-all duration-200", collapsed ? "w-16" : "w-64")}>
+      <div className="flex items-center justify-between border-b border-white/10 p-4">
+        <Link href="/">{collapsed ? <LogoMark /> : <Logo tone="light" sub={false} />}</Link>
         <button
           onClick={() => setCollapsed(!collapsed)}
-          className="p-1 rounded hover:bg-white/10 transition-colors"
+          className="rounded p-1 transition-colors hover:bg-white/10"
+          aria-label={collapsed ? "Expand menu" : "Collapse menu"}
         >
           {collapsed ? <ChevronRight size={16} /> : <ChevronLeft size={16} />}
         </button>
       </div>
 
-      <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
-        {nav.map((item) => {
-          const overviewPaths = ["/dashboard/admin", "/dashboard/innovator", "/dashboard/citizen"];
-          const isActive = pathname === item.href || 
-            (!overviewPaths.includes(item.href) && pathname.startsWith(item.href));
-          return (
-            <Link
-              key={item.href}
-              href={item.href}
-              className={cn(
-                "flex items-center gap-3 px-3 py-2.5 rounded-md text-sm font-medium transition-colors",
-                isActive
-                  ? "bg-bocra-blue text-white"
-                  : "text-white/70 hover:bg-white/10 hover:text-white"
-              )}
-              title={collapsed ? item.label : undefined}
-            >
-              {item.icon}
-              {!collapsed && <span>{item.label}</span>}
-            </Link>
-          );
-        })}
+      <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
+        {nav.map((item) => (
+          <Link
+            key={item.href}
+            href={item.href}
+            className={cn(
+              "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
+              isActive(pathname, item.href) ? "bg-ceda-blue text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
+            )}
+            title={collapsed ? item.label : undefined}
+          >
+            {item.icon}
+            {!collapsed && <span>{item.label}</span>}
+          </Link>
+        ))}
       </nav>
 
-      <div className="p-4 border-t border-white/10 space-y-2">
+      <div className="space-y-2 border-t border-white/10 p-4">
         {!collapsed && session?.user && (
-          <div className="text-xs text-white/60 mb-2">
-            <p className="text-white font-medium truncate">{session.user.name}</p>
+          <div className="mb-2 text-xs text-white/60">
+            <p className="truncate font-medium text-white">{session.user.name}</p>
             <p className="truncate">{session.user.email}</p>
-            <p className="capitalize mt-1 text-bocra-amber">{session.user.role?.toLowerCase()}</p>
+            <p className="mt-1 text-ceda-amber">{roleLabels[session.user.role ?? ""] ?? session.user.role}</p>
           </div>
         )}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className={cn(
-            "flex items-center gap-3 w-full px-3 py-2 rounded-md text-sm text-white/70 hover:bg-white/10 hover:text-white transition-colors",
-          )}
-          title={collapsed ? "Sign Out" : undefined}
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          title={collapsed ? "Sign out" : undefined}
         >
           <LogOut size={20} />
-          {!collapsed && <span>Sign Out</span>}
+          {!collapsed && <span>Sign out</span>}
         </button>
       </div>
     </aside>

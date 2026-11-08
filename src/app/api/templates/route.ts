@@ -26,6 +26,7 @@ export async function GET() {
       opensAt: true,
       closesAt: true,
       fundingSummary: true,
+      reviewersPerIdea: true,
       _count: { select: { instances: true } },
     },
   });
@@ -36,7 +37,7 @@ export async function POST(req: NextRequest) {
   const { user, error } = await requireUser(["ADMIN", "SUPERADMIN"]);
   if (error) return error;
 
-  const { code, name, description, scale, dataType, schema, closesAt, fundingSummary, status } =
+  const { code, name, description, scale, dataType, schema, closesAt, fundingSummary, status, reviewersPerIdea } =
     (await req.json().catch(() => ({}))) ?? {};
   if (!code || !name || !scale || !dataType || !schema || !closesAt) return badRequest("Missing required fields");
   const closes = new Date(closesAt);
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
       closesAt: closes,
       fundingSummary: fundingSummary || null,
       status: status === "DRAFT" ? "DRAFT" : "OPEN",
+      reviewersPerIdea: Math.min(Math.max(Number(reviewersPerIdea) || 2, 1), 5),
       createdById: user.id,
     },
   });
@@ -70,11 +72,25 @@ export async function POST(req: NextRequest) {
   return NextResponse.json(template, { status: 201 });
 }
 
-/** Open or close a call: { id, status }. */
+/**
+ * Open or close a call: { id, status }.
+ * Change scoring criteria: { id, criteria }, only before any scorecard has been submitted.
+ */
 export async function PATCH(req: NextRequest) {
   const { user, error } = await requireUser(["ADMIN", "SUPERADMIN"]);
   if (error) return error;
-  const { id, status } = (await req.json().catch(() => ({}))) ?? {};
+  const { id, status, criteria } = (await req.json().catch(() => ({}))) ?? {};
+  if (id && Array.isArray(criteria)) {
+    const call = await prisma.template.findUnique({ where: { id } });
+    if (!call) return badRequest("Call not found");
+    const scored = await prisma.evaluation.count({ where: { instance: { templateId: id }, submittedAt: { not: null } } });
+    if (scored) return badRequest("Scores have already been submitted on this call, so its criteria are locked");
+    const parsed = parseSchema({ ...(call.schema as object), criteria });
+    if (parsed.error) return badRequest(parsed.error);
+    await prisma.template.update({ where: { id }, data: { schema: parsed.schema as object } });
+    await audit(user.id, "CALL_UPDATED", { metadata: { code: call.code, criteria: parsed.schema!.criteria.map((c) => `${c.label} ${c.weight}%`) } });
+    return NextResponse.json({ criteria: parsed.schema!.criteria });
+  }
   if (!id || !["DRAFT", "OPEN", "CLOSED"].includes(status)) return badRequest("Expected { id, status }");
   const updated = await prisma.template.update({ where: { id }, data: { status }, select: { id: true, code: true, status: true } });
   await audit(user.id, `CALL_${status}`, { metadata: { code: updated.code } });

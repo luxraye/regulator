@@ -24,10 +24,10 @@ export default function HomePage() {
       <TranslatedInstanceSection />
 
       {/* Services */}
-      <section className="py-16 lg:py-24 bg-bocra-light">
+      <section className="py-16 lg:py-24 bg-ceda-light">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
-            <h2 className="text-3xl font-bold text-bocra-navy mb-4">
+            <h2 className="text-3xl font-bold text-ceda-navy mb-4">
               Our Digital Services
             </h2>
             <p className="text-muted-foreground max-w-2xl mx-auto">
@@ -48,7 +48,7 @@ export default function HomePage() {
       {/* Legacy Portal CTA */}
       <section className="py-12 bg-white">
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-bocra-navy to-bocra-blue p-8 text-white text-center">
+          <div className="relative overflow-hidden rounded-2xl bg-gradient-to-br from-ceda-navy to-ceda-blue p-8 text-white text-center">
             <div className="absolute top-0 right-0 w-64 h-64 bg-white/5 rounded-full -translate-y-1/2 translate-x-1/2" />
             <div className="absolute bottom-0 left-0 w-48 h-48 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
             <div className="relative z-10">
@@ -65,7 +65,7 @@ export default function HomePage() {
               </p>
               <Link
                 href="/legacy"
-                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-bocra-navy rounded-lg font-semibold hover:bg-white/90 transition-colors"
+                className="inline-flex items-center gap-2 px-6 py-3 bg-white text-ceda-navy rounded-lg font-semibold hover:bg-white/90 transition-colors"
               >
                 Access Legacy Services
                 <ArrowRight className="w-4 h-4" />
@@ -76,9 +76,9 @@ export default function HomePage() {
       </section>
 
       {/* Security Pillars */}
-      <section className="bg-bocra-navy text-white py-16">
+      <section className="bg-ceda-navy text-white py-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-          <p className="text-bocra-amber text-xs font-semibold uppercase tracking-widest mb-3">
+          <p className="text-ceda-amber text-xs font-semibold uppercase tracking-widest mb-3">
             The Umpire of Botswana&apos;s Communications Industry
           </p>
           <h2 className="text-3xl font-bold mb-3">
@@ -91,30 +91,30 @@ export default function HomePage() {
             <strong className="text-white">verification and validation</strong>, not data collection.
           </p>
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 text-left">
-            <div className="bg-white/5 rounded-xl p-5 border border-bocra-blue/30">
-              <div className="w-10 h-10 rounded-lg bg-bocra-blue/20 flex items-center justify-center mb-3">
-                <Lock className="w-5 h-5 text-bocra-blue" />
+            <div className="bg-white/5 rounded-xl p-5 border border-ceda-blue/30">
+              <div className="w-10 h-10 rounded-lg bg-ceda-blue/20 flex items-center justify-center mb-3">
+                <Lock className="w-5 h-5 text-ceda-blue" />
               </div>
               <h4 className="font-semibold mb-1">Zero-Trust Files</h4>
               <p className="text-sm text-white/60">SHA-256 hashing on client and server. Altered files are rejected immediately.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-bocra-green/30">
-              <div className="w-10 h-10 rounded-lg bg-bocra-green/20 flex items-center justify-center mb-3">
-                <Fingerprint className="w-5 h-5 text-bocra-green" />
+            <div className="bg-white/5 rounded-xl p-5 border border-ceda-green/30">
+              <div className="w-10 h-10 rounded-lg bg-ceda-green/20 flex items-center justify-center mb-3">
+                <Fingerprint className="w-5 h-5 text-ceda-green" />
               </div>
               <h4 className="font-semibold mb-1">Digital Signatures</h4>
               <p className="text-sm text-white/60">JWT-signed receipts cryptographically bind each submission to the licensee.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-bocra-amber/30">
-              <div className="w-10 h-10 rounded-lg bg-bocra-amber/20 flex items-center justify-center mb-3">
-                <Eye className="w-5 h-5 text-bocra-amber" />
+            <div className="bg-white/5 rounded-xl p-5 border border-ceda-amber/30">
+              <div className="w-10 h-10 rounded-lg bg-ceda-amber/20 flex items-center justify-center mb-3">
+                <Eye className="w-5 h-5 text-ceda-amber" />
               </div>
               <h4 className="font-semibold mb-1">Real-time Oversight</h4>
               <p className="text-sm text-white/60">Dashboards update the moment data is submitted. No more waiting months.</p>
             </div>
-            <div className="bg-white/5 rounded-xl p-5 border border-bocra-orange/30">
-              <div className="w-10 h-10 rounded-lg bg-bocra-orange/20 flex items-center justify-center mb-3">
-                <FileCheck className="w-5 h-5 text-bocra-orange" />
+            <div className="bg-white/5 rounded-xl p-5 border border-ceda-orange/30">
+              <div className="w-10 h-10 rounded-lg bg-ceda-orange/20 flex items-center justify-center mb-3">
+                <FileCheck className="w-5 h-5 text-ceda-orange" />
               </div>
               <h4 className="font-semibold mb-1">Immutable Vault</h4>
               <p className="text-sm text-white/60">Submitted data cannot be altered. Full audit trail for every action.</p>
