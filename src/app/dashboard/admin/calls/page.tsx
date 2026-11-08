@@ -89,16 +89,16 @@ export default function CallsPage() {
 
   const set = (k: keyof typeof EMPTY) => (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement | HTMLTextAreaElement>) =>
     setForm((p) => ({ ...p, [k]: e.target.value }));
-  const input = "w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue";
+  const input = "w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-orange";
 
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ceda-navy">Calls for ideas</h1>
+          <h1 className="text-2xl font-bold text-ceda-ink">Calls for ideas</h1>
           <p className="mt-1 text-muted-foreground">Each call targets one sector and venture stage, with its own form, closing date and scoring criteria.</p>
         </div>
-        <button onClick={() => setShowForm((s) => !s)} className="flex items-center gap-1.5 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90">
+        <button onClick={() => setShowForm((s) => !s)} className="flex items-center gap-1.5 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90">
           <Plus size={16} /> {showForm ? "Close" : "New call"}
         </button>
       </div>
@@ -144,7 +144,7 @@ export default function CallsPage() {
             <span className={cn("text-xs", "error" in schemaCheck ? "text-red-600" : "text-green-700")}>
               {"error" in schemaCheck ? schemaCheck.error : `${schemaCheck.ok!.fields.length} questions, ${schemaCheck.ok!.required_files.length} documents, ${criteria.length} criteria`}
             </span>
-            <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-ceda-navy px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
+            <button type="submit" disabled={saving} className="flex items-center gap-2 rounded-lg bg-ceda-ink px-5 py-2.5 text-sm font-medium text-white disabled:opacity-50">
               {saving && <Loader2 size={14} className="animate-spin" />} Publish call
             </button>
           </div>
@@ -207,7 +207,7 @@ function CallDetail({ call, onCriteria }: { call: Call; onCriteria: (c: Criterio
   }
 
   return (
-    <div className="grid grid-cols-1 gap-5 border-t border-border bg-ceda-light/40 px-5 py-4 text-sm lg:grid-cols-3">
+    <div className="grid grid-cols-1 gap-5 border-t border-border bg-ceda-sand/40 px-5 py-4 text-sm lg:grid-cols-3">
       <div className="lg:col-span-1">
         {call.description && <p className="mb-2 text-muted-foreground">{call.description}</p>}
         {call.fundingSummary && <p><span className="font-medium">Funding:</span> {call.fundingSummary}</p>}
@@ -226,14 +226,14 @@ function CallDetail({ call, onCriteria }: { call: Call; onCriteria: (c: Criterio
       <div>
         <div className="mb-2 flex items-center justify-between">
           <p className="text-xs font-semibold uppercase tracking-wide text-muted-foreground">Scoring criteria</p>
-          {!editing && <button onClick={() => setEditing(true)} className="text-xs font-medium text-ceda-blue hover:underline">Edit</button>}
+          {!editing && <button onClick={() => setEditing(true)} className="text-xs font-medium text-ceda-orange hover:underline">Edit</button>}
         </div>
         {editing ? (
           <>
             <CriteriaEditor criteria={criteria} onChange={setCriteria} compact />
             {msg && <p className="mt-2 text-xs text-red-600">{msg}</p>}
             <div className="mt-2 flex gap-2">
-              <button onClick={save} className="rounded-lg bg-ceda-navy px-3 py-1.5 text-xs font-medium text-white">Save criteria</button>
+              <button onClick={save} className="rounded-lg bg-ceda-ink px-3 py-1.5 text-xs font-medium text-white">Save criteria</button>
               <button onClick={() => { setEditing(false); setCriteria(call.schema.criteria); }} className="rounded-lg px-3 py-1.5 text-xs">Cancel</button>
             </div>
           </>
@@ -286,7 +286,7 @@ function CriteriaEditor({ criteria, onChange, compact }: { criteria: Criterion[]
         ))}
       </div>
       <div className="mt-2 flex items-center justify-between">
-        <button type="button" onClick={() => onChange([...criteria, { key: `criterion_${criteria.length + 1}`, label: "New criterion", weight: 10 }])} className="text-xs font-medium text-ceda-blue hover:underline">
+        <button type="button" onClick={() => onChange([...criteria, { key: `criterion_${criteria.length + 1}`, label: "New criterion", weight: 10 }])} className="text-xs font-medium text-ceda-orange hover:underline">
           + Add criterion
         </button>
         <span className={cn("text-xs font-medium", total === 100 ? "text-green-700" : "text-red-600")}>Total {total}% {total !== 100 && "(must be 100)"}</span>

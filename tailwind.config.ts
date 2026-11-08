@@ -17,12 +17,15 @@ const config: Config = {
         input: "var(--input)",
         ring: "var(--ring)",
         ceda: {
-          navy: "#003366",
-          blue: "#0066CC",
-          green: "#28A745",
-          amber: "#FFC107",
-          orange: "#FF6B35",
-          light: "#F5F7FA",
+          // Sampled from the CEDA logo on ceda.co.bw (same palette as the Sky version).
+          ink: "#3a2a24",
+          brown: "#604038",
+          orange: "#d94914",
+          red: "#a02010",
+          amber: "#f8a018",
+          yellow: "#f8c808",
+          green: "#2f9e57",
+          sand: "#faf6f2",
         },
         primary: {
           DEFAULT: "var(--primary)",

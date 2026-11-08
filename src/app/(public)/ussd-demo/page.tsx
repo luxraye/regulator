@@ -89,10 +89,10 @@ export default function USSDDemoPage() {
   }
 
   return (
-    <div className="bg-ceda-light px-4 py-12">
+    <div className="bg-ceda-sand px-4 py-12">
       <div className="mx-auto max-w-5xl">
-        <Link href="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy"><ArrowLeft size={14} /> Home</Link>
-        <h1 className="text-3xl font-bold text-ceda-navy">No data? Dial *161#</h1>
+        <Link href="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-ink"><ArrowLeft size={14} /> Home</Link>
+        <h1 className="text-3xl font-bold text-ceda-ink">No data? Dial *161#</h1>
         <p className="mb-8 mt-2 max-w-2xl text-muted-foreground">
           Many young founders outside the main towns have a basic phone and no data bundle. The USSD service checks eligibility, lists open calls and tracks
           an application by reference, then confirms by SMS. This simulator uses the portal&apos;s live data. Try a reference from any receipt.
@@ -114,11 +114,11 @@ export default function USSDDemoPage() {
             </div>
           </div>
           <div className="rounded-2xl border border-border bg-white p-5">
-            <h2 className="mb-3 flex items-center gap-2 font-semibold text-ceda-navy"><MessageSquare size={16} /> SMS inbox</h2>
+            <h2 className="mb-3 flex items-center gap-2 font-semibold text-ceda-ink"><MessageSquare size={16} /> SMS inbox</h2>
             {sms.length === 0 ? (
               <p className="text-sm text-muted-foreground">Messages the service sends appear here.</p>
             ) : (
-              <ul className="space-y-2">{sms.map((m, i) => <li key={i} className="rounded-lg bg-ceda-light p-3 text-sm">{m}</li>)}</ul>
+              <ul className="space-y-2">{sms.map((m, i) => <li key={i} className="rounded-lg bg-ceda-sand p-3 text-sm">{m}</li>)}</ul>
             )}
             <p className="mt-4 text-xs text-muted-foreground">
               In production the same endpoints (/api/track, /api/calls) sit behind a USSD gateway from a mobile network, and status changes trigger SMS through the same notification events the dashboard uses.

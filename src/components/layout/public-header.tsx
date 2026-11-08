@@ -24,7 +24,7 @@ export function PublicHeader() {
   const dashboardHref = session?.user ? "/dashboard" : "/login";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ceda-navy/95 text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur">
+    <header className="sticky top-0 z-50 border-b border-white/10 bg-ceda-ink/95 text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur">
       <div className="border-b border-white/10">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <span className="truncate text-xs text-white/50">Citizen Entrepreneurial Development Agency · Botswana</span>
@@ -56,7 +56,7 @@ export function PublicHeader() {
               </Link>
             ))}
             <SearchTrigger />
-            <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-blue px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-blue/80">
+            <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-orange px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-orange/80">
               {session ? t("nav.dashboard") : t("nav.signin")}
             </Link>
           </nav>
@@ -76,7 +76,7 @@ export function PublicHeader() {
                 {t(link.key)}
               </Link>
             ))}
-            <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-blue px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
+            <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-orange px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
               {session ? t("nav.dashboard") : t("nav.signin")}
             </Link>
           </nav>

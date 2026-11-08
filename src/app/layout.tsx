@@ -1,12 +1,13 @@
 import type { Metadata, Viewport } from "next";
-import { Inter } from "next/font/google";
+import { Poppins } from "next/font/google";
 import "./globals.css";
 import { SessionProvider } from "@/components/providers/session-provider";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { LanguageProvider } from "@/components/providers/language-provider";
 
-const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
+// Poppins is the typeface on ceda.co.bw.
+const inter = Poppins({ subsets: ["latin"], weight: ["300", "400", "500", "600", "700"], variable: "--font-sans", display: "swap" });
 
 export const metadata: Metadata = {
   title: "CEDA Innovation Portal",
@@ -24,7 +25,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#003366",
+  themeColor: "#3a2a24",
   width: "device-width",
   initialScale: 1,
   maximumScale: 1,

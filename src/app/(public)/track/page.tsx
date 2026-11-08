@@ -33,9 +33,9 @@ export default function TrackPage() {
   }, []);
 
   return (
-    <div className="flex min-h-[70vh] items-start justify-center bg-ceda-light px-4 py-16">
+    <div className="flex min-h-[70vh] items-start justify-center bg-ceda-sand px-4 py-16">
       <div className="w-full max-w-xl">
-        <h1 className="text-3xl font-bold text-ceda-navy">{t("track.title")}</h1>
+        <h1 className="text-3xl font-bold text-ceda-ink">{t("track.title")}</h1>
         <p className="mb-6 mt-2 text-muted-foreground">{t("track.subtitle")}</p>
         <form onSubmit={(e) => { e.preventDefault(); track(); }} className="flex gap-2">
           <input
@@ -43,9 +43,9 @@ export default function TrackPage() {
             onChange={(e) => setRef(e.target.value.toUpperCase())}
             placeholder="CEDA-26-XXXX"
             aria-label="Reference"
-            className="flex-1 rounded-lg border border-border bg-white px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue"
+            className="flex-1 rounded-lg border border-border bg-white px-4 py-3 font-mono text-sm focus:outline-none focus:ring-2 focus:ring-ceda-orange"
           />
-          <button disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-ceda-navy px-5 font-medium text-white disabled:opacity-50">
+          <button disabled={busy} className="inline-flex items-center gap-2 rounded-lg bg-ceda-ink px-5 font-medium text-white disabled:opacity-50">
             {busy ? <Loader2 size={16} className="animate-spin" /> : <Search size={16} />} {t("track.button")}
           </button>
         </form>
@@ -53,13 +53,13 @@ export default function TrackPage() {
         {result && (
           <div className="mt-6 rounded-2xl border border-border bg-white p-6">
             <p className="font-mono text-xs text-muted-foreground">{result.referenceCode}</p>
-            <p className="text-lg font-semibold text-ceda-navy">{result.status}</p>
+            <p className="text-lg font-semibold text-ceda-ink">{result.status}</p>
             <p className="text-sm text-muted-foreground">{result.call}</p>
             <ol className="mt-6 space-y-3">
               {JOURNEY.map((s, i) => (
                 <li key={s.key} className="flex items-center gap-3">
-                  <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold", i < result.stageIndex ? "bg-ceda-green text-white" : i === result.stageIndex ? "bg-ceda-blue text-white ring-4 ring-ceda-blue/15" : "bg-gray-200 text-gray-500")}>{i + 1}</span>
-                  <span className={cn("text-sm", i === result.stageIndex ? "font-semibold text-ceda-navy" : "text-muted-foreground")}>{s.label}</span>
+                  <span className={cn("flex h-7 w-7 items-center justify-center rounded-full text-xs font-bold", i < result.stageIndex ? "bg-ceda-green text-white" : i === result.stageIndex ? "bg-ceda-orange text-white ring-4 ring-ceda-orange/15" : "bg-gray-200 text-gray-500")}>{i + 1}</span>
+                  <span className={cn("text-sm", i === result.stageIndex ? "font-semibold text-ceda-ink" : "text-muted-foreground")}>{s.label}</span>
                 </li>
               ))}
             </ol>

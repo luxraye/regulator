@@ -71,10 +71,10 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
   const evaluationsBlock = (
     <section className="rounded-xl border border-border bg-white p-5">
       <div className="mb-3 flex flex-wrap items-baseline justify-between gap-2">
-        <h3 className="font-semibold text-ceda-navy">Evaluator scores</h3>
+        <h3 className="font-semibold text-ceda-ink">Evaluator scores</h3>
         {summary.mean !== null && (
           <p className="text-sm text-muted-foreground">
-            Mean <span className="text-lg font-bold text-ceda-navy">{summary.mean}</span>/100 · range {summary.min}–{summary.max}
+            Mean <span className="text-lg font-bold text-ceda-ink">{summary.mean}</span>/100 · range {summary.min}–{summary.max}
             {summary.disagreement && <span className="ml-2 rounded-full bg-amber-100 px-2 py-0.5 text-xs font-medium text-amber-800">Evaluators disagree</span>}
           </p>
         )}
@@ -105,25 +105,25 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
                       {vals.map((v, i) => (
                         <td key={i} className={cn("px-2 py-2 text-center font-medium", wide && "bg-amber-50")}>{v ?? "·"}</td>
                       ))}
-                      <td className="py-2 pl-2 text-center font-semibold text-ceda-navy">{summary.perCriterion[c.key] ?? "—"}</td>
+                      <td className="py-2 pl-2 text-center font-semibold text-ceda-ink">{summary.perCriterion[c.key] ?? "—"}</td>
                     </tr>
                   );
                 })}
                 <tr>
                   <td className="py-2 pr-3 font-semibold">Total /100</td>
                   {instance.evaluations.map((e) => (
-                    <td key={e.id} className="px-2 py-2 text-center font-bold text-ceda-navy">
+                    <td key={e.id} className="px-2 py-2 text-center font-bold text-ceda-ink">
                       {e.conflict ? <UserX size={14} className="mx-auto text-gray-400" /> : e.submittedAt ? e.total : <span className="text-xs font-normal text-muted-foreground">pending</span>}
                     </td>
                   ))}
-                  <td className="py-2 pl-2 text-center font-bold text-ceda-blue">{summary.mean ?? "—"}</td>
+                  <td className="py-2 pl-2 text-center font-bold text-ceda-orange">{summary.mean ?? "—"}</td>
                 </tr>
               </tbody>
             </table>
           </div>
           <ul className="mt-4 space-y-3">
             {instance.evaluations.map((e) => (
-              <li key={e.id} className="rounded-lg bg-ceda-light p-3 text-sm">
+              <li key={e.id} className="rounded-lg bg-ceda-sand p-3 text-sm">
                 <p className="mb-1 flex flex-wrap items-center justify-between gap-2 text-xs text-muted-foreground">
                   <span className="font-medium text-foreground">{e.evaluator.name}</span>
                   <span>
@@ -153,13 +153,13 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
 
   return (
     <div>
-      <Link href={back.href} className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy">
+      <Link href={back.href} className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-ink">
         <ArrowLeft size={14} /> {back.label}
       </Link>
       <div className="mb-5 flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
-          <h1 className="text-2xl font-bold text-ceda-navy">{instance.title}</h1>
+          <h1 className="text-2xl font-bold text-ceda-ink">{instance.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {instance.innovator.organizationName ?? instance.innovator.name} · {instance.template.name} · {sectorName(instance.template.dataType)},{" "}
             {stageName(instance.template.scale)} stage
@@ -212,7 +212,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
 
           {instance.reviewNotes && (
             <div className="rounded-xl border border-border bg-white p-5 text-sm">
-              <p className="font-semibold text-ceda-navy">Latest decision note</p>
+              <p className="font-semibold text-ceda-ink">Latest decision note</p>
               <p className="mt-1 text-muted-foreground">{instance.reviewNotes}</p>
               {instance.reviewedBy && <p className="mt-1 text-xs text-muted-foreground">{instance.reviewedBy.name} · {formatDate(instance.reviewedAt, true)}</p>}
             </div>
@@ -229,17 +229,17 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
           )}
 
           <section className="rounded-xl border border-border bg-white p-5">
-            <h3 className="mb-3 font-semibold text-ceda-navy">Screening checks</h3>
+            <h3 className="mb-3 font-semibold text-ceda-ink">Screening checks</h3>
             <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
               {insights.map((a) => (
-                <div key={a.label} className="rounded-lg bg-ceda-light p-3">
+                <div key={a.label} className="rounded-lg bg-ceda-sand p-3">
                   <p className="text-xs text-muted-foreground">{a.label}</p>
                   <div className="mt-1 flex items-center gap-2">
-                    <span className="font-bold text-ceda-navy">{a.value}</span>
+                    <span className="font-bold text-ceda-ink">{a.value}</span>
                     {a.status === "good" && <TrendingUp size={16} className="text-ceda-green" />}
                     {a.status === "warn" && <AlertTriangle size={16} className="text-amber-600" />}
                     {a.status === "bad" && <TrendingDown size={16} className="text-red-600" />}
-                    {a.status === "info" && <Info size={16} className="text-ceda-blue" />}
+                    {a.status === "info" && <Info size={16} className="text-ceda-orange" />}
                   </div>
                   {a.note && <p className="mt-1 text-[11px] text-muted-foreground">{a.note}</p>}
                 </div>
@@ -250,12 +250,12 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
           {mode === "admin" && evaluationsBlock}
 
           <section className="rounded-xl border border-border bg-white p-5">
-            <h3 className="mb-2 font-semibold text-ceda-navy">Application</h3>
+            <h3 className="mb-2 font-semibold text-ceda-ink">Application</h3>
             <dl className="divide-y divide-border text-sm">
               {schema.fields.map((f) =>
                 f.type === "textarea" ? (
                   <div key={f.key} className="py-3">
-                    <dt className="font-medium text-ceda-navy">{f.label}</dt>
+                    <dt className="font-medium text-ceda-ink">{f.label}</dt>
                     <dd className="mt-1 whitespace-pre-wrap text-muted-foreground">{values[f.key] || "—"}</dd>
                   </div>
                 ) : (
@@ -274,7 +274,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
           <FileList instanceId={instance.id} files={files} labels={fileLabels} />
           {instance.submissionJwt && <ReceiptPanel instanceId={instance.id} submissionJwt={instance.submissionJwt} dataHash={instance.dataHash} />}
           <section className="rounded-xl border border-border bg-white p-5">
-            <h3 className="mb-1 font-semibold text-ceda-navy">Applicant</h3>
+            <h3 className="mb-1 font-semibold text-ceda-ink">Applicant</h3>
             <p className="mb-3 text-xs text-muted-foreground">Hidden from evaluators.</p>
             <dl className="space-y-1 text-sm">
               <Row k="Email" v={instance.innovator.email} />
@@ -285,7 +285,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
             </dl>
           </section>
           <section className="rounded-xl border border-border bg-white p-5">
-            <h3 className="mb-3 font-semibold text-ceda-navy">History</h3>
+            <h3 className="mb-3 font-semibold text-ceda-ink">History</h3>
             <ol className="space-y-3">
               {instance.audits.map((a) => (
                 <li key={a.id} className="flex gap-2 text-sm">
@@ -317,7 +317,7 @@ function Meta({ label, value, sub }: { label: string; value: string; sub?: strin
   return (
     <div className="rounded-xl border border-border bg-white p-4">
       <p className="text-xs text-muted-foreground">{label}</p>
-      <p className="mt-0.5 truncate text-sm font-semibold text-ceda-navy">{value}</p>
+      <p className="mt-0.5 truncate text-sm font-semibold text-ceda-ink">{value}</p>
       {sub && <p className="truncate text-xs text-muted-foreground">{sub}</p>}
     </div>
   );

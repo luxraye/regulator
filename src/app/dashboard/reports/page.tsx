@@ -60,10 +60,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ca
     <div>
       <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-bold text-ceda-navy">Reports</h1>
+          <h1 className="text-2xl font-bold text-ceda-ink">Reports</h1>
           <p className="mt-1 text-muted-foreground">Participation, outcomes and timelines{call ? ` for ${call}` : " across all calls"}. Drafts are excluded.</p>
         </div>
-        <a href={`/api/reports/export${call ? `?call=${call}` : ""}`} className="inline-flex items-center gap-2 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90">
+        <a href={`/api/reports/export${call ? `?call=${call}` : ""}`} className="inline-flex items-center gap-2 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90">
           <Download size={15} /> Export CSV
         </a>
       </div>
@@ -107,10 +107,10 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ca
       />
 
       <section className="mt-8 overflow-hidden rounded-xl border border-border bg-white">
-        <h2 className="border-b border-border px-5 py-3 font-semibold text-ceda-navy">Evaluator workload</h2>
+        <h2 className="border-b border-border px-5 py-3 font-semibold text-ceda-ink">Evaluator workload</h2>
         <div className="overflow-x-auto">
           <table className="w-full min-w-[640px] text-sm">
-            <thead className="bg-ceda-light text-left text-xs text-muted-foreground">
+            <thead className="bg-ceda-sand text-left text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-2 font-medium">Evaluator</th>
                 <th className="px-4 py-2 text-right font-medium">Assigned</th>
@@ -143,7 +143,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ca
 
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <Link href={href} className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white hover:bg-ceda-light")}>
+    <Link href={href} className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active ? "border-ceda-ink bg-ceda-ink text-white" : "border-border bg-white hover:bg-ceda-sand")}>
       {children}
     </Link>
   );
@@ -151,9 +151,9 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
 
 function Tile({ label, value, sub, accent }: { label: string; value: string | number; sub?: string; accent?: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-4", accent ? "border-transparent bg-gradient-to-br from-ceda-navy to-ceda-blue text-white" : "border-border bg-white")}>
+    <div className={cn("rounded-xl border p-4", accent ? "border-transparent bg-gradient-to-br from-ceda-ink to-ceda-orange text-white" : "border-border bg-white")}>
       <p className={cn("text-sm", accent ? "text-white/70" : "text-muted-foreground")}>{label}</p>
-      <p className={cn("text-2xl font-bold", accent ? "text-white" : "text-ceda-navy")}>{value}</p>
+      <p className={cn("text-2xl font-bold", accent ? "text-white" : "text-ceda-ink")}>{value}</p>
       {sub && <p className={cn("text-xs", accent ? "text-white/70" : "text-muted-foreground")}>{sub}</p>}
     </div>
   );

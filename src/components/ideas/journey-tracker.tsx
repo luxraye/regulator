@@ -26,10 +26,10 @@ export function JourneyTracker({ status, compact = false }: { status: string; co
           ? rejected
             ? "bg-red-500 text-white"
             : flagged
-              ? "bg-ceda-orange text-white"
+              ? "bg-ceda-red text-white"
               : done
-                ? "bg-ceda-amber text-ceda-navy"
-                : "bg-ceda-blue text-white"
+                ? "bg-ceda-amber text-ceda-ink"
+                : "bg-ceda-orange text-white"
           : past
             ? "bg-ceda-green text-white"
             : "bg-gray-200 text-gray-500";
@@ -42,7 +42,7 @@ export function JourneyTracker({ status, compact = false }: { status: string; co
                   "flex shrink-0 items-center justify-center rounded-full font-semibold",
                   compact ? "h-6 w-6 text-[10px]" : "h-8 w-8 text-xs",
                   tone,
-                  here && !done && !rejected && "ring-4 ring-ceda-blue/15"
+                  here && !done && !rejected && "ring-4 ring-ceda-orange/15"
                 )}
               >
                 {past || (here && done) ? <Check size={compact ? 12 : 14} /> : here && rejected ? <X size={14} /> : i + 1}
@@ -50,7 +50,7 @@ export function JourneyTracker({ status, compact = false }: { status: string; co
               <span className={cn("h-0.5 flex-1", i === JOURNEY.length - 1 ? "opacity-0" : past ? "bg-ceda-green" : "bg-gray-200")} />
             </div>
             {!compact && (
-              <span className={cn("mt-1.5 text-[11px] sm:text-xs", here ? "font-semibold text-ceda-navy" : "text-muted-foreground", skipped && "line-through opacity-50")}>
+              <span className={cn("mt-1.5 text-[11px] sm:text-xs", here ? "font-semibold text-ceda-ink" : "text-muted-foreground", skipped && "line-through opacity-50")}>
                 {here && rejected ? "Not selected" : stage.label}
               </span>
             )}

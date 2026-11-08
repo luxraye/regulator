@@ -4,8 +4,8 @@ import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxi
 
 interface Datum { name: string; value: number }
 
-// One hue for magnitude; the brand blue. Text stays in neutral ink.
-const BAR = "#0066CC";
+// One hue for magnitude; CEDA orange. Text stays in neutral ink.
+const BAR = "#d94914";
 const GRID = "#E5E7EB";
 const INK = "#6B7280";
 
@@ -23,13 +23,13 @@ export function ReportCharts({
             <div key={f.name}>
               <div className="mb-1 flex justify-between text-sm">
                 <span>{f.name}</span>
-                <span className="font-semibold text-ceda-navy">
+                <span className="font-semibold text-ceda-ink">
                   {f.value}
                   {i > 0 && <span className="ml-1 text-xs font-normal text-muted-foreground">({Math.round((f.value / top) * 100)}%)</span>}
                 </span>
               </div>
-              <div className="h-3 rounded-full bg-ceda-light">
-                <div className="h-3 rounded-full bg-ceda-blue" style={{ width: `${(f.value / top) * 100}%` }} />
+              <div className="h-3 rounded-full bg-ceda-sand">
+                <div className="h-3 rounded-full bg-ceda-orange" style={{ width: `${(f.value / top) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -52,7 +52,7 @@ export function ReportCharts({
 function Card({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-white p-5">
-      <h3 className="font-semibold text-ceda-navy">{title}</h3>
+      <h3 className="font-semibold text-ceda-ink">{title}</h3>
       {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
       <div className="mt-3">{children}</div>
     </section>
@@ -66,7 +66,7 @@ function Bars({ data }: { data: Datum[] }) {
         <CartesianGrid vertical={false} stroke={GRID} />
         <XAxis dataKey="name" tick={{ fontSize: 11, fill: INK }} tickLine={false} axisLine={false} />
         <YAxis allowDecimals={false} tick={{ fontSize: 11, fill: INK }} tickLine={false} axisLine={false} />
-        <Tooltip cursor={{ fill: "rgba(0,102,204,0.06)" }} formatter={(v) => [v, "Ideas"]} />
+        <Tooltip cursor={{ fill: "rgba(217,73,20,0.06)" }} formatter={(v) => [v, "Ideas"]} />
         <Bar dataKey="value" fill={BAR} radius={[4, 4, 0, 0]} maxBarSize={28} />
       </BarChart>
     </ResponsiveContainer>
@@ -80,7 +80,7 @@ function HBars({ data, small }: { data: Datum[]; small?: boolean }) {
       <BarChart data={data} layout="vertical" margin={{ left: 0, right: 24 }}>
         <XAxis type="number" hide allowDecimals={false} />
         <YAxis type="category" dataKey="name" width={small ? 80 : 170} tick={{ fontSize: 11, fill: INK }} tickLine={false} axisLine={false} />
-        <Tooltip cursor={{ fill: "rgba(0,102,204,0.06)" }} formatter={(v) => [v, "Ideas"]} />
+        <Tooltip cursor={{ fill: "rgba(217,73,20,0.06)" }} formatter={(v) => [v, "Ideas"]} />
         <Bar dataKey="value" fill={BAR} radius={[0, 4, 4, 0]} barSize={16} label={{ position: "right", fontSize: 11, fill: INK }} />
       </BarChart>
     </ResponsiveContainer>

@@ -35,7 +35,7 @@ export function ConflictDeclaration({ evaluationId, company, title }: { evaluati
 
   return (
     <section className="max-w-2xl rounded-xl border border-amber-200 bg-white p-6">
-      <h2 className="mb-1 flex items-center gap-2 font-semibold text-ceda-navy"><Scale size={18} className="text-amber-600" /> Declare any conflict of interest</h2>
+      <h2 className="mb-1 flex items-center gap-2 font-semibold text-ceda-ink"><Scale size={18} className="text-amber-600" /> Declare any conflict of interest</h2>
       <p className="mb-4 text-sm text-muted-foreground">
         Before you open this idea, confirm you have no personal, family, financial or business link to the applicant company{" "}
         <span className="font-medium text-foreground">{company}</span> or to &ldquo;{title}&rdquo;. This is recorded in the audit trail.
@@ -64,7 +64,7 @@ export function ConflictDeclaration({ evaluationId, company, title }: { evaluati
       <button
         onClick={declare}
         disabled={busy || conflict === null || (conflict && note.trim().length < 3)}
-        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
+        className="mt-4 inline-flex items-center gap-2 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white disabled:opacity-40"
       >
         {busy && <Loader2 size={15} className="animate-spin" />} Confirm declaration
       </button>
@@ -112,11 +112,11 @@ export function Scorecard({
     <section className="rounded-xl border border-border bg-white p-5">
       <div className="mb-4 flex items-end justify-between gap-3">
         <div>
-          <h2 className="font-semibold text-ceda-navy">Scorecard</h2>
+          <h2 className="font-semibold text-ceda-ink">Scorecard</h2>
           <p className="text-xs text-muted-foreground">1 to {SCORE_MAX} per criterion, weighted to 100</p>
         </div>
         <div className="text-right">
-          <p className="text-3xl font-bold text-ceda-navy">{(locked ? savedTotal : total) ?? "—"}</p>
+          <p className="text-3xl font-bold text-ceda-ink">{(locked ? savedTotal : total) ?? "—"}</p>
           <p className="text-xs text-muted-foreground">{locked ? "final" : `${scored}/${criteria.length} scored`}</p>
         </div>
       </div>
@@ -146,7 +146,7 @@ export function Scorecard({
                   aria-label={`${c.label}: ${n}, ${SCORE_GUIDE[n]}`}
                   className={cn(
                     "rounded-lg border py-2 text-sm font-semibold transition-colors disabled:cursor-default",
-                    scores[c.key] === n ? "border-ceda-blue bg-ceda-blue text-white" : "border-border hover:bg-ceda-light"
+                    scores[c.key] === n ? "border-ceda-orange bg-ceda-orange text-white" : "border-border hover:bg-ceda-sand"
                   )}
                 >
                   {n}
@@ -166,7 +166,7 @@ export function Scorecard({
             onChange={(e) => setFeedback(e.target.value)}
             rows={4}
             placeholder="What is strong, and what would make it fundable? Shared anonymously after the decision."
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm disabled:bg-ceda-light"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm disabled:bg-ceda-sand"
           />
         </div>
         <div>
@@ -178,7 +178,7 @@ export function Scorecard({
             onChange={(e) => setPrivateNote(e.target.value)}
             rows={2}
             placeholder="Only CEDA staff and the adjudication panel see this."
-            className="w-full rounded-lg border border-border px-3 py-2 text-sm disabled:bg-ceda-light"
+            className="w-full rounded-lg border border-border px-3 py-2 text-sm disabled:bg-ceda-sand"
           />
         </div>
       </div>
@@ -186,7 +186,7 @@ export function Scorecard({
       {msg && <p className={cn("mt-3 text-sm", msg.ok ? "text-green-700" : "text-red-600")}>{msg.text}</p>}
       {!locked && (
         <div className="mt-4 flex justify-end gap-2">
-          <button onClick={() => save(false)} disabled={!!busy} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-ceda-light disabled:opacity-50">
+          <button onClick={() => save(false)} disabled={!!busy} className="inline-flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-ceda-sand disabled:opacity-50">
             {busy === "save" ? <Loader2 size={15} className="animate-spin" /> : <Save size={15} />} Save draft
           </button>
           <button

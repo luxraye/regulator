@@ -45,7 +45,7 @@ export default async function InnovatorDashboard() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-ceda-navy">Dumela, {user.name.split(" ")[0]}</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Dumela, {user.name.split(" ")[0]}</h1>
         <p className="mt-1 text-muted-foreground">{profile?.organizationName ?? "Innovator"} · {profile?.district ?? "Botswana"}</p>
       </div>
 
@@ -60,7 +60,7 @@ export default async function InnovatorDashboard() {
         <div className="space-y-6 lg:col-span-2">
           {needsYou.length > 0 && (
             <section className="rounded-xl border border-orange-200 bg-orange-50/60">
-              <h2 className="border-b border-orange-200 px-5 py-3 font-semibold text-ceda-navy">Needs your action</h2>
+              <h2 className="border-b border-orange-200 px-5 py-3 font-semibold text-ceda-ink">Needs your action</h2>
               <ul className="divide-y divide-orange-100">
                 {needsYou.map((i) => (
                   <li key={i.id}>
@@ -81,20 +81,20 @@ export default async function InnovatorDashboard() {
 
           <section className="rounded-xl border border-border bg-white">
             <div className="flex items-center justify-between border-b border-border px-5 py-4">
-              <h2 className="font-semibold text-ceda-navy">Track my ideas</h2>
-              <Link href="/dashboard/innovator/instances" className="text-sm font-medium text-ceda-blue hover:underline">All ideas</Link>
+              <h2 className="font-semibold text-ceda-ink">Track my ideas</h2>
+              <Link href="/dashboard/innovator/instances" className="text-sm font-medium text-ceda-orange hover:underline">All ideas</Link>
             </div>
             {ideas.length === 0 ? (
               <div className="px-6 py-12 text-center">
-                <Megaphone className="mx-auto mb-2 text-ceda-blue" />
-                <p className="font-medium text-ceda-navy">No applications yet</p>
+                <Megaphone className="mx-auto mb-2 text-ceda-orange" />
+                <p className="font-medium text-ceda-ink">No applications yet</p>
                 <p className="text-sm text-muted-foreground">Pick an open call below to submit your first idea.</p>
               </div>
             ) : (
               <ul className="divide-y divide-border">
                 {ideas.slice(0, 5).map((i) => (
                   <li key={i.id}>
-                    <Link href={`/dashboard/innovator/instance-runner/${i.id}`} className="block px-5 py-4 hover:bg-ceda-light/60">
+                    <Link href={`/dashboard/innovator/instance-runner/${i.id}`} className="block px-5 py-4 hover:bg-ceda-sand/60">
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">{i.title}</p>
@@ -114,7 +114,7 @@ export default async function InnovatorDashboard() {
 
         <aside className="space-y-6">
           <section className="rounded-xl border border-border bg-white p-5">
-            <h2 className="mb-1 flex items-center gap-2 font-semibold text-ceda-navy">
+            <h2 className="mb-1 flex items-center gap-2 font-semibold text-ceda-ink">
               <ShieldCheck size={18} className={elig.eligible ? "text-ceda-green" : "text-amber-600"} /> Eligibility
             </h2>
             <p className="mb-3 text-xs text-muted-foreground">Checked from your profile against the competition rules.</p>
@@ -136,8 +136,8 @@ export default async function InnovatorDashboard() {
       {freshCalls.length > 0 && (
         <section className="mt-8">
           <div className="mb-4 flex items-center justify-between">
-            <h2 className="font-semibold text-ceda-navy">Open calls you haven&apos;t applied to</h2>
-            <Link href="/dashboard/innovator/calls" className="text-sm font-medium text-ceda-blue hover:underline">All calls</Link>
+            <h2 className="font-semibold text-ceda-ink">Open calls you haven&apos;t applied to</h2>
+            <Link href="/dashboard/innovator/calls" className="text-sm font-medium text-ceda-orange hover:underline">All calls</Link>
           </div>
           <div className="grid grid-cols-1 gap-6 md:grid-cols-3">
             {freshCalls.map((c) => (
@@ -145,7 +145,7 @@ export default async function InnovatorDashboard() {
                 key={c.id}
                 call={c}
                 action={
-                  <Link href="/dashboard/innovator/calls" className="inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+                  <Link href="/dashboard/innovator/calls" className="inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
                     View and apply <ArrowRight size={14} />
                   </Link>
                 }
@@ -160,15 +160,15 @@ export default async function InnovatorDashboard() {
 
 function Stat({ icon, label, value, tone }: { icon: React.ReactNode; label: string; value: number | string; tone: string }) {
   const tones: Record<string, string> = {
-    blue: "text-ceda-blue bg-ceda-blue/10",
+    blue: "text-ceda-orange bg-ceda-orange/10",
     amber: "text-amber-600 bg-amber-100",
     green: "text-ceda-green bg-ceda-green/10",
-    orange: "text-ceda-orange bg-ceda-orange/10",
+    orange: "text-ceda-red bg-ceda-red/10",
   };
   return (
     <div className="rounded-xl border border-border bg-white p-4">
       <div className={`mb-3 flex h-9 w-9 items-center justify-center rounded-lg [&>svg]:h-5 [&>svg]:w-5 ${tones[tone]}`}>{icon}</div>
-      <p className="text-2xl font-bold text-ceda-navy">{value}</p>
+      <p className="text-2xl font-bold text-ceda-ink">{value}</p>
       <p className="text-sm text-muted-foreground">{label}</p>
     </div>
   );

@@ -72,10 +72,10 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
           {results.length === 0 && <li className="px-3 py-8 text-center text-sm text-muted-foreground">Nothing found for &ldquo;{query}&rdquo;</li>}
           {results.map((r, i) => (
             <li key={r.title}>
-              <button onMouseEnter={() => setSel(i)} onClick={() => go(r)} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left ${i === sel ? "bg-ceda-light" : ""}`}>
-                {r.kind === "Help" ? <HelpCircle size={16} className="mt-0.5 text-ceda-green" /> : <ArrowRight size={16} className="mt-0.5 text-ceda-blue" />}
+              <button onMouseEnter={() => setSel(i)} onClick={() => go(r)} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left ${i === sel ? "bg-ceda-sand" : ""}`}>
+                {r.kind === "Help" ? <HelpCircle size={16} className="mt-0.5 text-ceda-green" /> : <ArrowRight size={16} className="mt-0.5 text-ceda-orange" />}
                 <span>
-                  <span className="block text-sm font-medium text-ceda-navy">{r.title}</span>
+                  <span className="block text-sm font-medium text-ceda-ink">{r.title}</span>
                   <span className="block text-xs text-muted-foreground">{r.description}</span>
                 </span>
               </button>

@@ -33,13 +33,13 @@ export default async function SettingsPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">System status</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">System status</h1>
         <p className="mt-1 text-muted-foreground">How this deployment is configured. Change these through environment variables.</p>
       </div>
 
       <div className="space-y-6">
         <section className="rounded-xl border border-border bg-white p-6">
-          <h2 className="mb-4 font-semibold text-ceda-navy">Configuration</h2>
+          <h2 className="mb-4 font-semibold text-ceda-ink">Configuration</h2>
           <ul className="space-y-3">
             {checks.map((c) => (
               <li key={c.label} className="flex items-start gap-3 text-sm">
@@ -54,7 +54,7 @@ export default async function SettingsPage() {
         </section>
 
         <section className="rounded-xl border border-border bg-white p-6">
-          <h2 className="mb-4 font-semibold text-ceda-navy">Security model</h2>
+          <h2 className="mb-4 font-semibold text-ceda-ink">Security model</h2>
           <dl className="space-y-2 text-sm">
             <Row k="File integrity" v="SHA-256 in browser and on server; mismatches are refused" />
             <Row k="File storage" v="Inside PostgreSQL, re-hashed on every download" />
@@ -68,12 +68,12 @@ export default async function SettingsPage() {
         </section>
 
         <section className="rounded-xl border border-border bg-white p-6">
-          <h2 className="mb-4 font-semibold text-ceda-navy">Data</h2>
+          <h2 className="mb-4 font-semibold text-ceda-ink">Data</h2>
           <dl className="grid grid-cols-2 gap-3 text-sm sm:grid-cols-3">
             {stats.map(([k, v]) => (
-              <div key={k} className="rounded-lg bg-ceda-light p-3">
+              <div key={k} className="rounded-lg bg-ceda-sand p-3">
                 <dt className="text-xs text-muted-foreground">{k}</dt>
-                <dd className="font-semibold text-ceda-navy">{v}</dd>
+                <dd className="font-semibold text-ceda-ink">{v}</dd>
               </div>
             ))}
           </dl>
