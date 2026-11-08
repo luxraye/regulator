@@ -47,6 +47,12 @@ yarn db:seed                  # demo calls, ideas, evaluations and accounts
 yarn dev
 ```
 
+## Deploying on Vercel
+
+1. In the Vercel project, open **Storage**, create a **Neon** Postgres database and connect it to the project. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
+2. Add `AUTH_SECRET` and `JWT_SECRET` (any long random strings) under **Settings → Environment Variables**.
+3. Redeploy. The `vercel-build` script syncs the schema, seeds the demo data if the database is empty, then builds. Later deploys never re-seed a database that already has users.
+
 ## Security model
 
 - **Document integrity:** SHA-256 in the browser before upload and again on the server; mismatches are rejected (HTTP 409). Files are stored in Postgres and re-hashed on every download.
