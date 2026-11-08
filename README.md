@@ -1,150 +1,79 @@
-# BOCRA Digital Regulatory Platform
+# CEDA Innovation Portal
 
-Modern digital platform for the Botswana Communications Regulatory Authority (BOCRA), featuring the innovative **Instances** system for secure, schema-driven regulatory compliance.
+A single place for young Batswana to submit innovative ideas to CEDA (Citizen Entrepreneurial Development Agency), have them scored fairly by independent evaluators, follow their application through every stage, and get funded or get feedback they can act on.
 
-> For a full hackathon overview (non-technical + technical), see [`hackathon.md`](hackathon.md).
+Built for the CEDA Innovation Portal hackathon (6–10 November 2026). See [`hackathon.md`](hackathon.md) for the plain-English pitch and a demo script.
 
-## Tech Stack
+## How it meets the brief (section 3.2)
 
-- **Framework**: Next.js 14 (App Router) + TypeScript
-- **Database**: PostgreSQL (Supabase) + Prisma v5
-- **Auth**: Auth.js (NextAuth v5), JWT sessions, role checks in middleware and in every API route
-- **UI**: Tailwind CSS v3 + Lucide icons
-- **Charts**: Recharts
-- **Security**: SHA-256 file hashing in browser and server, signed submission receipts, audit log
+| Requirement | What the portal does |
+| --- | --- |
+| **(a) Idea submission with mandatory fields** | Each call has its own form (problem, solution, novelty, customers, team, funding, jobs, impact, plus call-specific questions) with validation, draft saving, and required documents (pitch deck, CIPA certificate). Documents are SHA-256 hashed in the browser and on the server; a mismatch is refused. Submitting returns a signed receipt. |
+| **(b) Multi-level evaluation** | Programme admin screens (with automatic eligibility, funding-ceiling, cost-per-job and answer-depth checks), then assigns 1–5 evaluators. Each evaluator declares conflicts of interest before seeing the idea, then scores blind on weighted criteria (1–5, weighted to 100) with feedback and a private note. When all scores are in, the idea moves to the adjudication panel, which sees a ranked shortlist, every scorecard side by side, and a flag where evaluators disagree by more than 20 points. Criteria and weights are customisable per call. |
+| **(c) Real-time tracking and notifications** | Five-stage journey (Submission → Review → Feedback → Approval → Award) on every idea, in-app notifications for each transition, public tracking by reference, and USSD tracking with SMS confirmation for founders without data. |
+| **(d) Role-based access** | Innovator, Evaluator, Adjudicator, Programme admin, Super admin. Enforced by middleware on pages and again in every API route. Evaluators never see Omang, age, gender or contact details. |
+| **(e) Feedback and iteration** | Admins and the panel can request changes with a note; the innovator edits and resubmits (counted and audited). A message thread links innovator and CEDA, with internal notes for staff. After a decision, innovators see anonymous evaluator comments and per-criterion averages. |
+| **(f) Reporting** | Participation (by call, sector, district, gender, age band, women-led and rural share), outcomes (funnel, success rate, total and average award, jobs promised), timelines (days to screening, shortlist, decision), evaluator workload, and CSV export without personal identifiers. |
+| **(g) Scalability and modularity** | Calls are data, not code: a new call is a form schema plus criteria. Sector × stage matrix shows coverage. Stateless Next.js on Vercel with Postgres; files in the database with hashes; every list is indexed and paginated where it grows. |
 
-## Getting Started
+**Eligibility (section 4.2):** citizens aged 18–35, applying through a CIPA-registered company more than 50% youth-owned. Checked at sign-up, again when starting an application, and shown on the innovator's dashboard. A public checker needs no account.
 
-### Prerequisites
+**Data Protection Act 2024:** recorded consent, privacy notice, Omang masked on screen, need-to-know access for evaluators, self-service JSON export of all personal data, and audit of every document download.
 
-- Node.js 18+
-- PostgreSQL database (Supabase recommended)
-- Yarn
+## Demo accounts
 
-### Setup
+Every account uses the password `CedaDemo2026!`. The login page has one-click buttons for each role (hide them with `NEXT_PUBLIC_SHOW_DEMO_LOGINS=false`).
+
+| Role | Email | What to look at |
+| --- | --- | --- |
+| Innovator | innovator@demo.ceda.bw | One idea awarded P320,000, one with changes requested and a message thread |
+| Evaluator | evaluator@demo.ceda.bw | An idea waiting for a conflict declaration and scores |
+| Adjudicator | panel@demo.ceda.bw | Ranked shortlist, including one with disagreeing evaluators |
+| Programme admin | admin@demo.ceda.bw | Screening queue, assigning evaluators, calls, reports |
+| Super admin | super@demo.ceda.bw | People and roles, sector matrix, verification tools, audit trail |
+
+## Tech stack
+
+Next.js 14 (App Router) and TypeScript, PostgreSQL with Prisma 5, Auth.js v5 (JWT sessions), Tailwind CSS, Recharts, Lucide icons. Installable as a PWA; English and Setswana on public pages.
+
+## Running it
 
 ```bash
-# Install dependencies
 yarn
-
-# Set up environment
-cp .env.example .env
-# Edit .env with your DATABASE_URL and secrets
-
-# Generate Prisma client
+cp .env.example .env          # set DATABASE_URL, DIRECT_URL, AUTH_SECRET, JWT_SECRET
 yarn db:generate
-
-# Push schema to database
-yarn db:push
-# (upgrading an older deployment? see "Upgrading from the first version" below)
-
-# Seed demo data
-yarn db:seed
-
-# Start development server
+yarn db:push                  # on an existing BOCRA-era database: npx prisma db push --force-reset (wipes data)
+yarn db:seed                  # demo calls, ideas, evaluations and accounts
 yarn dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000).
+## Security model
 
-### Demo Accounts
+- **Document integrity:** SHA-256 in the browser before upload and again on the server; mismatches are rejected (HTTP 409). Files are stored in Postgres and re-hashed on every download.
+- **Signed receipts:** on submission, an HS256 JWT binds the reference, title, answers hash and every document hash. Admins can re-verify any idea, or paste a receipt or file into the verification tools.
+- **Locking:** submitted ideas can't be edited unless CEDA requests changes. Decisions use optimistic checks so two people can't decide at once.
+- **Blind, conflict-checked review:** evaluators must declare before the idea is visible; a declared conflict hides it and alerts admins to reassign.
+- **Audit trail:** every start, submission, assignment, declaration, score, decision, download, export and role change.
 
-| Role | Email | Password |
-|------|-------|----------|
-| Super Admin | super@bocra.org.bw | password123 |
-| Admin | admin@bocra.org.bw | password123 |
-| Licensee (Mascom) | mascom@licensee.co.bw | password123 |
-| Licensee (Orange) | orange@licensee.co.bw | password123 |
-| Licensee (BTC) | btc@licensee.co.bw | password123 |
-| Citizen | citizen@demo.co.bw | password123 |
-
-## Key Features
-
-### Instances System
-Secure, tamper-evident compliance containers that replace static PDF reporting:
-- **Schema-driven**: JSON templates define fields (text, number, textarea, date, select), files and validation rules. The same rules run in the browser and on the server.
-- **Classification Matrix**: Scale (1–6) × DataType (A–F) = 36 compliance contexts
-- **File integrity**: the browser hashes each file (SHA-256) before upload; the server hashes what it received and refuses the file if the two differ. Files are stored in Postgres and re-hashed on every download.
-- **Signed receipts**: on submit, the server signs a receipt (HS256 JWT) containing a hash of the field data and the hash of every file. "Verify integrity" re-checks all of it at any time.
-- **Lifecycle**: Pending → In progress → Submitted → Approved / Needs changes / Rejected. "Needs changes" reopens the instance so the licensee can fix and resubmit; each resubmission gets a new receipt.
-- **Drafts**: licensees can save partially filled instances and come back later.
-
-### Staff tools
-- **Review**: per-instance page with integrity status, automated checks, data, file downloads, receipt and history
-- **Provision**: issue a template to several licensees at once
-- **Complaints desk**: triage public complaints, set status and write a response the complainant sees
-- **Notifications**: in-app bell for new submissions, review outcomes, complaint updates and new assignments
-- **Verification** (super admin): look up a file by its hash, and verify a receipt a licensee shared
-- **Audit trail** (super admin): filterable log of every provision, submission, review, download and role change
-- **Users** (super admin): change roles
-
-### Citizen Portal
-Personalized experience for the public:
-- File and track complaints (with anonymous mode)
-- Bookmark BOCRA documents and resources
-- Star and follow upcoming events
-
-### Legacy Services
-All existing BOCRA website content organized in one searchable page — news, tenders, documents, careers, legislation, and external portals.
-
-### User Roles
-
-| Role | Capabilities |
-|------|-------------|
-| **Citizen** | File & track complaints, bookmark documents, star events |
-| **Licensee** | Submit compliance data via Instance Runner, sandbox playground |
-| **Admin** | Provision instances, review submissions, analytics dashboard |
-| **Super Admin** | Manage templates, users, classification matrix, system settings |
-
-## Project Structure
+## Project structure
 
 ```
-src/
-  app/
-    (public)/              Public pages (home, about, licensing, complaints, legacy)
-    dashboard/
-      citizen/             Complaints, bookmarks, starred events
-      licensee/            Instance list, runner, playground, history
-      admin/               Provision, review queue, analytics
-      superadmin/          Templates, users, matrix, tools, settings
-    api/                   REST API routes
-  components/
-    home/                  Mandate tabs, Instance deep-dive
-    layout/                Header, sidebar, footer
-  lib/                     Auth, Prisma, hashing, JWT, ETL utilities
-prisma/
-  schema.prisma            Database schema
-  seed.ts                  Demo data seeder
+prisma/schema.prisma          Users, calls (Template), ideas (Instance), files, evaluations, messages, audit, notifications
+prisma/seed.ts                Demo data for every role
+src/lib/                      eligibility, scoring, decisions, reports, analysis (screening checks), labels, integrity
+src/app/(public)/             home, calls, track, eligibility, register, login, about, privacy, USSD demo
+src/app/dashboard/innovator   overview, open calls, my ideas, application runner, activity, my data
+src/app/dashboard/evaluator   assignments, conflict declaration, scorecard
+src/app/dashboard/panel       ranked shortlist and decisions
+src/app/dashboard/admin       overview, ideas & screening, calls and criteria
+src/app/dashboard/reports     participation, outcomes, timelines, CSV export
+src/app/dashboard/superadmin  people & roles, sector matrix, verification, audit trail, settings
+src/app/api/                  every action, each guarded by role
 ```
-
-## Upgrading from the first version
-
-This version changes the `InstanceFile` table (files now live in the database) and adds a few columns.
-On a demo database the simplest path is to reset and reseed, which **deletes all data**:
-
-```bash
-npx prisma db push --force-reset
-yarn db:seed
-```
-
-The seed is safe to run again: it recreates the demo instances with dates relative to today and valid receipts.
 
 ## Known limits
 
-- Uploads go through a serverless function, so each file is capped at 4 MB (Vercel's request limit is 4.5 MB). Larger files would need direct-to-storage uploads (e.g. Supabase Storage signed URLs).
-- Licensee self-registration is open. A real rollout should verify licence numbers before granting access.
-
-## Deployment
-
-```bash
-# Environment variables needed:
-DATABASE_URL=<postgres-connection-string>
-DIRECT_URL=<postgres-direct-connection-string>
-AUTH_SECRET=<random-secret>
-NEXTAUTH_URL=<your-app-url>
-JWT_SECRET=<random-secret>
-
-# Build and start
-yarn build
-yarn start
-```
+- Uploads are capped at 4 MB per file (Vercel request limit). Larger files would go to object storage.
+- USSD and SMS are simulated in the browser; the same `/api/track` and `/api/calls` endpoints would sit behind a mobile-network gateway.
+- Setswana copy covers the public pages and should be checked by a native speaker.
+- This is a hackathon prototype, not an official CEDA service. Demo data is fictional.
