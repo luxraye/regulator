@@ -3,21 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
+import { HexField } from "@/components/home/hex-field";
 
 export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   const { t } = useLanguage();
   return (
     <section className="relative overflow-hidden bg-ceda-navy text-white">
-      <div className="absolute inset-0 opacity-[0.05]" aria-hidden>
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0H0V48" fill="none" stroke="white" strokeWidth="0.6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+      <HexField />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
