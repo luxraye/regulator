@@ -1,353 +1,128 @@
 "use client";
 
-import { useState, useRef, useEffect } from "react";
-import { Phone, RotateCcw, ArrowLeft } from "lucide-react";
+import { useState } from "react";
 import Link from "next/link";
+import { ArrowLeft, MessageSquare, Phone, RotateCcw } from "lucide-react";
+import { ageOn, MAX_AGE, MIN_AGE } from "@/lib/eligibility";
+import { formatDate } from "@/lib/utils";
 
-interface USSDScreen {
-  title: string;
-  body: string;
-  options?: { key: string; label: string; next: string }[];
-  input?: { placeholder: string; next: string };
-  final?: boolean;
-}
+type Screen = { text: string; input?: boolean; end?: boolean };
+type State = { step: string; data: Record<string, string> };
 
-const screens: Record<string, USSDScreen> = {
-  home: {
-    title: "BOCRA Services",
-    body: "Welcome to BOCRA\n*123#\n\nSelect an option:",
-    options: [
-      { key: "1", label: "File a Complaint", next: "provider" },
-      { key: "2", label: "Track Complaint", next: "track_input" },
-      { key: "3", label: "BOCRA Info", next: "info" },
-      { key: "4", label: "Contact Us", next: "contact" },
-    ],
-  },
-  provider: {
-    title: "Select Provider",
-    body: "Select your service provider:",
-    options: [
-      { key: "1", label: "Mascom Wireless", next: "category" },
-      { key: "2", label: "Orange Botswana", next: "category" },
-      { key: "3", label: "BTC", next: "category" },
-      { key: "4", label: "BotswanaPost", next: "category" },
-      { key: "5", label: "Other", next: "category" },
-    ],
-  },
-  category: {
-    title: "Complaint Category",
-    body: "What is your complaint about?",
-    options: [
-      { key: "1", label: "Billing / Charges", next: "describe" },
-      { key: "2", label: "Network / Coverage", next: "describe" },
-      { key: "3", label: "Service Quality", next: "describe" },
-      { key: "4", label: "Privacy / Data", next: "describe" },
-      { key: "5", label: "Other", next: "describe" },
-    ],
-  },
-  describe: {
-    title: "Describe Issue",
-    body: "Briefly describe your complaint:\n(Type your message below)",
-    input: { placeholder: "e.g. Charged P50 for unused data", next: "anonymous_choice" },
-  },
-  anonymous_choice: {
-    title: "Identity",
-    body: "Would you like to file anonymously?",
-    options: [
-      { key: "1", label: "Yes, keep me anonymous", next: "confirm" },
-      { key: "2", label: "No, include my number", next: "confirm" },
-    ],
-  },
-  confirm: {
-    title: "Confirm",
-    body: "Your complaint has been recorded.\n\nTracking Code:\nBOCRA-7F2A-91DC\n\nYou will receive an SMS confirmation shortly.\n\nReply 0 for Main Menu.",
-    final: true,
-  },
-  track_input: {
-    title: "Track Complaint",
-    body: "Enter your tracking code:",
-    input: { placeholder: "e.g. BOCRA-7F2A-91DC", next: "track_result" },
-  },
-  track_result: {
-    title: "Complaint Status",
-    body: "Tracking: BOCRA-7F2A-91DC\n\nStatus: UNDER REVIEW\nProvider: Mascom Wireless\nCategory: Billing / Charges\nFiled: 20 March 2026\n\nBOCRA is investigating your complaint. Expected response within 14 working days.\n\nReply 0 for Main Menu.",
-    final: true,
-  },
-  info: {
-    title: "BOCRA Info",
-    body: "BOCRA regulates:\n\n1. Telecommunications\n2. Broadcasting\n3. Postal Services\n4. Internet & ICT\n\nVisit www.bocra.org.bw for more.\n\nReply 0 for Main Menu.",
-    final: true,
-  },
-  contact: {
-    title: "Contact BOCRA",
-    body: "BOCRA Contact Details:\n\nPhone: +267 395 7755\nEmail: info@bocra.org.bw\nAddress: Plot 206/207\nIndependence Ave, Gaborone\n\nOffice Hours:\nMon-Fri 07:30-16:30\n\nReply 0 for Main Menu.",
-    final: true,
-  },
-};
+const MENU = "CEDA Ideas *161#\n1. Open calls\n2. Track my idea\n3. Am I eligible?\n4. Get help by SMS";
 
+/** Feature-phone access for founders without data. Calls the same public APIs as the website. */
 export default function USSDDemoPage() {
-  const [history, setHistory] = useState<string[]>(["home"]);
-  const [inputValue, setInputValue] = useState("");
-  const [userInputs, setUserInputs] = useState<Record<string, string>>({});
-  const inputRef = useRef<HTMLInputElement>(null);
-  const screenRef = useRef<HTMLDivElement>(null);
+  const [state, setState] = useState<State>({ step: "menu", data: {} });
+  const [screen, setScreen] = useState<Screen>({ text: MENU, input: true });
+  const [value, setValue] = useState("");
+  const [busy, setBusy] = useState(false);
+  const [sms, setSms] = useState<string[]>([]);
 
-  const currentId = history[history.length - 1];
-  const screen = screens[currentId] || screens.home;
+  function reset() {
+    setState({ step: "menu", data: {} });
+    setScreen({ text: MENU, input: true });
+    setValue("");
+  }
 
-  useEffect(() => {
-    inputRef.current?.focus();
-    screenRef.current?.scrollTo({ top: 0 });
-  }, [currentId]);
-
-  function handleSend() {
-    const val = inputValue.trim();
-    if (!val) return;
-
-    if (val === "0" && screen.final) {
-      setHistory(["home"]);
-      setInputValue("");
-      setUserInputs({});
-      return;
+  async function send() {
+    const v = value.trim();
+    setValue("");
+    setBusy(true);
+    try {
+      await handle(v);
+    } finally {
+      setBusy(false);
     }
+  }
 
-    if (screen.options) {
-      const match = screen.options.find((o) => o.key === val);
-      if (match) {
-        setHistory((h) => [...h, match.next]);
-        setUserInputs((u) => ({ ...u, [currentId]: match.label }));
+  async function handle(v: string) {
+    const { step, data } = state;
+    const go = (next: string, s: Screen, extra: Record<string, string> = {}) => {
+      setState({ step: next, data: { ...data, ...extra } });
+      setScreen(s);
+    };
+
+    if (v === "0") return reset();
+
+    if (step === "menu") {
+      if (v === "1") {
+        const calls: { code: string; name: string; closesAt: string }[] = await fetch("/api/calls").then((r) => r.json());
+        const lines = calls.slice(0, 5).map((c, i) => `${i + 1}. ${c.name.slice(0, 26)} (closes ${formatDate(c.closesAt).replace(/ \d{4}$/, "")})`);
+        return go("end", { text: `Open calls:\n${lines.join("\n")}\n\nApply at ceda-ideas portal or reply 0 for menu.`, input: true });
       }
-    } else if (screen.input) {
-      setHistory((h) => [...h, screen.input!.next]);
-      setUserInputs((u) => ({ ...u, [currentId]: val }));
+      if (v === "2") return go("track", { text: "Enter your reference\n(e.g. CEDA-26-K7Q2):", input: true });
+      if (v === "3") return go("elig_citizen", { text: "Are you a citizen of Botswana?\n1. Yes\n2. No", input: true });
+      if (v === "4") {
+        setSms((s) => [...s, "CEDA: A programme officer will call you within 2 working days. Ref HELP-" + Math.floor(1000 + Math.random() * 9000)]);
+        return go("end", { text: "Request received. A CEDA officer will call you. You will get an SMS.\n\n0. Menu", input: true });
+      }
+      return setScreen({ text: `Invalid choice.\n\n${MENU}`, input: true });
     }
 
-    setInputValue("");
-  }
-
-  function handleBack() {
-    if (history.length > 1) {
-      setHistory((h) => h.slice(0, -1));
-      setInputValue("");
+    if (step === "track") {
+      const res = await fetch(`/api/track?ref=${encodeURIComponent(v)}`);
+      if (!res.ok) return go("end", { text: "No idea found with that reference.\n\n0. Menu", input: true });
+      const r = await res.json();
+      setSms((s) => [...s, `CEDA: ${r.referenceCode} is now "${r.status}" (stage ${r.stageIndex + 1} of 5: ${r.stage}). We will SMS you when it changes.`]);
+      return go("end", { text: `${r.referenceCode}\n${r.call.slice(0, 30)}\nStatus: ${r.status}\nStage ${r.stageIndex + 1}/5: ${r.stage}\nUpdated ${formatDate(r.updatedAt)}\n\nSMS sent. 0. Menu`, input: true });
     }
-  }
 
-  function handleReset() {
-    setHistory(["home"]);
-    setInputValue("");
-    setUserInputs({});
+    if (step === "elig_citizen") {
+      if (v !== "1") return go("end", { text: "This challenge is for citizens only.\n\n0. Menu", input: true });
+      return go("elig_year", { text: "Enter your year of birth\n(e.g. 1999):", input: true });
+    }
+    if (step === "elig_year") {
+      const year = Number(v);
+      const age = ageOn(new Date(year, 6, 1));
+      if (!year || age < MIN_AGE || age > MAX_AGE) return go("end", { text: `You need to be ${MIN_AGE}-${MAX_AGE}. Ask about other CEDA products: 4 from menu.\n\n0. Menu`, input: true });
+      return go("elig_share", { text: "What % of your company is owned by people aged 18-35?", input: true }, { age: String(age) });
+    }
+    if (step === "elig_share") {
+      const pct = Number(v);
+      if (!(pct > 50 && pct <= 100)) return go("end", { text: "The company must be more than 50% youth-owned.\n\n0. Menu", input: true });
+      setSms((s) => [...s, "CEDA: You meet the youth innovation challenge rules. Register with your Omang and CIPA number to apply."]);
+      return go("end", { text: "You are eligible!\nRegister online, or visit any CEDA office with your Omang and CIPA certificate.\n\nSMS sent. 0. Menu", input: true });
+    }
+
+    reset();
   }
 
   return (
-    <div className="min-h-[80vh] bg-bocra-light py-12">
-      <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="text-center mb-10">
-          <span className="inline-flex items-center gap-2 px-3 py-1 bg-bocra-navy/10 rounded-full text-bocra-navy text-sm font-medium mb-4">
-            <Phone className="w-3.5 h-3.5" />
-            Rural Access Concept
-          </span>
-          <h1 className="text-3xl font-bold text-bocra-navy mb-3">
-            USSD Complaint Service
-          </h1>
-          <p className="text-muted-foreground max-w-2xl mx-auto leading-relaxed">
-            Not everyone has a smartphone or reliable internet. This concept
-            demonstrates how citizens could file and track complaints by simply
-            dialing <strong className="text-bocra-navy">*123#</strong> from any
-            phone — even a basic feature phone with no data connection.
-          </p>
-        </div>
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-10 items-start">
-          {/* Phone simulator */}
-          <div className="flex justify-center">
-            <div className="w-[280px]">
-              {/* Phone frame */}
-              <div className="bg-gray-800 rounded-[2.5rem] p-3 shadow-2xl">
-                <div className="bg-gray-900 rounded-[2rem] overflow-hidden">
-                  {/* Status bar */}
-                  <div className="bg-gray-900 px-5 pt-3 pb-1 flex items-center justify-between">
-                    <span className="text-white text-[11px]">9:41</span>
-                    <div className="flex gap-1 items-center">
-                      <div className="w-4 h-2.5 border border-white/40 rounded-sm">
-                        <div className="w-2/3 h-full bg-white/40 rounded-sm" />
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* USSD dialog */}
-                  <div className="bg-white mx-3 mt-2 rounded-xl overflow-hidden shadow-lg">
-                    {/* Header */}
-                    <div className="bg-bocra-navy px-4 py-2.5 flex items-center gap-2">
-                      {history.length > 1 && (
-                        <button onClick={handleBack} className="text-white/70 hover:text-white">
-                          <ArrowLeft className="w-4 h-4" />
-                        </button>
-                      )}
-                      <span className="text-white text-xs font-medium flex-1">{screen.title}</span>
-                      <button onClick={handleReset} className="text-white/50 hover:text-white">
-                        <RotateCcw className="w-3.5 h-3.5" />
-                      </button>
-                    </div>
-
-                    {/* Body */}
-                    <div ref={screenRef} className="p-4 min-h-[260px] max-h-[300px] overflow-y-auto">
-                      <pre className="text-[12px] text-gray-800 font-sans whitespace-pre-wrap leading-relaxed">
-                        {screen.body}
-                      </pre>
-
-                      {screen.options && (
-                        <div className="mt-3 space-y-1">
-                          {screen.options.map((opt) => (
-                            <button
-                              key={opt.key}
-                              onClick={() => {
-                                setInputValue(opt.key);
-                                setTimeout(() => handleSend(), 0);
-                              }}
-                              className="w-full text-left px-3 py-2 rounded-lg text-[12px] hover:bg-bocra-light active:bg-bocra-light/80 transition-colors flex items-center gap-2"
-                            >
-                              <span className="w-5 h-5 rounded-full bg-bocra-navy text-white text-[10px] font-bold flex items-center justify-center shrink-0">
-                                {opt.key}
-                              </span>
-                              <span className="text-gray-700">{opt.label}</span>
-                            </button>
-                          ))}
-                        </div>
-                      )}
-
-                      {screen.final && (
-                        <button
-                          onClick={handleReset}
-                          className="mt-4 w-full py-2 bg-bocra-navy text-white rounded-lg text-[11px] font-medium"
-                        >
-                          Main Menu (0)
-                        </button>
-                      )}
-                    </div>
-
-                    {/* Input */}
-                    {!screen.final && (
-                      <div className="border-t border-gray-200 px-3 py-2 flex gap-2">
-                        <input
-                          ref={inputRef}
-                          type="text"
-                          value={inputValue}
-                          onChange={(e) => setInputValue(e.target.value)}
-                          onKeyDown={(e) => e.key === "Enter" && handleSend()}
-                          placeholder={screen.input?.placeholder || "Enter option..."}
-                          className="flex-1 text-[12px] px-2 py-1.5 border border-gray-200 rounded-lg focus:outline-none focus:border-bocra-blue"
-                        />
-                        <button
-                          onClick={handleSend}
-                          className="px-3 py-1.5 bg-bocra-blue text-white text-[11px] font-medium rounded-lg"
-                        >
-                          Send
-                        </button>
-                      </div>
-                    )}
-                  </div>
-
-                  {/* Phone bottom space */}
-                  <div className="h-8 bg-gray-900 flex items-center justify-center">
-                    <div className="w-20 h-1 bg-white/20 rounded-full" />
-                  </div>
-                </div>
-              </div>
+    <div className="bg-ceda-light px-4 py-12">
+      <div className="mx-auto max-w-5xl">
+        <Link href="/" className="mb-4 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy"><ArrowLeft size={14} /> Home</Link>
+        <h1 className="text-3xl font-bold text-ceda-navy">No data? Dial *161#</h1>
+        <p className="mb-8 mt-2 max-w-2xl text-muted-foreground">
+          Many young founders outside the main towns have a basic phone and no data bundle. The USSD service checks eligibility, lists open calls and tracks
+          an application by reference, then confirms by SMS. This simulator uses the portal&apos;s live data. Try a reference from any receipt.
+        </p>
+        <div className="grid items-start gap-8 md:grid-cols-2">
+          <div className="mx-auto w-72 rounded-[2.5rem] bg-gray-900 p-4 shadow-2xl">
+            <div className="rounded-xl bg-[#c9d6a3] p-4 font-mono text-[13px] leading-snug text-gray-900" style={{ minHeight: 300 }}>
+              <pre className="whitespace-pre-wrap font-mono">{busy ? "Please wait…" : screen.text}</pre>
+            </div>
+            {screen.input && (
+              <form onSubmit={(e) => { e.preventDefault(); send(); }} className="mt-3 flex gap-2">
+                <input value={value} onChange={(e) => setValue(e.target.value)} aria-label="Reply" className="min-w-0 flex-1 rounded-lg bg-gray-800 px-3 py-2 font-mono text-sm text-white outline-none" autoFocus />
+                <button className="rounded-lg bg-ceda-green px-3 text-sm font-medium text-white">Send</button>
+              </form>
+            )}
+            <div className="mt-3 flex justify-between text-xs text-gray-400">
+              <span className="flex items-center gap-1"><Phone size={12} /> *161#</span>
+              <button onClick={reset} className="flex items-center gap-1 hover:text-white"><RotateCcw size={12} /> Restart</button>
             </div>
           </div>
-
-          {/* Explanation */}
-          <div>
-            <h2 className="text-xl font-bold text-bocra-navy mb-4">
-              How It Would Work
-            </h2>
-            <div className="space-y-4">
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  1
-                </div>
-                <div>
-                  <p className="font-medium text-bocra-navy text-sm">Citizen dials *123#</p>
-                  <p className="text-xs text-muted-foreground">
-                    Works on any phone — no smartphone, no data, no app needed.
-                    The USSD session runs over the cellular network itself.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  2
-                </div>
-                <div>
-                  <p className="font-medium text-bocra-navy text-sm">Navigate the menu</p>
-                  <p className="text-xs text-muted-foreground">
-                    Simple numbered menus guide the user through filing or
-                    tracking a complaint. No typing URLs or downloading apps.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-blue text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  3
-                </div>
-                <div>
-                  <p className="font-medium text-bocra-navy text-sm">Describe the issue</p>
-                  <p className="text-xs text-muted-foreground">
-                    The citizen selects the provider, category, and types a
-                    brief description — all via the USSD text interface.
-                  </p>
-                </div>
-              </div>
-              <div className="flex gap-3">
-                <div className="w-8 h-8 rounded-full bg-bocra-green text-white flex items-center justify-center text-sm font-bold shrink-0">
-                  4
-                </div>
-                <div>
-                  <p className="font-medium text-bocra-navy text-sm">Receive tracking code via SMS</p>
-                  <p className="text-xs text-muted-foreground">
-                    A unique tracking code is sent by SMS. The citizen can
-                    check status anytime by dialing *123# again and selecting
-                    &quot;Track Complaint.&quot;
-                  </p>
-                </div>
-              </div>
-            </div>
-
-            {/* Tech note */}
-            <div className="mt-8 p-4 bg-white rounded-xl border border-border">
-              <h3 className="text-sm font-semibold text-bocra-navy mb-2">
-                Technical Architecture
-              </h3>
-              <p className="text-xs text-muted-foreground leading-relaxed">
-                In production, this would integrate with a USSD gateway provider
-                (e.g., Africa&apos;s Talking, Infobip, or direct MNO
-                integration with Mascom/Orange/BTC). The gateway sends HTTP
-                callbacks to our API, which processes the session state and
-                feeds complaints into the same database used by the web
-                platform. SMS confirmations are sent via the same gateway.
-              </p>
-              <p className="text-xs text-muted-foreground leading-relaxed mt-2">
-                This means a complaint filed via USSD from a village in
-                Kgalagadi appears in the same BOCRA admin dashboard as one
-                filed online from Gaborone — <strong className="text-bocra-navy">one system, equal access</strong>.
-              </p>
-            </div>
-
-            {/* Links */}
-            <div className="mt-6 flex flex-wrap gap-3">
-              <Link
-                href="/complaints"
-                className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors"
-              >
-                File a Complaint Online
-              </Link>
-              <Link
-                href="/"
-                className="px-4 py-2 bg-bocra-light text-bocra-navy rounded-lg text-sm font-medium hover:bg-bocra-light/80 border border-border transition-colors"
-              >
-                Back to Homepage
-              </Link>
-            </div>
+          <div className="rounded-2xl border border-border bg-white p-5">
+            <h2 className="mb-3 flex items-center gap-2 font-semibold text-ceda-navy"><MessageSquare size={16} /> SMS inbox</h2>
+            {sms.length === 0 ? (
+              <p className="text-sm text-muted-foreground">Messages the service sends appear here.</p>
+            ) : (
+              <ul className="space-y-2">{sms.map((m, i) => <li key={i} className="rounded-lg bg-ceda-light p-3 text-sm">{m}</li>)}</ul>
+            )}
+            <p className="mt-4 text-xs text-muted-foreground">
+              In production the same endpoints (/api/track, /api/calls) sit behind a USSD gateway from a mobile network, and status changes trigger SMS through the same notification events the dashboard uses.
+            </p>
           </div>
         </div>
       </div>

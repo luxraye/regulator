@@ -1,290 +1,87 @@
 "use client";
 
-import { useState, useEffect, useRef, useCallback } from "react";
+import { useState, useEffect, useRef, useMemo } from "react";
 import { useRouter } from "next/navigation";
-import Link from "next/link";
-import {
-  Search,
-  X,
-  ExternalLink,
-  ArrowRight,
-  FileText,
-  Shield,
-  Globe,
-  Users,
-  Briefcase,
-  Scale,
-  HelpCircle,
-  MessageSquareWarning,
-  Phone,
-  Command,
-} from "lucide-react";
-import { searchItems, type SearchItem } from "@/lib/search-index";
+import { ArrowRight, HelpCircle, Search, X } from "lucide-react";
 
-const categoryIcons: Record<string, React.ReactNode> = {
-  Pages: <ArrowRight className="w-3.5 h-3.5" />,
-  Mandate: <Shield className="w-3.5 h-3.5" />,
-  Compliance: <FileText className="w-3.5 h-3.5" />,
-  "News & Media": <Globe className="w-3.5 h-3.5" />,
-  Documents: <FileText className="w-3.5 h-3.5" />,
-  Legislation: <Scale className="w-3.5 h-3.5" />,
-  Tenders: <Briefcase className="w-3.5 h-3.5" />,
-  "About BOCRA": <Users className="w-3.5 h-3.5" />,
-  Careers: <Users className="w-3.5 h-3.5" />,
-  Projects: <Globe className="w-3.5 h-3.5" />,
-  Portals: <Globe className="w-3.5 h-3.5" />,
-  Help: <HelpCircle className="w-3.5 h-3.5" />,
-  Providers: <MessageSquareWarning className="w-3.5 h-3.5" />,
-};
+interface Item { title: string; description: string; href: string; tags: string[]; kind: "Page" | "Help" }
 
-const categoryColors: Record<string, string> = {
-  Pages: "bg-bocra-blue/10 text-bocra-blue",
-  Mandate: "bg-bocra-navy/10 text-bocra-navy",
-  Compliance: "bg-green-50 text-green-600",
-  "News & Media": "bg-blue-50 text-blue-600",
-  Documents: "bg-green-50 text-green-600",
-  Legislation: "bg-purple-50 text-purple-600",
-  Tenders: "bg-amber-50 text-amber-600",
-  "About BOCRA": "bg-slate-50 text-slate-600",
-  Careers: "bg-rose-50 text-rose-600",
-  Projects: "bg-teal-50 text-teal-600",
-  Portals: "bg-indigo-50 text-indigo-600",
-  Help: "bg-cyan-50 text-cyan-600",
-  Providers: "bg-red-50 text-red-600",
-};
-
-const popularSearches = [
-  "file complaint",
-  "mascom",
-  "licence",
-  "tariff",
-  "annual report",
-  "tenders",
-  "vacancies",
-  ".bw domain",
+const ITEMS: Item[] = [
+  { kind: "Page", title: "Open calls", description: "Funding calls you can apply to now", href: "/calls", tags: ["apply", "funding", "grant", "call", "challenge"] },
+  { kind: "Page", title: "Am I eligible?", description: "Check the age, citizenship and ownership rules", href: "/eligibility", tags: ["eligible", "age", "youth", "omang", "shareholding", "35"] },
+  { kind: "Page", title: "Track my idea", description: "See where an application is, using its reference", href: "/track", tags: ["status", "reference", "track", "progress"] },
+  { kind: "Page", title: "Create an account", description: "Register as an innovator", href: "/register", tags: ["register", "sign up", "account"] },
+  { kind: "Page", title: "Sign in", description: "Innovators, evaluators, panel and CEDA staff", href: "/login", tags: ["login", "sign in", "password"] },
+  { kind: "Page", title: "Privacy notice", description: "How your data is used under the Data Protection Act 2024", href: "/privacy", tags: ["privacy", "data", "protection", "consent", "dpa"] },
+  { kind: "Page", title: "About the portal", description: "CEDA's innovation programme and how judging works", href: "/about", tags: ["about", "ceda", "judging", "criteria"] },
+  { kind: "Page", title: "USSD and SMS", description: "Check status without data on *161#", href: "/ussd-demo", tags: ["ussd", "sms", "offline", "rural", "no data"] },
+  { kind: "Help", title: "How are ideas scored?", description: "Independent evaluators score 1–5 on weighted criteria, shown on every call", href: "/about#judging", tags: ["score", "criteria", "weight", "evaluator"] },
+  { kind: "Help", title: "What documents do I need?", description: "A pitch deck and your CIPA certificate; a budget is optional", href: "/calls", tags: ["documents", "cipa", "pitch deck", "budget", "upload"] },
+  { kind: "Help", title: "Can I change my idea after submitting?", description: "Only if CEDA asks for changes; then you edit and resubmit", href: "/#how-it-works", tags: ["edit", "change", "resubmit", "feedback"] },
+  { kind: "Help", title: "What is the receipt?", description: "A signed record of exactly what you submitted, and when", href: "/about#integrity", tags: ["receipt", "proof", "hash", "signature"] },
 ];
 
-export function SearchModal({
-  open,
-  onClose,
-}: {
-  open: boolean;
-  onClose: () => void;
-}) {
+function search(q: string) {
+  const s = q.trim().toLowerCase();
+  if (!s) return ITEMS.filter((i) => i.kind === "Page").slice(0, 6);
+  return ITEMS.filter((i) => [i.title, i.description, ...i.tags].join(" ").toLowerCase().includes(s));
+}
+
+export function SearchModal({ open, onClose }: { open: boolean; onClose: () => void }) {
   const [query, setQuery] = useState("");
-  const [results, setResults] = useState<SearchItem[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState(0);
+  const [sel, setSel] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
-  const resultsRef = useRef<HTMLDivElement>(null);
   const router = useRouter();
+  const results = useMemo(() => search(query), [query]);
 
   useEffect(() => {
     if (open) {
       setQuery("");
-      setResults([]);
-      setSelectedIndex(0);
       setTimeout(() => inputRef.current?.focus(), 50);
     }
   }, [open]);
+  useEffect(() => setSel(0), [query]);
 
-  useEffect(() => {
-    const r = searchItems(query);
-    setResults(r);
-    setSelectedIndex(0);
-  }, [query]);
-
-  const navigate = useCallback(
-    (item: SearchItem) => {
-      onClose();
-      if (item.external) {
-        window.open(item.href, "_blank", "noopener,noreferrer");
-      } else {
-        router.push(item.href);
-      }
-    },
-    [onClose, router]
-  );
-
-  useEffect(() => {
-    if (!open) return;
-
-    function handleKey(e: KeyboardEvent) {
-      if (e.key === "Escape") {
-        onClose();
-      } else if (e.key === "ArrowDown") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.min(i + 1, results.length - 1));
-      } else if (e.key === "ArrowUp") {
-        e.preventDefault();
-        setSelectedIndex((i) => Math.max(i - 1, 0));
-      } else if (e.key === "Enter" && results[selectedIndex]) {
-        navigate(results[selectedIndex]);
-      }
-    }
-
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
-  }, [open, onClose, results, selectedIndex, navigate]);
-
-  // Scroll selected into view
-  useEffect(() => {
-    const el = resultsRef.current?.querySelector(`[data-index="${selectedIndex}"]`);
-    el?.scrollIntoView({ block: "nearest" });
-  }, [selectedIndex]);
+  function go(i: Item) {
+    onClose();
+    router.push(i.href);
+  }
 
   if (!open) return null;
-
-  const grouped = results.reduce<Record<string, SearchItem[]>>((acc, item) => {
-    if (!acc[item.category]) acc[item.category] = [];
-    acc[item.category].push(item);
-    return acc;
-  }, {});
-
-  let flatIndex = -1;
-
   return (
-    <div className="fixed inset-0 z-[100]">
-      {/* Backdrop */}
-      <div
-        className="absolute inset-0 bg-black/50 backdrop-blur-sm"
-        onClick={onClose}
-      />
-
-      {/* Modal */}
-      <div className="relative max-w-2xl mx-auto mt-[10vh] mx-4">
-        <div className="bg-white rounded-2xl shadow-2xl border border-border overflow-hidden">
-          {/* Search input */}
-          <div className="flex items-center gap-3 px-5 py-4 border-b border-border">
-            <Search className="w-5 h-5 text-muted-foreground shrink-0" />
-            <input
-              ref={inputRef}
-              type="text"
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search BOCRA services, documents, legislation..."
-              className="flex-1 text-base outline-none placeholder:text-muted-foreground/60"
-              autoComplete="off"
-            />
-            {query && (
-              <button
-                onClick={() => setQuery("")}
-                className="p-1 hover:bg-bocra-light rounded-md"
-              >
-                <X className="w-4 h-4 text-muted-foreground" />
-              </button>
-            )}
-            <kbd className="hidden sm:flex items-center gap-0.5 px-1.5 py-0.5 text-[10px] text-muted-foreground bg-bocra-light rounded border border-border font-mono">
-              ESC
-            </kbd>
-          </div>
-
-          {/* Results */}
-          <div
-            ref={resultsRef}
-            className="max-h-[60vh] overflow-y-auto"
-          >
-            {query.trim() === "" ? (
-              <div className="p-5">
-                <p className="text-xs text-muted-foreground font-medium uppercase tracking-wider mb-3">
-                  Popular Searches
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  {popularSearches.map((term) => (
-                    <button
-                      key={term}
-                      onClick={() => setQuery(term)}
-                      className="px-3 py-1.5 bg-bocra-light text-bocra-navy text-sm rounded-lg hover:bg-gray-200 transition-colors"
-                    >
-                      {term}
-                    </button>
-                  ))}
-                </div>
-                <div className="mt-6 pt-4 border-t border-border">
-                  <p className="text-xs text-muted-foreground">
-                    Search across {70}+ pages, documents, legislation, portals, and services.
-                    Use <kbd className="px-1 py-0.5 bg-bocra-light rounded text-[10px] font-mono">Ctrl+K</kbd> to
-                    open search from anywhere.
-                  </p>
-                </div>
-              </div>
-            ) : results.length === 0 ? (
-              <div className="p-10 text-center">
-                <Search className="w-8 h-8 text-muted-foreground mx-auto mb-3" />
-                <p className="text-sm font-medium text-bocra-navy">
-                  No results for &ldquo;{query}&rdquo;
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Try a different search term or{" "}
-                  <button
-                    onClick={() => {
-                      onClose();
-                      router.push("/legacy");
-                    }}
-                    className="text-bocra-blue hover:underline"
-                  >
-                    browse Legacy Services
-                  </button>
-                </p>
-              </div>
-            ) : (
-              <div className="py-2">
-                {Object.entries(grouped).map(([category, items]) => (
-                  <div key={category}>
-                    <div className="px-5 py-2">
-                      <p className="text-[10px] text-muted-foreground font-semibold uppercase tracking-wider">
-                        {category}
-                      </p>
-                    </div>
-                    {items.map((item) => {
-                      flatIndex++;
-                      const idx = flatIndex;
-                      const isSelected = idx === selectedIndex;
-                      return (
-                        <button
-                          key={`${item.category}-${item.title}`}
-                          data-index={idx}
-                          onClick={() => navigate(item)}
-                          onMouseEnter={() => setSelectedIndex(idx)}
-                          className={`w-full flex items-center gap-3 px-5 py-2.5 text-left transition-colors ${
-                            isSelected ? "bg-bocra-light" : "hover:bg-bocra-light/50"
-                          }`}
-                        >
-                          <div
-                            className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-                              categoryColors[item.category] || "bg-gray-50 text-gray-500"
-                            }`}
-                          >
-                            {categoryIcons[item.category] || <ArrowRight className="w-3.5 h-3.5" />}
-                          </div>
-                          <div className="flex-1 min-w-0">
-                            <p className="text-sm font-medium text-bocra-navy truncate">
-                              {item.title}
-                            </p>
-                            <p className="text-xs text-muted-foreground truncate">
-                              {item.description}
-                            </p>
-                          </div>
-                          {item.external ? (
-                            <ExternalLink className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                          ) : (
-                            <ArrowRight className="w-3.5 h-3.5 text-muted-foreground shrink-0" />
-                          )}
-                        </button>
-                      );
-                    })}
-                  </div>
-                ))}
-                <div className="px-5 py-3 border-t border-border mt-1">
-                  <p className="text-[10px] text-muted-foreground">
-                    {results.length} result{results.length !== 1 ? "s" : ""} •
-                    Use <kbd className="px-0.5 font-mono">↑</kbd> <kbd className="px-0.5 font-mono">↓</kbd> to
-                    navigate, <kbd className="px-0.5 font-mono">Enter</kbd> to select
-                  </p>
-                </div>
-              </div>
-            )}
-          </div>
+    <div className="fixed inset-0 z-[70] flex items-start justify-center bg-black/50 p-4 pt-[12vh]" onClick={onClose}>
+      <div className="w-full max-w-xl overflow-hidden rounded-2xl bg-white text-foreground shadow-2xl" onClick={(e) => e.stopPropagation()} role="dialog" aria-label="Search">
+        <div className="flex items-center gap-3 border-b border-border px-4">
+          <Search size={18} className="text-muted-foreground" />
+          <input
+            ref={inputRef}
+            value={query}
+            onChange={(e) => setQuery(e.target.value)}
+            onKeyDown={(e) => {
+              if (e.key === "Escape") onClose();
+              if (e.key === "ArrowDown") { e.preventDefault(); setSel((x) => Math.min(x + 1, results.length - 1)); }
+              if (e.key === "ArrowUp") { e.preventDefault(); setSel((x) => Math.max(x - 1, 0)); }
+              if (e.key === "Enter" && results[sel]) go(results[sel]);
+            }}
+            placeholder="Search calls, eligibility, help…"
+            className="h-14 flex-1 bg-transparent text-sm outline-none"
+          />
+          <button onClick={onClose} aria-label="Close search"><X size={18} className="text-muted-foreground" /></button>
         </div>
+        <ul className="max-h-[50vh] overflow-y-auto p-2">
+          {results.length === 0 && <li className="px-3 py-8 text-center text-sm text-muted-foreground">Nothing found for &ldquo;{query}&rdquo;</li>}
+          {results.map((r, i) => (
+            <li key={r.title}>
+              <button onMouseEnter={() => setSel(i)} onClick={() => go(r)} className={`flex w-full items-start gap-3 rounded-lg px-3 py-2.5 text-left ${i === sel ? "bg-ceda-light" : ""}`}>
+                {r.kind === "Help" ? <HelpCircle size={16} className="mt-0.5 text-ceda-green" /> : <ArrowRight size={16} className="mt-0.5 text-ceda-blue" />}
+                <span>
+                  <span className="block text-sm font-medium text-ceda-navy">{r.title}</span>
+                  <span className="block text-xs text-muted-foreground">{r.description}</span>
+                </span>
+              </button>
+            </li>
+          ))}
+        </ul>
       </div>
     </div>
   );
@@ -292,30 +89,20 @@ export function SearchModal({
 
 export function SearchTrigger() {
   const [open, setOpen] = useState(false);
-
   useEffect(() => {
-    function handleKey(e: KeyboardEvent) {
-      if ((e.ctrlKey || e.metaKey) && e.key === "k") {
+    function onKey(e: KeyboardEvent) {
+      if ((e.metaKey || e.ctrlKey) && e.key.toLowerCase() === "k") {
         e.preventDefault();
         setOpen(true);
       }
     }
-    window.addEventListener("keydown", handleKey);
-    return () => window.removeEventListener("keydown", handleKey);
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
   }, []);
-
   return (
     <>
-      <button
-        onClick={() => setOpen(true)}
-        className="flex items-center gap-2 px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/20 transition-colors text-sm text-white/70"
-        aria-label="Search"
-      >
-        <Search className="w-3.5 h-3.5" />
-        <span className="hidden sm:inline">Search</span>
-        <kbd className="hidden sm:flex items-center gap-0.5 px-1 py-0.5 text-[9px] text-white/40 bg-white/10 rounded font-mono ml-2">
-          <Command className="w-2.5 h-2.5" />K
-        </kbd>
+      <button onClick={() => setOpen(true)} className="rounded-md p-2 transition-colors hover:bg-white/10" aria-label="Search">
+        <Search size={18} />
       </button>
       <SearchModal open={open} onClose={() => setOpen(false)} />
     </>

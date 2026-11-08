@@ -1,27 +1,17 @@
 {
-  "name": "BOCRA - Botswana Communications Regulatory Authority",
-  "short_name": "BOCRA",
-  "description": "Track complaints, bookmark documents, and engage with BOCRA services",
-  "start_url": "/dashboard/citizen",
+  "name": "CEDA Innovation Portal",
+  "short_name": "CEDA Ideas",
+  "description": "Submit ideas, track your application and get feedback from CEDA",
+  "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#0A1628",
-  "theme_color": "#0A1628",
+  "background_color": "#003366",
+  "theme_color": "#003366",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [
-    {
-      "src": "/icons/icon-192.svg",
-      "sizes": "192x192",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    },
-    {
-      "src": "/icons/icon-512.svg",
-      "sizes": "512x512",
-      "type": "image/svg+xml",
-      "purpose": "any"
-    }
+    { "src": "/icons/icon-192.svg", "sizes": "192x192", "type": "image/svg+xml", "purpose": "any" },
+    { "src": "/icons/icon-512.svg", "sizes": "512x512", "type": "image/svg+xml", "purpose": "any" }
   ],
-  "categories": ["government", "utilities"],
+  "categories": ["business", "finance", "government"],
   "lang": "en"
 }

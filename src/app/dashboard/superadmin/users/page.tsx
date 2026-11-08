@@ -1,65 +1,71 @@
+import Link from "next/link";
+import type { Role } from "@prisma/client";
+import { prisma } from "@/lib/prisma";
+import { getSessionUser } from "@/lib/session";
+import { roleLabels } from "@/lib/labels";
+import { cn, formatDate } from "@/lib/utils";
+import { RoleSelect } from "./role-select";
+import { AddStaff } from "./add-staff";
+
 export const dynamic = "force-dynamic";
 
-import { prisma } from "@/lib/prisma";
+const ROLES: Role[] = ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"];
 
-export default async function UsersPage() {
-  const users = await prisma.user.findMany({
-    orderBy: { createdAt: "desc" },
-    select: {
-      id: true,
-      name: true,
-      email: true,
-      role: true,
-      organizationName: true,
-      licenseNumber: true,
-      createdAt: true,
-    },
-  });
-
-  const roleBadge = (role: string) => {
-    const map: Record<string, string> = {
-      SUPERADMIN: "bg-purple-100 text-purple-700",
-      ADMIN: "bg-blue-100 text-blue-700",
-      LICENSEE: "bg-green-100 text-green-700",
-      PUBLIC: "bg-gray-100 text-gray-600",
-    };
-    return map[role] || "bg-gray-100 text-gray-600";
-  };
+export default async function UsersPage({ searchParams }: { searchParams: { role?: string } }) {
+  const me = await getSessionUser();
+  const role = ROLES.find((r) => r === searchParams.role);
+  const [users, counts] = await Promise.all([
+    prisma.user.findMany({
+      where: role ? { role } : {},
+      orderBy: [{ role: "desc" }, { name: "asc" }],
+      select: { id: true, name: true, email: true, role: true, organizationName: true, expertise: true, district: true, createdAt: true },
+    }),
+    prisma.user.groupBy({ by: ["role"], _count: true }),
+  ]);
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-bocra-navy">User Management</h1>
-        <p className="text-muted-foreground mt-1">{users.length} registered users</p>
+      <div className="mb-6 flex flex-wrap items-end justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ceda-navy">People &amp; roles</h1>
+          <p className="mt-1 text-muted-foreground">Innovators register themselves. Add evaluators, adjudicators and programme staff here.</p>
+        </div>
+        <AddStaff />
       </div>
 
-      <div className="bg-white rounded-xl border border-border overflow-x-auto">
-        <table className="w-full text-sm">
+      <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
+        <Link href="/dashboard/superadmin/users" className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", !role ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white")}>
+          Everyone <span className="opacity-60">{counts.reduce((a, c) => a + c._count, 0)}</span>
+        </Link>
+        {ROLES.map((r) => (
+          <Link key={r} href={`/dashboard/superadmin/users?role=${r}`} className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", role === r ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white hover:bg-ceda-light")}>
+            {roleLabels[r]} <span className="opacity-60">{counts.find((c) => c.role === r)?._count ?? 0}</span>
+          </Link>
+        ))}
+      </div>
+
+      <div className="overflow-x-auto rounded-xl border border-border bg-white">
+        <table className="w-full min-w-[720px] text-sm">
           <thead>
-            <tr className="border-b border-border text-left">
-              <th className="px-6 py-3 font-medium text-muted-foreground">Name</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Email</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Role</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Organization</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">License #</th>
-              <th className="px-6 py-3 font-medium text-muted-foreground">Joined</th>
+            <tr className="border-b border-border text-left text-xs text-muted-foreground">
+              <th className="px-5 py-3 font-medium">Name</th>
+              <th className="px-5 py-3 font-medium">Role</th>
+              <th className="px-5 py-3 font-medium">Company or expertise</th>
+              <th className="px-5 py-3 font-medium">Joined</th>
             </tr>
           </thead>
           <tbody className="divide-y divide-border">
-            {users.map((user) => (
-              <tr key={user.id} className="hover:bg-bocra-light/50">
-                <td className="px-6 py-3 font-medium">{user.name}</td>
-                <td className="px-6 py-3 text-muted-foreground">{user.email}</td>
-                <td className="px-6 py-3">
-                  <span className={`px-2.5 py-1 rounded-full text-xs font-medium ${roleBadge(user.role)}`}>
-                    {user.role}
-                  </span>
+            {users.map((u) => (
+              <tr key={u.id} className="hover:bg-ceda-light/50">
+                <td className="px-5 py-3">
+                  <p className="font-medium">{u.name}</p>
+                  <p className="text-xs text-muted-foreground">{u.email}</p>
                 </td>
-                <td className="px-6 py-3 text-muted-foreground">{user.organizationName || "—"}</td>
-                <td className="px-6 py-3 text-muted-foreground font-mono">{user.licenseNumber || "—"}</td>
-                <td className="px-6 py-3 text-muted-foreground">
-                  {new Date(user.createdAt).toLocaleDateString()}
+                <td className="px-5 py-3"><RoleSelect userId={u.id} role={u.role} disabled={u.id === me?.id} /></td>
+                <td className="px-5 py-3 text-muted-foreground">
+                  {u.role === "INNOVATOR" ? [u.organizationName, u.district].filter(Boolean).join(" · ") || "—" : u.expertise || "—"}
                 </td>
+                <td className="px-5 py-3 text-muted-foreground">{formatDate(u.createdAt)}</td>
               </tr>
             ))}
           </tbody>

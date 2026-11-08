@@ -1,23 +1,48 @@
 import jwt from "jsonwebtoken";
 
-const JWT_SECRET = process.env.JWT_SECRET || "fallback-secret";
-
-interface SubmissionPayload {
+export interface SubmissionReceipt {
   instanceId: string;
-  licenseeId: string;
+  referenceCode: string;
+  title: string;
+  templateCode: string;
+  innovatorId: string;
+  innovatorOrg: string | null;
   submittedAt: string;
-  fileHashes: { fileName: string; hash: string }[];
+  submissionNumber: number;
+  dataHash: string;
   fieldCount: number;
+  fileHashes: { fileKey: string; fileName: string; hash: string }[];
 }
 
-export function signSubmission(payload: SubmissionPayload): string {
-  return jwt.sign(payload, JWT_SECRET, { expiresIn: "100y" });
-}
+const ISSUER = "ceda-innovation-portal";
 
-export function verifySubmission(token: string): SubmissionPayload | null {
-  try {
-    return jwt.verify(token, JWT_SECRET) as SubmissionPayload;
-  } catch {
-    return null;
+function secret(): string {
+  const s = process.env.JWT_SECRET;
+  if (s) return s;
+  if (process.env.NODE_ENV === "production") {
+    throw new Error("JWT_SECRET must be set in production");
   }
+  return "dev-only-jwt-secret";
+}
+
+export function signSubmission(payload: SubmissionReceipt): string {
+  return jwt.sign(payload, secret(), { algorithm: "HS256", issuer: ISSUER });
+}
+
+export type VerifyResult =
+  | { valid: true; payload: SubmissionReceipt }
+  | { valid: false; reason: string; payload: SubmissionReceipt | null };
+
+export function verifySubmission(token: string): VerifyResult {
+  try {
+    const payload = jwt.verify(token.trim(), secret(), { algorithms: ["HS256"], issuer: ISSUER }) as SubmissionReceipt;
+    return { valid: true, payload };
+  } catch (e) {
+    const decoded = jwt.decode(token.trim()) as SubmissionReceipt | null;
+    return { valid: false, reason: (e as Error).message, payload: decoded };
+  }
+}
+
+export function isJwtSecretConfigured() {
+  return !!process.env.JWT_SECRET;
 }

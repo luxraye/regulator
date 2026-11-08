@@ -19,7 +19,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
   const [locale, setLocaleState] = useState<Locale>("en");
 
   useEffect(() => {
-    const saved = localStorage.getItem("bocra-lang") as Locale | null;
+    const saved = localStorage.getItem("ceda-lang") as Locale | null;
     if (saved === "en" || saved === "tn") {
       setLocaleState(saved);
     }
@@ -27,7 +27,7 @@ export function LanguageProvider({ children }: { children: React.ReactNode }) {
 
   const setLocale = useCallback((l: Locale) => {
     setLocaleState(l);
-    localStorage.setItem("bocra-lang", l);
+    localStorage.setItem("ceda-lang", l);
     document.documentElement.lang = l === "tn" ? "tn" : "en";
   }, []);
 

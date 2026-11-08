@@ -1,7 +1,8 @@
 "use client";
 
+import { LogoMark } from "@/components/brand/logo";
 import { useState, useEffect } from "react";
-import { Smartphone, Download, QrCode, Check, Share2, Phone } from "lucide-react";
+import { Smartphone, QrCode, Check, Share2, Phone } from "lucide-react";
 import Link from "next/link";
 
 export function PWAInstallSection() {
@@ -19,16 +20,16 @@ export function PWAInstallSection() {
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           {/* Left: info */}
           <div>
-            <div className="inline-flex items-center gap-2 px-3 py-1 bg-bocra-blue/10 rounded-full text-bocra-blue text-sm font-medium mb-4">
+            <div className="inline-flex items-center gap-2 px-3 py-1 bg-ceda-blue/10 rounded-full text-ceda-blue text-sm font-medium mb-4">
               <Smartphone className="w-3.5 h-3.5" />
               Mobile App
             </div>
-            <h2 className="text-3xl font-bold text-bocra-navy mb-4">
-              BOCRA in Your Pocket
+            <h2 className="text-3xl font-bold text-ceda-navy mb-4">
+              Apply from your phone
             </h2>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Access your citizen dashboard, track complaints, and stay updated
-              — all from your phone. No app store needed.
+              Most young Batswana are online on a phone, not a laptop. Install the portal to draft your idea,
+              upload your pitch deck and get status alerts. No app store and little data needed.
             </p>
 
             <div className="space-y-4">
@@ -37,7 +38,7 @@ export function PWAInstallSection() {
                   <Check className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-bocra-navy">Works offline</p>
+                  <p className="font-medium text-sm text-ceda-navy">Works offline</p>
                   <p className="text-xs text-muted-foreground">
                     The app shell loads instantly, even on slow connections
                   </p>
@@ -48,7 +49,7 @@ export function PWAInstallSection() {
                   <Check className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-bocra-navy">Full-screen experience</p>
+                  <p className="font-medium text-sm text-ceda-navy">Full-screen experience</p>
                   <p className="text-xs text-muted-foreground">
                     Opens like a native app — no browser toolbar
                   </p>
@@ -59,7 +60,7 @@ export function PWAInstallSection() {
                   <Check className="w-4 h-4" />
                 </div>
                 <div>
-                  <p className="font-medium text-sm text-bocra-navy">Always up to date</p>
+                  <p className="font-medium text-sm text-ceda-navy">Always up to date</p>
                   <p className="text-xs text-muted-foreground">
                     No manual updates — always the latest version
                   </p>
@@ -68,16 +69,16 @@ export function PWAInstallSection() {
             </div>
 
             {/* Install instructions */}
-            <div className="mt-8 p-4 bg-bocra-light rounded-xl">
-              <p className="text-sm font-medium text-bocra-navy mb-2 flex items-center gap-2">
+            <div className="mt-8 p-4 bg-ceda-light rounded-xl">
+              <p className="text-sm font-medium text-ceda-navy mb-2 flex items-center gap-2">
                 <Share2 className="w-4 h-4" />
                 How to install
               </p>
               <ol className="text-xs text-muted-foreground space-y-1.5 list-decimal list-inside">
-                <li>Open this website in <strong className="text-bocra-navy">Chrome</strong> or <strong className="text-bocra-navy">Safari</strong> on your phone</li>
+                <li>Open this website in <strong className="text-ceda-navy">Chrome</strong> or <strong className="text-ceda-navy">Safari</strong> on your phone</li>
                 <li>Tap the menu (three dots) or share button</li>
-                <li>Select <strong className="text-bocra-navy">&quot;Add to Home Screen&quot;</strong></li>
-                <li>The BOCRA app icon will appear on your home screen</li>
+                <li>Select <strong className="text-ceda-navy">&quot;Add to Home Screen&quot;</strong></li>
+                <li>The CEDA Ideas icon will appear on your home screen</li>
               </ol>
             </div>
           </div>
@@ -86,10 +87,10 @@ export function PWAInstallSection() {
           <div className="flex flex-col items-center">
             {/* Phone mockup */}
             <div className="relative w-64 mx-auto mb-8">
-              <div className="bg-bocra-navy rounded-[2rem] p-3 shadow-2xl">
-                <div className="bg-bocra-light rounded-[1.5rem] overflow-hidden">
+              <div className="bg-ceda-navy rounded-[2rem] p-3 shadow-2xl">
+                <div className="bg-ceda-light rounded-[1.5rem] overflow-hidden">
                   {/* Status bar */}
-                  <div className="bg-bocra-navy px-4 py-2 flex items-center justify-between">
+                  <div className="bg-ceda-navy px-4 py-2 flex items-center justify-between">
                     <span className="text-white text-[10px] font-medium">9:41</span>
                     <div className="flex gap-1">
                       <div className="w-3 h-2 bg-white/60 rounded-sm" />
@@ -98,44 +99,39 @@ export function PWAInstallSection() {
                     </div>
                   </div>
                   {/* App content preview */}
-                  <div className="p-3 space-y-2 bg-bocra-light min-h-[280px]">
+                  <div className="p-3 space-y-2 bg-ceda-light min-h-[280px]">
                     <div className="flex items-center gap-2 mb-3">
-                      <div className="flex gap-0.5">
-                        <span className="w-1.5 h-1.5 rounded-full bg-bocra-blue" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-bocra-green" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-bocra-amber" />
-                        <span className="w-1.5 h-1.5 rounded-full bg-bocra-orange" />
-                      </div>
-                      <span className="text-[9px] font-bold text-bocra-navy">BOCRA</span>
+                      <LogoMark className="h-3 w-3" />
+                      <span className="text-[9px] font-bold text-ceda-navy">CEDA Ideas</span>
                     </div>
-                    <p className="text-[10px] font-bold text-bocra-navy">Welcome, Kagiso</p>
+                    <p className="text-[10px] font-bold text-ceda-navy">Dumela, Naledi</p>
                     <div className="grid grid-cols-3 gap-1.5">
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-bocra-navy">5</p>
-                        <p className="text-[7px] text-muted-foreground">Complaints</p>
+                        <p className="text-sm font-bold text-ceda-navy">2</p>
+                        <p className="text-[7px] text-muted-foreground">Ideas</p>
                       </div>
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-bocra-navy">7</p>
-                        <p className="text-[7px] text-muted-foreground">Bookmarks</p>
+                        <p className="text-sm font-bold text-ceda-navy">1</p>
+                        <p className="text-[7px] text-muted-foreground">In review</p>
                       </div>
                       <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-bocra-navy">6</p>
-                        <p className="text-[7px] text-muted-foreground">Events</p>
+                        <p className="text-sm font-bold text-ceda-navy">1</p>
+                        <p className="text-[7px] text-muted-foreground">Awarded</p>
                       </div>
                     </div>
                     <div className="bg-white rounded-lg p-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">BOCRA-7A3F-01DC</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Resolved</span>
+                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-K7Q2</span>
+                        <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Awarded</span>
                       </div>
-                      <p className="text-[8px] text-bocra-navy font-medium mt-1">Mascom — Billing</p>
+                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Solar cold rooms, Tlokweng</p>
                     </div>
                     <div className="bg-white rounded-lg p-2">
                       <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">BOCRA-B2E1-44FA</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">Reviewing</span>
+                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-P4M9</span>
+                        <span className="text-[7px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">With panel</span>
                       </div>
-                      <p className="text-[8px] text-bocra-navy font-medium mt-1">Orange — Coverage</p>
+                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Setswana coding app</p>
                     </div>
                   </div>
                 </div>
@@ -146,14 +142,14 @@ export function PWAInstallSection() {
 
             {/* QR Code */}
             <div className="bg-white rounded-2xl border border-border p-6 text-center shadow-sm">
-              <QrCode className="w-6 h-6 text-bocra-blue mx-auto mb-2" />
-              <p className="text-sm font-medium text-bocra-navy mb-3">Scan to get started</p>
+              <QrCode className="w-6 h-6 text-ceda-blue mx-auto mb-2" />
+              <p className="text-sm font-medium text-ceda-navy mb-3">Scan to get started</p>
               {qrUrl ? (
                 <div className="bg-white p-3 rounded-xl border border-border inline-block">
                   <QRCodeSVG value={qrUrl} size={140} />
                 </div>
               ) : (
-                <div className="w-[164px] h-[164px] bg-bocra-light rounded-xl animate-pulse mx-auto" />
+                <div className="w-[164px] h-[164px] bg-ceda-light rounded-xl animate-pulse mx-auto" />
               )}
               <p className="text-xs text-muted-foreground mt-3 max-w-[200px] mx-auto">
                 Point your phone camera at the code to create a citizen account
@@ -163,20 +159,20 @@ export function PWAInstallSection() {
         </div>
 
         {/* Rural access banner */}
-        <div className="mt-10 p-5 bg-bocra-light rounded-2xl border border-border flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-          <div className="w-12 h-12 rounded-xl bg-bocra-navy text-white flex items-center justify-center shrink-0">
+        <div className="mt-10 p-5 bg-ceda-light rounded-2xl border border-border flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
+          <div className="w-12 h-12 rounded-xl bg-ceda-navy text-white flex items-center justify-center shrink-0">
             <Phone className="w-6 h-6" />
           </div>
           <div className="flex-1">
-            <p className="font-semibold text-bocra-navy text-sm">No smartphone? No internet?</p>
+            <p className="font-semibold text-ceda-navy text-sm">No smartphone? No internet?</p>
             <p className="text-xs text-muted-foreground mt-0.5">
-              Citizens can file and track complaints by dialing <strong className="text-bocra-navy">*123#</strong> from
-              any phone — even a basic feature phone with no data connection.
+              Dial <strong className="text-ceda-navy">*161#</strong> from any phone to check eligibility, hear about open calls and track
+              an application by reference, with SMS alerts at every stage. Works on a basic phone with no data.
             </p>
           </div>
           <Link
             href="/ussd-demo"
-            className="px-4 py-2 bg-bocra-navy text-white rounded-lg text-sm font-medium hover:bg-bocra-navy/90 transition-colors shrink-0"
+            className="px-4 py-2 bg-ceda-navy text-white rounded-lg text-sm font-medium hover:bg-ceda-navy/90 transition-colors shrink-0"
           >
             See How It Works
           </Link>
