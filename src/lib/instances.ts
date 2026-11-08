@@ -19,7 +19,7 @@ export const fileMetaSelect = {
 
 export function schemaOf(template: Template): InstanceSchema {
   const parsed = parseSchema(template.schema);
-  return parsed.schema ?? { fields: [], required_files: [] };
+  return parsed.schema ?? { fields: [], required_files: [], criteria: [] };
 }
 
 export function fieldsToRecord(fields: Pick<InstanceField, "fieldKey" | "fieldValue">[]) {
@@ -77,4 +77,24 @@ export function integrityOf(
     files,
     ok: result.valid && dataMatches && allFilesListed && files.every((f) => f.storedHashMatches && f.inReceipt),
   };
+}
+
+/**
+ * Who may read an idea: its innovator, CEDA staff and the panel, or an evaluator
+ * assigned to it who has declared no conflict of interest.
+ */
+export async function canReadInstance(
+  user: { id: string; role: string },
+  instance: { id: string; innovatorId: string }
+): Promise<boolean> {
+  if (instance.innovatorId === user.id) return true;
+  if (["ADMIN", "SUPERADMIN", "ADJUDICATOR"].includes(user.role)) return true;
+  if (user.role === "EVALUATOR") {
+    const ev = await prisma.evaluation.findUnique({
+      where: { instanceId_evaluatorId: { instanceId: instance.id, evaluatorId: user.id } },
+      select: { conflict: true },
+    });
+    return ev?.conflict === false;
+  }
+  return false;
 }

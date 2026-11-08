@@ -13,11 +13,11 @@ export const dynamic = "force-dynamic";
  * the server hashes the bytes it received and refuses the file if they differ.
  */
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const { user, error } = await requireUser(["LICENSEE"]);
+  const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
   const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
-  if (!instance || instance.licenseeId !== user.id) return notFound();
+  if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This instance is locked and can no longer be edited");
 
   const form = await req.formData().catch(() => null);
@@ -56,7 +56,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     clientHash,
     serverHash,
     content: buffer,
-    storagePath: "db",
     uploadedAt: new Date(),
   };
 
@@ -66,10 +65,6 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     create: { ...data, instanceId: instance.id, fileKey },
     select: { id: true, fileKey: true, fileName: true, fileSize: true, serverHash: true },
   });
-
-  if (instance.status === "PENDING") {
-    await prisma.instance.update({ where: { id: instance.id }, data: { status: "IN_PROGRESS" } });
-  }
 
   return NextResponse.json({ ...saved, hash: serverHash, verified: true });
 }

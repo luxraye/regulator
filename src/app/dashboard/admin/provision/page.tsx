@@ -55,7 +55,7 @@ export default function ProvisionPage() {
     const res = await fetch("/api/instances/provision", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ templateId, licenseeIds: selected, deadline }),
+      body: JSON.stringify({ templateId, innovatorIds: selected, deadline }),
     });
     const data = await res.json().catch(() => ({}));
     setSaving(false);

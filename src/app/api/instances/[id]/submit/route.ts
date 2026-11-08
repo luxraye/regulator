@@ -10,15 +10,19 @@ export const dynamic = "force-dynamic";
 
 /** Lock the instance and issue a signed receipt over its data and file hashes. */
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
-  const { user, error } = await requireUser(["LICENSEE"]);
+  const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
   const instance = await prisma.instance.findUnique({
     where: { id: params.id },
     include: { template: true, fields: true, files: { select: { fileKey: true, fileName: true, serverHash: true } } },
   });
-  if (!instance || instance.licenseeId !== user.id) return notFound();
-  if (!isEditable(instance.status)) return badRequest("This instance has already been submitted");
+  if (!instance || instance.innovatorId !== user.id) return notFound();
+  if (!isEditable(instance.status)) return badRequest("This idea has already been submitted");
+  // First submissions must arrive while the call is open; a resubmission after feedback may come later.
+  if (instance.status === "DRAFT" && instance.template.closesAt < new Date()) {
+    return badRequest("This call closed before the idea was submitted");
+  }
 
   const schema = schemaOf(instance.template);
   const fieldErrors = validateFields(schema.fields, fieldsToRecord(instance.fields));
@@ -37,9 +41,11 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
 
   const submissionJwt = signSubmission({
     instanceId: instance.id,
+    referenceCode: instance.referenceCode,
+    title: instance.title,
     templateCode: instance.template.code,
-    licenseeId: instance.licenseeId,
-    licenseeOrg: user.organizationName ?? null,
+    innovatorId: instance.innovatorId,
+    innovatorOrg: user.organizationName ?? null,
     submittedAt: submittedAt.toISOString(),
     submissionNumber,
     dataHash,
@@ -58,18 +64,19 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
       submissionCount: submissionNumber,
       reviewedAt: null,
       reviewedById: null,
+      reviewNotes: instance.status === "FLAGGED" ? instance.reviewNotes : null,
     },
   });
   if (updated.count === 0) return badRequest("This instance was already submitted");
 
-  await audit(user.id, submissionNumber > 1 ? "INSTANCE_RESUBMITTED" : "INSTANCE_SUBMITTED", {
+  await audit(user.id, submissionNumber > 1 ? "IDEA_RESUBMITTED" : "IDEA_SUBMITTED", {
     instanceId: instance.id,
     metadata: { fileCount: fileHashes.length, fieldCount: instance.fields.length, dataHash, submissionNumber },
   });
   await notifyRoles(
     ["ADMIN", "SUPERADMIN"],
-    submissionNumber > 1 ? "Resubmission received" : "New submission received",
-    `${user.organizationName ?? user.name} submitted ${instance.template.name} (${instance.template.code}).`,
+    submissionNumber > 1 ? "Idea resubmitted after feedback" : "New idea submitted",
+    `${instance.referenceCode} "${instance.title}" was submitted to ${instance.template.name}.`,
     `/dashboard/admin/instances/${instance.id}`
   );
 

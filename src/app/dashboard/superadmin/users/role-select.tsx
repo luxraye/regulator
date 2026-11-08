@@ -5,7 +5,7 @@ import { Loader2 } from "lucide-react";
 
 const ROLES = [
   { value: "PUBLIC", label: "Citizen" },
-  { value: "LICENSEE", label: "Licensee" },
+  { value: "INNOVATOR", label: "Licensee" },
   { value: "ADMIN", label: "Admin" },
   { value: "SUPERADMIN", label: "Super admin" },
 ];

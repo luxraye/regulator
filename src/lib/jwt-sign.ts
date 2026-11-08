@@ -2,9 +2,11 @@ import jwt from "jsonwebtoken";
 
 export interface SubmissionReceipt {
   instanceId: string;
+  referenceCode: string;
+  title: string;
   templateCode: string;
-  licenseeId: string;
-  licenseeOrg: string | null;
+  innovatorId: string;
+  innovatorOrg: string | null;
   submittedAt: string;
   submissionNumber: number;
   dataHash: string;
@@ -12,7 +14,7 @@ export interface SubmissionReceipt {
   fileHashes: { fileKey: string; fileName: string; hash: string }[];
 }
 
-const ISSUER = "bocra-regulatory-platform";
+const ISSUER = "ceda-innovation-portal";
 
 function secret(): string {
   const s = process.env.JWT_SECRET;

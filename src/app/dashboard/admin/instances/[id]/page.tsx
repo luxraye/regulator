@@ -27,7 +27,7 @@ export default async function AdminInstanceDetail({ params }: { params: { id: st
       dataHash: true,
       submissionCount: true,
       template: true,
-      licensee: { select: { name: true, email: true, organizationName: true, licenseNumber: true } },
+      innovator: { select: { name: true, email: true, organizationName: true, licenseNumber: true } },
       reviewedBy: { select: { name: true } },
       fields: { select: { fieldKey: true, fieldValue: true } },
       files: { select: fileMetaSelect },
@@ -53,8 +53,8 @@ export default async function AdminInstanceDetail({ params }: { params: { id: st
         <div>
           <h1 className="text-2xl font-bold text-bocra-navy">{instance.template.name}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            <span className="font-mono">{instance.template.code}</span> · {instance.licensee.organizationName} (
-            {instance.licensee.licenseNumber ?? "no licence #"})
+            <span className="font-mono">{instance.template.code}</span> · {instance.innovator.organizationName} (
+            {instance.innovator.licenseNumber ?? "no licence #"})
           </p>
         </div>
         <StatusBadge status={instance.status} />
@@ -64,7 +64,7 @@ export default async function AdminInstanceDetail({ params }: { params: { id: st
         <Meta label="Deadline" value={formatDate(instance.deadline)} sub={instance.submittedAt ? (late ? "Submitted late" : "On time") : deadline.text} warn={!!late || (!instance.submittedAt && deadline.overdue)} />
         <Meta label="Submitted" value={formatDate(instance.submittedAt, true)} sub={instance.submissionCount > 1 ? `Submission #${instance.submissionCount}` : undefined} />
         <Meta label="Reviewed" value={formatDate(instance.reviewedAt)} sub={instance.reviewedBy?.name} />
-        <Meta label="Contact" value={instance.licensee.name} sub={instance.licensee.email} />
+        <Meta label="Contact" value={instance.innovator.name} sub={instance.innovator.email} />
       </div>
 
       {integrity && (

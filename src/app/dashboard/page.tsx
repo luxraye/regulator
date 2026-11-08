@@ -10,7 +10,7 @@ export default async function DashboardRedirect() {
 
   if (role === "SUPERADMIN") redirect("/dashboard/admin");
   if (role === "ADMIN") redirect("/dashboard/admin");
-  if (role === "LICENSEE") redirect("/dashboard/licensee");
+  if (role === "INNOVATOR") redirect("/dashboard/innovator");
   if (role === "PUBLIC") redirect("/dashboard/citizen");
 
   redirect("/login");

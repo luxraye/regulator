@@ -36,3 +36,8 @@ export function timeAgo(value: string | Date): string {
   if (s < 86400 * 30) return `${Math.floor(s / 86400)} d ago`;
   return formatDate(d);
 }
+
+export function formatPula(amount: number | null | undefined): string {
+  if (amount == null) return "—";
+  return `P${amount.toLocaleString("en-GB")}`;
+}

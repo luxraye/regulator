@@ -19,6 +19,8 @@ export async function getSessionUser(): Promise<SessionUser | null> {
 }
 
 export const STAFF_ROLES: Role[] = ["ADMIN", "SUPERADMIN"];
+/** Everyone on the CEDA side who may read ideas. */
+export const PANEL_ROLES: Role[] = ["ADMIN", "SUPERADMIN", "ADJUDICATOR"];
 
 /**
  * Guard for API routes. Returns the user, or a ready-made error response.

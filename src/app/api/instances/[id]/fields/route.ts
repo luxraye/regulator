@@ -6,13 +6,13 @@ import { schemaOf } from "@/lib/instances";
 
 export const dynamic = "force-dynamic";
 
-/** Save field data as a draft. Values are checked, but required fields may be blank. */
+/** Save answers as a draft. Values are checked, but required fields may be blank. */
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
-  const { user, error } = await requireUser(["LICENSEE"]);
+  const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
   const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
-  if (!instance || instance.licenseeId !== user.id) return notFound();
+  if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This instance is locked and can no longer be edited");
 
   const body = await req.json().catch(() => null);
@@ -31,6 +31,9 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const errors = validateFields(schema.fields, values, { partial: true });
   if (Object.keys(errors).length) return badRequest("Some values are invalid", { fieldErrors: errors });
 
+  const title = typeof body?.title === "string" ? body.title.trim().slice(0, 140) : null;
+  if (title !== null && title.length < 4) return badRequest("Title must be at least 4 characters");
+
   await prisma.$transaction([
     prisma.instanceField.deleteMany({ where: { instanceId: instance.id } }),
     prisma.instanceField.createMany({
@@ -41,9 +44,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
         validatedAt: new Date(),
       })),
     }),
-    ...(instance.status === "PENDING"
-      ? [prisma.instance.update({ where: { id: instance.id }, data: { status: "IN_PROGRESS" } })]
-      : []),
+    ...(title ? [prisma.instance.update({ where: { id: instance.id }, data: { title } })] : []),
   ]);
 
   return NextResponse.json({ success: true, savedAt: new Date().toISOString() });

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUser, notFound, STAFF_ROLES } from "@/lib/session";
-import { checkIntegrity } from "@/lib/instances";
+import { requireUser, notFound } from "@/lib/session";
+import { canReadInstance, checkIntegrity } from "@/lib/instances";
 
 export const dynamic = "force-dynamic";
 
@@ -10,9 +10,8 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   const { user, error } = await requireUser();
   if (error) return error;
 
-  const instance = await prisma.instance.findUnique({ where: { id: params.id }, select: { licenseeId: true } });
-  if (!instance) return notFound();
-  if (!STAFF_ROLES.includes(user.role) && instance.licenseeId !== user.id) return notFound();
+  const instance = await prisma.instance.findUnique({ where: { id: params.id }, select: { id: true, innovatorId: true } });
+  if (!instance || !(await canReadInstance(user, instance))) return notFound();
 
   const report = await checkIntegrity(params.id);
   if (!report) return NextResponse.json({ error: "This instance has not been submitted yet" }, { status: 400 });

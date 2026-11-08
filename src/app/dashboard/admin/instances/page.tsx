@@ -29,7 +29,7 @@ export default async function AdminInstancesPage({ searchParams }: { searchParam
         createdAt: true,
         submittedAt: true,
         template: { select: { name: true, code: true } },
-        licensee: { select: { organizationName: true } },
+        innovator: { select: { organizationName: true } },
       },
       orderBy: { createdAt: "desc" },
     }),
@@ -93,7 +93,7 @@ export default async function AdminInstancesPage({ searchParams }: { searchParam
                         <p className="font-mono text-xs text-muted-foreground">{i.template.code}</p>
                       </Link>
                     </td>
-                    <td className="px-5 py-3">{i.licensee.organizationName}</td>
+                    <td className="px-5 py-3">{i.innovator.organizationName}</td>
                     <td className="px-5 py-3">
                       <p className="text-muted-foreground">{formatDate(i.deadline)}</p>
                       {open && <p className={cn("text-xs", d.overdue ? "text-red-600" : "text-muted-foreground")}>{d.text}</p>}

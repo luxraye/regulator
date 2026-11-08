@@ -8,7 +8,7 @@ import { auth } from "@/lib/auth";
 const pageRoles: [prefix: string, roles: string[]][] = [
   ["/dashboard/superadmin", ["SUPERADMIN"]],
   ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
-  ["/dashboard/licensee", ["LICENSEE"]],
+  ["/dashboard/innovator", ["INNOVATOR"]],
   ["/dashboard/citizen", ["PUBLIC"]],
 ];
 

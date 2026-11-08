@@ -13,18 +13,18 @@ export default async function AdminDashboard() {
 
   const [total, licensees, awaiting, flagged, openComplaints, overdue, recent, activity] = await Promise.all([
     prisma.instance.count(),
-    prisma.user.count({ where: { role: "LICENSEE" } }),
+    prisma.user.count({ where: { role: "INNOVATOR" } }),
     prisma.instance.count({ where: { status: "SUBMITTED" } }),
     prisma.instance.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
     prisma.complaint.count({ where: { status: { in: ["OPEN", "UNDER_REVIEW"] } } }),
     prisma.instance.findMany({
       where: { status: { in: ["PENDING", "IN_PROGRESS", "FLAGGED"] }, deadline: { lt: now } },
-      select: { id: true, deadline: true, template: { select: { code: true } }, licensee: { select: { organizationName: true } } },
+      select: { id: true, deadline: true, template: { select: { code: true } }, innovator: { select: { organizationName: true } } },
       orderBy: { deadline: "asc" },
       take: 5,
     }),
     prisma.instance.findMany({
-      select: { id: true, status: true, deadline: true, template: { select: { name: true, code: true } }, licensee: { select: { organizationName: true } } },
+      select: { id: true, status: true, deadline: true, template: { select: { name: true, code: true } }, innovator: { select: { organizationName: true } } },
       orderBy: { createdAt: "desc" },
       take: 8,
     }),
@@ -68,7 +68,7 @@ export default async function AdminDashboard() {
                     <div className="min-w-0">
                       <p className="truncate text-sm font-medium">{i.template.name}</p>
                       <p className="text-xs text-muted-foreground">
-                        {i.licensee.organizationName} · due {formatDate(i.deadline)}
+                        {i.innovator.organizationName} · due {formatDate(i.deadline)}
                       </p>
                     </div>
                     <StatusBadge status={i.status} />
@@ -90,7 +90,7 @@ export default async function AdminDashboard() {
                   <li key={o.id}>
                     <Link href={`/dashboard/admin/instances/${o.id}`} className="flex items-center justify-between text-sm hover:text-bocra-blue">
                       <span className="truncate">
-                        {o.licensee.organizationName} · <span className="font-mono text-xs">{o.template.code}</span>
+                        {o.innovator.organizationName} · <span className="font-mono text-xs">{o.template.code}</span>
                       </span>
                       <span className="shrink-0 text-xs text-red-600">{relativeDeadline(o.deadline).text}</span>
                     </Link>

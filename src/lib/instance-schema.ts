@@ -23,9 +23,18 @@ export interface RequiredFile {
   optional?: boolean;
 }
 
+/** One scoring criterion. Evaluators score 1-5; weights are percentages that add up to 100. */
+export interface Criterion {
+  key: string;
+  label: string;
+  weight: number;
+  guide?: string;
+}
+
 export interface InstanceSchema {
   fields: SchemaField[];
   required_files: RequiredFile[];
+  criteria: Criterion[];
 }
 
 /**
@@ -38,8 +47,8 @@ export function effectiveMaxMB(rf: RequiredFile) {
   return Math.min(rf.maxSizeMB, MAX_UPLOAD_MB);
 }
 
-/** Editable states for a licensee. FLAGGED lets them correct and resubmit. */
-export const EDITABLE_STATUSES = ["PENDING", "IN_PROGRESS", "FLAGGED"] as const;
+/** States in which the innovator can edit. FLAGGED lets them respond to feedback and resubmit. */
+export const EDITABLE_STATUSES = ["DRAFT", "FLAGGED"] as const;
 
 export function isEditable(status: string) {
   return (EDITABLE_STATUSES as readonly string[]).includes(status);
@@ -74,8 +83,18 @@ export function parseSchema(raw: unknown): { schema: InstanceSchema; error: null
       return { schema: null, error: "Every required file needs a key, extensions[] and maxSizeMB" };
     }
   }
+  const criteria = (Array.isArray(obj.criteria) ? obj.criteria : []) as Criterion[];
+  for (const c of criteria) {
+    if (!c || typeof c.key !== "string" || typeof c.label !== "string" || typeof c.weight !== "number" || c.weight <= 0) {
+      return { schema: null, error: "Every criterion needs a key, a label and a positive weight" };
+    }
+  }
+  if (criteria.length) {
+    const total = criteria.reduce((s, c) => s + c.weight, 0);
+    if (Math.abs(total - 100) > 0.01) return { schema: null, error: `Criteria weights must add up to 100 (they add up to ${total})` };
+  }
   return {
-    schema: { fields: fields as SchemaField[], required_files: files as RequiredFile[] },
+    schema: { fields: fields as SchemaField[], required_files: files as RequiredFile[], criteria },
     error: null,
   };
 }

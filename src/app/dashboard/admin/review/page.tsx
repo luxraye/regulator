@@ -14,7 +14,7 @@ export default async function ReviewQueuePage() {
       deadline: true,
       submissionCount: true,
       template: { select: { name: true, code: true } },
-      licensee: { select: { organizationName: true } },
+      innovator: { select: { organizationName: true } },
       _count: { select: { fields: true, files: true } },
     },
     orderBy: { submittedAt: "asc" },
@@ -54,7 +54,7 @@ export default async function ReviewQueuePage() {
                     {late && <span className="ml-2 rounded bg-red-100 px-1.5 py-0.5 text-xs font-medium text-red-700">Late</span>}
                   </p>
                   <p className="text-sm text-muted-foreground">
-                    {inst.licensee.organizationName} · <span className="font-mono">{inst.template.code}</span> · submitted{" "}
+                    {inst.innovator.organizationName} · <span className="font-mono">{inst.template.code}</span> · submitted{" "}
                     {inst.submittedAt ? timeAgo(inst.submittedAt) : "—"} ({formatDate(inst.submittedAt)})
                   </p>
                 </div>

@@ -30,9 +30,9 @@ const citizenTabs: TabItem[] = [
 ];
 
 const licenseeTabs: TabItem[] = [
-  { href: "/dashboard/licensee", label: "Home", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/licensee/instances", label: "Instances", icon: <FileBox size={20} /> },
-  { href: "/dashboard/licensee/history", label: "History", icon: <History size={20} /> },
+  { href: "/dashboard/innovator", label: "Home", icon: <LayoutDashboard size={20} /> },
+  { href: "/dashboard/innovator/instances", label: "Instances", icon: <FileBox size={20} /> },
+  { href: "/dashboard/innovator/history", label: "History", icon: <History size={20} /> },
 ];
 
 const adminTabs: TabItem[] = [
@@ -50,7 +50,7 @@ export function MobileBottomNav() {
 
   const tabs = role === "PUBLIC"
     ? citizenTabs
-    : role === "LICENSEE"
+    : role === "INNOVATOR"
     ? licenseeTabs
     : role === "ADMIN" || role === "SUPERADMIN"
     ? adminTabs
@@ -65,7 +65,7 @@ export function MobileBottomNav() {
           const isActive =
             pathname === tab.href ||
             (tab.href !== "/dashboard/citizen" &&
-              tab.href !== "/dashboard/licensee" &&
+              tab.href !== "/dashboard/innovator" &&
               tab.href !== "/dashboard/admin" &&
               pathname.startsWith(tab.href));
           return (

@@ -41,10 +41,10 @@ const citizenNav: NavItem[] = [
 ];
 
 const licenseeNav: NavItem[] = [
-  { href: "/dashboard/licensee", label: "Overview", icon: <LayoutDashboard size={20} /> },
-  { href: "/dashboard/licensee/instances", label: "My Instances", icon: <FileBox size={20} /> },
-  { href: "/dashboard/licensee/playground", label: "Playground", icon: <FlaskConical size={20} /> },
-  { href: "/dashboard/licensee/history", label: "History", icon: <History size={20} /> },
+  { href: "/dashboard/innovator", label: "Overview", icon: <LayoutDashboard size={20} /> },
+  { href: "/dashboard/innovator/instances", label: "My Instances", icon: <FileBox size={20} /> },
+  { href: "/dashboard/innovator/playground", label: "Playground", icon: <FlaskConical size={20} /> },
+  { href: "/dashboard/innovator/history", label: "History", icon: <History size={20} /> },
 ];
 
 const adminNav: NavItem[] = [
@@ -109,7 +109,7 @@ export function DashboardSidebar() {
 
       <nav className="flex-1 overflow-y-auto py-4 space-y-1 px-2">
         {nav.map((item) => {
-          const overviewPaths = ["/dashboard/admin", "/dashboard/licensee", "/dashboard/citizen"];
+          const overviewPaths = ["/dashboard/admin", "/dashboard/innovator", "/dashboard/citizen"];
           const isActive = pathname === item.href || 
             (!overviewPaths.includes(item.href) && pathname.startsWith(item.href));
           return (

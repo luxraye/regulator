@@ -10,7 +10,7 @@ interface HashMatch {
   fileName: string;
   fileKey: string;
   uploadedAt: string;
-  instance: { id: string; status: string; template: { code: string; name: string }; licensee: { organizationName: string | null } };
+  instance: { id: string; status: string; template: { code: string; name: string }; innovator: { organizationName: string | null } };
 }
 
 export function HashVerifier() {
@@ -78,7 +78,7 @@ export function HashVerifier() {
                     <Link href={`/dashboard/admin/instances/${m.instance.id}`} className="underline">
                       {m.fileName}
                     </Link>{" "}
-                    · {m.instance.template.code} · {m.instance.licensee.organizationName} · uploaded {formatDate(m.uploadedAt)}
+                    · {m.instance.template.code} · {m.instance.innovator.organizationName} · uploaded {formatDate(m.uploadedAt)}
                   </li>
                 ))}
               </ul>

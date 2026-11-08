@@ -32,7 +32,7 @@ export default async function DashboardLayout({ children }: { children: React.Re
             <span className="text-sm font-bold text-bocra-navy">BOCRA</span>
           </Link>
           <p className="hidden text-sm text-muted-foreground md:block">
-            {user?.organizationName && user.role === "LICENSEE" ? user.organizationName : roleLabel[user?.role ?? ""]}
+            {user?.organizationName && user.role === "INNOVATOR" ? user.organizationName : roleLabel[user?.role ?? ""]}
           </p>
           <div className="flex items-center gap-2">
             <NotificationBell />

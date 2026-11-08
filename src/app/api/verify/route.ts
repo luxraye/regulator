@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
-import { requireUser, badRequest, STAFF_ROLES } from "@/lib/session";
+import { requireUser, badRequest, PANEL_ROLES } from "@/lib/session";
 import { verifySubmission } from "@/lib/jwt-sign";
 import { checkIntegrity } from "@/lib/instances";
 
@@ -12,7 +12,7 @@ export const dynamic = "force-dynamic";
  *  { hash }   -> find which submitted file (if any) has this SHA-256
  */
 export async function POST(req: NextRequest) {
-  const { error } = await requireUser(STAFF_ROLES);
+  const { error } = await requireUser(PANEL_ROLES);
   if (error) return error;
 
   const body = await req.json().catch(() => ({}));
@@ -46,7 +46,7 @@ export async function POST(req: NextRequest) {
             id: true,
             status: true,
             template: { select: { code: true, name: true } },
-            licensee: { select: { organizationName: true } },
+            innovator: { select: { organizationName: true } },
           },
         },
       },
