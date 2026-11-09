@@ -1,21 +1,22 @@
 runConfig:
   minInstances: 0
   maxInstances: 2
-  memoryMiB: 1024
+  concurrency: 80
+  cpu: 1
+  memoryMiB: 512
+
 env:
   - variable: DATABASE_URL
     secret: DATABASE_URL
   - variable: DIRECT_URL
     secret: DIRECT_URL
-    availability: [BUILD, RUNTIME]
   - variable: AUTH_SECRET
     secret: AUTH_SECRET
   - variable: JWT_SECRET
     secret: JWT_SECRET
   - variable: AUTH_TRUST_HOST
     value: "true"
+  - variable: NEXTAUTH_URL
+    value: "https://ceda-portal--neon-bw-3x0x.us-east4.hosted.app"
   - variable: NEXT_PUBLIC_SHOW_DEMO_LOGINS
     value: "true"
-    availability: [BUILD, RUNTIME]
-  - variable: NEXT_TELEMETRY_DISABLED
-    value: "1"
