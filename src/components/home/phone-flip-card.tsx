@@ -21,7 +21,7 @@ export function PhoneFlipCard() {
         <button
           type="button"
           onClick={() => setFlipped((f) => !f)}
-          aria-label={flipped ? "Show the app preview" : "Show the QR code to install on your phone"}
+          aria-label={flipped ? "Show the mobile screen" : "Show the QR code to install on your phone"}
           className="group relative block h-[560px] w-[272px] rounded-[46px] text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-ceda-blue/40"
         >
           <div
@@ -43,7 +43,7 @@ export function PhoneFlipCard() {
         className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-ceda-navy shadow-sm transition-colors hover:border-ceda-blue hover:text-ceda-blue"
       >
         {flipped ? <RotateCcw className="h-4 w-4" /> : <ScanLine className="h-4 w-4" />}
-        {flipped ? "Back to the app preview" : "Flip for the QR code"}
+        {flipped ? "Back to the mobile screen" : "Flip for the QR code"}
       </button>
     </div>
   );
@@ -117,26 +117,26 @@ function AppScreen() {
       <div className="flex-1 space-y-2.5 overflow-hidden px-4">
         <div>
           <p className="text-[17px] font-bold leading-tight text-ceda-navy">Dumela, Naledi</p>
-          <p className="text-[11px] text-slate-500">1 idea needs your attention</p>
+          <p className="text-[11px] text-slate-600">1 idea needs your attention</p>
         </div>
 
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
-          <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-700">Changes requested</p>
+          <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">Changes requested</p>
           <p className="mt-0.5 text-[12px] font-semibold text-ceda-navy">Mokoro Stories, Okavango</p>
-          <p className="mt-0.5 text-[11px] leading-snug text-slate-600">Add a budget breakdown and a letter of intent from a lodge.</p>
+          <p className="mt-0.5 text-[11px] leading-snug text-slate-700">Add a budget breakdown and a letter of intent from a lodge.</p>
           <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-ceda-navy px-2.5 py-1.5 text-[11px] font-medium text-white">
             <Upload className="h-3 w-3" /> Upload documents
           </span>
         </div>
 
-        <p className="pt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-500">My ideas</p>
+        <p className="pt-1 text-[11px] font-semibold uppercase tracking-wide text-slate-600">My ideas</p>
 
         <div className="rounded-2xl bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between">
             <span className="text-[12px] font-semibold text-ceda-navy">Mokoro Stories</span>
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold text-amber-800">Feedback</span>
           </div>
-          <p className="text-[10px] text-slate-500">Creative Industries call · 4 days ago</p>
+          <p className="text-[10px] text-slate-600">Creative Industries call · 4 days ago</p>
           <Tracker at={2} />
         </div>
 
@@ -145,12 +145,12 @@ function AppScreen() {
             <span className="text-[12px] font-semibold text-ceda-navy">Sefofu glass tiles</span>
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">Awarded</span>
           </div>
-          <p className="text-[10px] text-slate-500">P320,000 asset finance</p>
+          <p className="text-[10px] text-slate-600">P320,000 asset finance</p>
           <Tracker at={5} />
         </div>
       </div>
 
-      <nav className="grid grid-cols-4 border-t border-slate-200 bg-white/95 px-2 pb-6 pt-2 text-[9px] font-medium text-slate-500" aria-hidden>
+      <nav className="grid grid-cols-4 border-t border-slate-200 bg-white/95 px-2 pb-6 pt-2 text-[9px] font-medium text-slate-600" aria-hidden>
         <span className="flex flex-col items-center gap-0.5 text-ceda-blue"><Home className="h-[18px] w-[18px]" />Home</span>
         <span className="flex flex-col items-center gap-0.5"><Megaphone className="h-[18px] w-[18px]" />Calls</span>
         <span className="flex flex-col items-center gap-0.5"><FileBox className="h-[18px] w-[18px]" />Ideas</span>

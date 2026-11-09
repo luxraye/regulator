@@ -10,10 +10,33 @@ import { auth } from "@/lib/auth";
 const inter = Inter({ subsets: ["latin"], variable: "--font-sans" });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(process.env.NEXTAUTH_URL || "http://localhost:3000"),
   title: "CEDA Innovation Portal",
   description:
-    "Submit, track and fund youth innovation in Botswana: CEDA's idea submission and evaluation portal.",
+    "Submit, track and fund youth innovation in Botswana: CEDA's idea submission, multi-level evaluation and award portal.",
   manifest: "/manifest.json",
+  openGraph: {
+    title: "CEDA Innovation Portal",
+    description:
+      "Submit, track and fund youth innovation in Botswana: CEDA's idea submission, multi-level evaluation and award portal.",
+    type: "website",
+    siteName: "CEDA Innovation Portal",
+    images: [
+      {
+        url: "/images/hero-innovation.jpg",
+        width: 1200,
+        height: 900,
+        alt: "CEDA Innovation Portal — Youth Innovation in Botswana",
+      },
+    ],
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: "CEDA Innovation Portal",
+    description:
+      "Submit, track and fund youth innovation in Botswana: CEDA's idea submission, multi-level evaluation and award portal.",
+    images: ["/images/hero-innovation.jpg"],
+  },
   appleWebApp: {
     capable: true,
     statusBarStyle: "black-translucent",
@@ -28,8 +51,6 @@ export const viewport: Viewport = {
   themeColor: "#003366",
   width: "device-width",
   initialScale: 1,
-  maximumScale: 1,
-  userScalable: false,
 };
 
 export default async function RootLayout({

@@ -31,16 +31,16 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
               </Link>
             </div>
           </div>
-          <div className="relative hidden lg:block">
+          <div className="relative block">
             <figure className="relative mx-auto w-full max-w-lg">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border-2 border-white/10 shadow-2xl shadow-black/30">
-                <Image src="/images/hero-innovation.jpg" alt="Young developers building software together at their laptops" fill priority sizes="32rem" className="object-cover" />
+                <Image src="/images/hero-innovation.jpg" alt="Young developers building software together at their laptops" fill priority sizes="(min-width: 1024px) 32rem, 100vw" className="object-cover" />
                 <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
-                  <p className="text-sm text-white/85">Ideas start at a kitchen table. We help the good ones become companies.</p>
+                  <p className="text-sm text-white/90">Ideas start at a kitchen table. We help the good ones become companies.</p>
                 </div>
               </div>
-              <figcaption className="mt-2 text-right text-[10px] text-white/40">
-                Photo: Deo photographer, <a href="https://commons.wikimedia.org/wiki/File:Computer_engineer.jpg" className="underline hover:text-white/70" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>
+              <figcaption className="mt-2 text-right text-[11px] text-white/75">
+                Photo: Deo photographer, <a href="https://commons.wikimedia.org/wiki/File:Computer_engineer.jpg" className="underline hover:text-white" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>
               </figcaption>
             </figure>
           </div>
@@ -48,7 +48,7 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
         <dl className="mt-12 grid grid-cols-2 gap-4 border-t border-white/10 pt-8 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label}>
-              <dt className="text-xs uppercase tracking-wide text-white/50">{s.label}</dt>
+              <dt className="text-xs uppercase tracking-wide text-white/75">{s.label}</dt>
               <dd className="text-2xl font-bold text-white">{s.value}</dd>
             </div>
           ))}

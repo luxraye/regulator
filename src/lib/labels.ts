@@ -56,6 +56,7 @@ export const JOURNEY = [
 export const BOTSWANA_DISTRICTS = [
   "Gaborone",
   "Francistown",
+  "Maun",
   "Lobatse",
   "Selebi-Phikwe",
   "Jwaneng",
