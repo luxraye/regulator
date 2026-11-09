@@ -3,10 +3,11 @@
 import Link from "next/link";
 import { useSession } from "next-auth/react";
 import { Menu, X, Globe2 } from "lucide-react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useLanguage } from "@/components/providers/language-provider";
 import { SearchTrigger } from "@/components/layout/search-modal";
 import { Logo } from "@/components/brand/logo";
+import { cn } from "@/lib/utils";
 import type { TranslationKey } from "@/lib/translations";
 
 const navLinks: { href: string; key: TranslationKey }[] = [
@@ -22,11 +23,34 @@ const navLinks: { href: string; key: TranslationKey }[] = [
 export function PublicHeader() {
   const { data: session } = useSession();
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
   const { locale, setLocale, t } = useLanguage();
   const dashboardHref = session?.user ? "/dashboard" : "/login";
 
+  useEffect(() => {
+    let lastY = window.scrollY;
+    const onScroll = () => {
+      const currentY = window.scrollY;
+      if (currentY < 48) {
+        setHidden(false);
+      } else if (currentY > lastY + 8) {
+        setHidden(true);
+      } else if (currentY < lastY - 8) {
+        setHidden(false);
+      }
+      lastY = currentY;
+    };
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
+  }, []);
+
   return (
-    <header className="fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur">
+    <header
+      className={cn(
+        "fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur transition-transform duration-300 ease-in-out",
+        hidden && !mobileOpen ? "-translate-y-full" : "translate-y-0"
+      )}
+    >
       <div className="border-b border-white/10">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
           <span className="truncate text-xs text-white/75">Citizen Entrepreneurial Development Agency · Botswana</span>

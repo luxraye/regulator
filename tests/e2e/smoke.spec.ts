@@ -53,6 +53,8 @@ const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
   ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/evaluator", ["EVALUATOR"]],
   ["/dashboard/innovator", ["INNOVATOR"]],
+  ["/dashboard/calls", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
 ];
 

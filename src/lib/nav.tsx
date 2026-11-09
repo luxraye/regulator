@@ -1,6 +1,6 @@
 import {
   LayoutDashboard, FileBox, Megaphone, History, ShieldCheck, ClipboardList, Gavel, BarChart3,
-  Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox, MessagesSquare, ShieldAlert,
+  Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox, MessagesSquare, ShieldAlert, Award,
 } from "lucide-react";
 
 export interface NavItem {
@@ -20,17 +20,26 @@ const innovator: NavItem[] = [
   { href: "/dashboard/innovator/instances", label: "My ideas", short: "Ideas", icon: i(FileBox), mobile: true },
   { href: "/dashboard/innovator/history", label: "Activity", icon: i(History), mobile: true },
   { href: "/dashboard/innovator/privacy", label: "My data", icon: i(ShieldCheck) },
+  { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
   { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
   { href: "/dashboard/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
 ];
 
 const evaluator: NavItem[] = [
   { href: "/dashboard/evaluator", label: "My assignments", short: "Assigned", icon: i(ClipboardList), mobile: true },
+  { href: "/dashboard/calls", label: "Calls & rubrics", short: "Calls", icon: i(Megaphone), mobile: true },
+  { href: "/dashboard/funded", label: "Funded showcase", short: "Funded", icon: i(Award), mobile: true },
+  { href: "/dashboard/community", label: "Community forum", short: "Forum", icon: i(MessagesSquare), mobile: true },
+  { href: "/dashboard/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
 ];
 
 const adjudicator: NavItem[] = [
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/calls", label: "Calls & rubrics", short: "Calls", icon: i(Megaphone), mobile: true },
+  { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
+  { href: "/dashboard/community", label: "Community forum", short: "Forum", icon: i(MessagesSquare), mobile: true },
+  { href: "/dashboard/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
 ];
 
 const admin: NavItem[] = [
@@ -39,6 +48,8 @@ const admin: NavItem[] = [
   { href: "/dashboard/admin/calls", label: "Calls", icon: i(Layers) },
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
   { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
 ];
 
