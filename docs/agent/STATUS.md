@@ -1,6 +1,6 @@
 # Status (Antigravity updates this)
 
-- Phase: Phase 2b complete (Production restored and verified), continuing Phase 3 (Definition schema, rules engine and compiler on ceda_dev)
-- Done: 30%
+- Phase: Phase 3 complete (Definition schema, rules engine and compiler), starting Phase 4 (Instance Studio and Instance Console)
+- Done: 45%
 - Blockers: none
 - Questions for the strategy lead: none
