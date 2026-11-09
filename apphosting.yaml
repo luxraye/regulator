@@ -1,5 +1,6 @@
 runConfig:
-  minInstances: 0
+  # Keep one server warm during judging so the first visit is fast. Set back to 0 afterwards to save cost.
+  minInstances: 1
   maxInstances: 2
   concurrency: 80
   cpu: 1
