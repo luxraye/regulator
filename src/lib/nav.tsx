@@ -20,8 +20,8 @@ const innovator: NavItem[] = [
   { href: "/dashboard/innovator/instances", label: "My ideas", short: "Ideas", icon: i(FileBox), mobile: true },
   { href: "/dashboard/innovator/history", label: "Activity", icon: i(History), mobile: true },
   { href: "/dashboard/innovator/privacy", label: "My data", icon: i(ShieldCheck) },
-  { href: "/community", label: "Community forum", icon: i(MessagesSquare) },
-  { href: "/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
+  { href: "/dashboard/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
 ];
 
 const evaluator: NavItem[] = [
@@ -74,5 +74,6 @@ export const HOME_FOR: Record<string, string> = {
 export function isActive(pathname: string, href: string) {
   if (pathname === href) return true;
   if (Object.values(HOME_FOR).includes(href) && href !== "/dashboard/panel" && href !== "/dashboard/evaluator") return false;
+  if ((href === "/dashboard/community" || href === "/community") && pathname.startsWith(href + "/safe-practices")) return false;
   return pathname.startsWith(href + "/");
 }

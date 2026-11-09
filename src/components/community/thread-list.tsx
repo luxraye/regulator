@@ -22,7 +22,7 @@ export type ThreadRow = {
 };
 
 /** Thread list with category chips. Filtering happens in the browser so the list stays one page. */
-export function ThreadList({ threads }: { threads: ThreadRow[] }) {
+export function ThreadList({ threads, basePath = "/community" }: { threads: ThreadRow[]; basePath?: string }) {
   const [cat, setCat] = useState<string>("all");
   const shown = cat === "all" ? threads : threads.filter((t) => t.category === cat);
   const chip = (on: boolean) =>
@@ -43,7 +43,7 @@ export function ThreadList({ threads }: { threads: ThreadRow[] }) {
       <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-white">
         {shown.map((t) => (
           <li key={t.id}>
-            <Link href={`/community/${t.id}`} className="flex gap-4 p-4 transition-colors hover:bg-ceda-light sm:p-5">
+            <Link href={`${basePath}/${t.id}`} className="flex gap-4 p-4 transition-colors hover:bg-ceda-light sm:p-5">
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
                   t.authorIsStaff ? "bg-ceda-navy text-white" : "bg-ceda-blue/10 text-ceda-blue"

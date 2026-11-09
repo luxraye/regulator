@@ -58,8 +58,13 @@ export function PublicHeader() {
               </Link>
             ))}
             <SearchTrigger />
+            {session?.user?.name && (
+              <span className="ml-2 max-w-[140px] truncate text-xs text-white/80" title={session.user.name}>
+                {session.user.name}
+              </span>
+            )}
             <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-blue px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-blue/80">
-              {session ? t("nav.dashboard") : t("nav.signin")}
+              {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>
 
@@ -78,8 +83,11 @@ export function PublicHeader() {
                 {t(link.key)}
               </Link>
             ))}
+            {session?.user?.name && (
+              <p className="px-3 pt-2 text-xs text-white/70">Signed in as {session.user.name}</p>
+            )}
             <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-blue px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
-              {session ? t("nav.dashboard") : t("nav.signin")}
+              {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>
         )}

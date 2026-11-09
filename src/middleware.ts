@@ -5,13 +5,14 @@ import { auth } from "@/lib/auth";
  * Page-level access control. API routes check roles themselves (see lib/session.ts),
  * so this only guards dashboard pages and sends people to the right place.
  */
-const pageRoles: [prefix: string, roles: string[]][] = [
+export const pageRoles: [prefix: string, roles: string[]][] = [
   ["/dashboard/superadmin", ["SUPERADMIN"]],
   ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
   ["/dashboard/panel", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/evaluator", ["EVALUATOR"]],
   ["/dashboard/innovator", ["INNOVATOR"]],
+  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
 ];
 
 export default auth((req) => {

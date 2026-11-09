@@ -1,16 +1,74 @@
 import { test, expect, type Page } from "@playwright/test";
+import { navFor, isActive } from "../../src/lib/nav";
 
 const PASSWORD = process.env.DEMO_PASSWORD ?? "CedaDemo2026!";
 
 const ROLES = [
-  { role: "Innovator", email: "innovator@demo.ceda.bw", home: "/dashboard/innovator" },
-  { role: "Evaluator", email: "evaluator@demo.ceda.bw", home: "/dashboard/evaluator" },
-  { role: "Adjudicator", email: "panel@demo.ceda.bw", home: "/dashboard/panel" },
-  { role: "Admin", email: "admin@demo.ceda.bw", home: "/dashboard/admin" },
-  { role: "Super admin", email: "super@demo.ceda.bw", home: "/dashboard/admin" },
+  {
+    role: "Innovator",
+    code: "INNOVATOR",
+    email: "innovator@demo.ceda.bw",
+    name: "Naledi Molefe",
+    roleLabel: "Innovator",
+    home: "/dashboard/innovator",
+  },
+  {
+    role: "Evaluator",
+    code: "EVALUATOR",
+    email: "evaluator@demo.ceda.bw",
+    name: "Dr Keabetswe Ntshole",
+    roleLabel: "Evaluator",
+    home: "/dashboard/evaluator",
+  },
+  {
+    role: "Adjudicator",
+    code: "ADJUDICATOR",
+    email: "panel@demo.ceda.bw",
+    name: "Mma Dineo Seabo",
+    roleLabel: "Adjudicator",
+    home: "/dashboard/panel",
+  },
+  {
+    role: "Admin",
+    code: "ADMIN",
+    email: "admin@demo.ceda.bw",
+    name: "Tebogo Ramasedi",
+    roleLabel: "Programme admin",
+    home: "/dashboard/admin",
+  },
+  {
+    role: "Super admin",
+    code: "SUPERADMIN",
+    email: "super@demo.ceda.bw",
+    name: "Kgosi Mothibi",
+    roleLabel: "Super admin",
+    home: "/dashboard/admin",
+  },
 ];
 
-const PUBLIC_PAGES = ["/", "/calls", "/eligibility", "/track", "/funded", "/community", "/community/safe-practices", "/privacy", "/about", "/login", "/register"];
+const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
+  ["/dashboard/superadmin", ["SUPERADMIN"]],
+  ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
+  ["/dashboard/panel", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/evaluator", ["EVALUATOR"]],
+  ["/dashboard/innovator", ["INNOVATOR"]],
+  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+];
+
+const PUBLIC_PAGES = [
+  "/",
+  "/calls",
+  "/eligibility",
+  "/track",
+  "/funded",
+  "/community",
+  "/community/safe-practices",
+  "/privacy",
+  "/about",
+  "/login",
+  "/register",
+];
 
 /** Fails the test on uncaught page errors, which is what a crashed React tree looks like. */
 function watchErrors(page: Page) {
@@ -59,29 +117,103 @@ test.describe("public site", () => {
 });
 
 for (const r of ROLES) {
-  test(`${r.role}: signs in and every menu link opens`, async ({ page }) => {
+  test(`${r.role}: signs in, keeps role stability across every sidebar link, and highlights one active item`, async ({ page }) => {
     const errors = watchErrors(page);
     await signIn(page, r.email);
     await expect(page).toHaveURL(new RegExp(r.home));
 
-    const links = page.locator("aside nav a");
+    const sidebar = page.locator("aside").first();
+    const links = sidebar.locator("nav a");
     await expect(links.first()).toBeVisible();
     const hrefs = await links.evaluateAll((as) => as.map((a) => a.getAttribute("href")!));
-    expect(hrefs.length).toBeGreaterThan(0);
+    const expectedCount = hrefs.length;
+    expect(expectedCount).toBeGreaterThan(0);
+
+    await expect(sidebar).toContainText(r.name);
+    await expect(sidebar).toContainText(r.roleLabel);
 
     for (const href of hrefs) {
-      const res = await page.goto(href);
-      expect(res?.status(), href).toBeLessThan(400);
-      // Dashboard pages keep the menu; links like the community forum open the public site.
-      if (href.startsWith("/dashboard")) await expect(page.locator("aside nav a").first(), `menu on ${href}`).toBeVisible();
-      else await expect(page.locator("h1").first()).toBeVisible();
+      await sidebar.locator(`nav a[href="${href}"]`).click();
+      await page.waitForURL((u) => u.pathname === href, { timeout: 30_000 });
+
+      // Never lands on /login
+      expect(new URL(page.url()).pathname, `${r.role} clicking ${href}`).not.toBe("/login");
+      expect(new URL(page.url()).pathname, `${r.role} clicking ${href}`).toBe(href);
+
+      // Sidebar footer still shows the same name and role label
+      await expect(sidebar, `${r.role} name on ${href}`).toContainText(r.name);
+      await expect(sidebar, `${r.role} role label on ${href}`).toContainText(r.roleLabel);
+
+      // Number of sidebar links is unchanged on every /dashboard page
+      if (href.startsWith("/dashboard")) {
+        await expect(links, `${r.role} link count on ${href}`).toHaveCount(expectedCount);
+        // Exactly one sidebar item is highlighted
+        await expect(sidebar.locator("nav a.bg-ceda-blue"), `${r.role} active highlight on ${href}`).toHaveCount(1);
+      }
+      await expect(page.locator("h1").first()).toBeVisible();
     }
     expect(errors).toEqual([]);
   });
 }
 
-test("people can't open another role's pages", async ({ page }) => {
+test("role × link matrix: no role's menu contains a link it is redirected away from, and highlight rules are unambiguous", async () => {
+  for (const r of ROLES) {
+    const menu = navFor(r.code);
+    expect(menu.length).toBeGreaterThan(0);
+    for (const item of menu) {
+      const rule = PAGE_ROLE_RULES.find(([prefix]) => item.href.startsWith(prefix));
+      expect(rule, `rule covering ${item.href} for ${r.code}`).toBeDefined();
+      expect(rule![1], `${r.code} must be allowed on ${item.href}`).toContain(r.code);
+
+      // Exactly one menu item is active when visiting item.href
+      const activeItems = menu.filter((other) => isActive(item.href, other.href));
+      expect(activeItems.map((x) => x.href), `active items on ${item.href} for ${r.code}`).toEqual([item.href]);
+    }
+  }
+});
+
+const PROBES: { role: string; email: string; forbidden: string[]; allowed: string }[] = [
+  {
+    role: "Innovator",
+    email: "innovator@demo.ceda.bw",
+    allowed: "/dashboard/innovator",
+    forbidden: ["/dashboard/admin", "/dashboard/panel", "/dashboard/evaluator", "/dashboard/superadmin/users"],
+  },
+  {
+    role: "Evaluator",
+    email: "evaluator@demo.ceda.bw",
+    allowed: "/dashboard/evaluator",
+    forbidden: ["/dashboard/admin", "/dashboard/panel", "/dashboard/innovator", "/dashboard/superadmin/users"],
+  },
+  {
+    role: "Adjudicator",
+    email: "panel@demo.ceda.bw",
+    allowed: "/dashboard/panel",
+    forbidden: ["/dashboard/admin", "/dashboard/evaluator", "/dashboard/innovator", "/dashboard/superadmin/users"],
+  },
+  {
+    role: "Admin",
+    email: "admin@demo.ceda.bw",
+    allowed: "/dashboard/admin",
+    forbidden: ["/dashboard/evaluator", "/dashboard/innovator", "/dashboard/superadmin/users"],
+  },
+];
+
+for (const p of PROBES) {
+  test(`role × route enforcement: ${p.role} is redirected away from pages it does not own`, async ({ page }) => {
+    await signIn(page, p.email);
+    for (const bad of p.forbidden) {
+      await page.goto(bad);
+      await expect(page, `${p.email} should be redirected from ${bad}`).toHaveURL(new RegExp(p.allowed));
+      await expect(page).not.toHaveURL(/\/login/);
+    }
+  });
+}
+
+test("sign out returns to the home page with no 404 or login loop", async ({ page }) => {
   await signIn(page, "innovator@demo.ceda.bw");
-  await page.goto("/dashboard/admin");
-  await expect(page).not.toHaveURL(/\/dashboard\/admin/);
+  await page.locator("aside button", { hasText: "Sign out" }).click();
+  await page.waitForURL((u) => u.pathname === "/", { timeout: 30_000 });
+  await expect(page).not.toHaveURL(/\/login/);
+  await expect(page.locator("h1").first()).toBeVisible();
 });

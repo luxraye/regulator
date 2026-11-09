@@ -24,8 +24,8 @@ export function CookieBanner() {
   if (!visible) return null;
 
   return (
-    <div className="fixed bottom-0 left-0 right-0 z-[60] p-4 animate-in slide-in-from-bottom duration-300">
-      <div className="max-w-4xl mx-auto bg-ceda-navy text-white rounded-2xl shadow-2xl border border-white/10 p-5 flex flex-col sm:flex-row items-start sm:items-center gap-4">
+    <div className="pointer-events-none fixed bottom-0 left-0 right-0 z-[60] p-4 animate-in slide-in-from-bottom duration-300 md:left-64">
+      <div className="pointer-events-auto mx-auto flex max-w-4xl flex-col items-start gap-4 rounded-2xl border border-white/10 bg-ceda-navy p-5 text-white shadow-2xl sm:flex-row sm:items-center">
         <Cookie className="w-8 h-8 text-ceda-amber shrink-0 hidden sm:block" />
         <div className="flex-1 min-w-0">
           <p className="text-sm font-medium">We value your privacy</p>

@@ -9,30 +9,34 @@ import { FORUM_CATEGORIES, NOTICE_CATEGORIES } from "@/lib/community";
 const clean = (v: FormDataEntryValue | null, max: number) => String(v ?? "").trim().slice(0, max);
 
 export async function createThread(form: FormData) {
+  const basePath = form.get("basePath") === "/dashboard/community" ? "/dashboard/community" : "/community";
   const user = await getSessionUser();
-  if (!user) redirect("/login?callbackUrl=/community/new");
+  if (!user) redirect(`/login?callbackUrl=${encodeURIComponent(`${basePath}/new`)}`);
   const title = clean(form.get("title"), 140);
   const body = clean(form.get("body"), 5000);
   const category = clean(form.get("category"), 20);
   if (title.length < 8 || body.length < 20 || !FORUM_CATEGORIES.some((c) => c.key === category)) {
-    redirect("/community/new?error=1");
+    redirect(`${basePath}/new?error=1`);
   }
   const t = await prisma.forumThread.create({ data: { title, body, category, authorId: user.id } });
   revalidatePath("/community");
-  redirect(`/community/${t.id}`);
+  revalidatePath("/dashboard/community");
+  redirect(`${basePath}/${t.id}`);
 }
 
 export async function replyToThread(form: FormData) {
+  const basePath = form.get("basePath") === "/dashboard/community" ? "/dashboard/community" : "/community";
   const threadId = clean(form.get("threadId"), 40);
   const user = await getSessionUser();
-  if (!user) redirect(`/login?callbackUrl=/community/${threadId}`);
+  if (!user) redirect(`/login?callbackUrl=${encodeURIComponent(`${basePath}/${threadId}`)}`);
   const body = clean(form.get("body"), 3000);
   if (body.length >= 2) {
     await prisma.forumReply.create({ data: { body, threadId, authorId: user.id } });
     await prisma.forumThread.update({ where: { id: threadId }, data: { updatedAt: new Date() } });
   }
   revalidatePath(`/community/${threadId}`);
-  redirect(`/community/${threadId}#replies`);
+  revalidatePath(`/dashboard/community/${threadId}`);
+  redirect(`${basePath}/${threadId}#replies`);
 }
 
 export async function createNotice(form: FormData) {
@@ -56,6 +60,8 @@ export async function createNotice(form: FormData) {
     },
   });
   revalidatePath("/community/safe-practices");
+  revalidatePath("/dashboard/community/safe-practices");
+  revalidatePath("/dashboard/community");
   redirect("/dashboard/admin/notices?posted=1");
 }
 
@@ -66,5 +72,7 @@ export async function toggleNoticePin(form: FormData) {
   const n = await prisma.notice.findUnique({ where: { id } });
   if (n) await prisma.notice.update({ where: { id }, data: { pinned: !n.pinned } });
   revalidatePath("/community/safe-practices");
+  revalidatePath("/dashboard/community/safe-practices");
+  revalidatePath("/dashboard/community");
   redirect("/dashboard/admin/notices");
 }
