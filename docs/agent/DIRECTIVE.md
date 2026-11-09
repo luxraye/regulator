@@ -62,7 +62,7 @@ An Instance definition is JSON (validated by a zod or Ajv schema) with these sec
 4. **team**: minimum and maximum size, and required member fields.
 5. **forms**: JSON Schema forms per stage (registration, submission, compliance declaration), with file slots giving allowed types, max size and required flag. Every question is required unless it is marked "N/A allowed".
 6. **guards**: pre-emptive security checks (Phase 5).
-7. **faithfulness**: rules such as "every question answered or marked N/A", "no edits after the deadline", "affiliations declared", "consents recorded", and optionally "repository commits inside the build window".
+7. **faithfulness**: rules such as "every question answered or marked N/A", "no edits after the deadline", "affiliations declared", "consents recorded".
 8. **rubric**: weighted criteria and sub-criteria that must total 100, evaluators per entry, a blind on/off switch, a disagreement threshold, a consensus step on/off switch, and an optional public-vote weight.
 9. **workflow**: screening, then blind scoring with conflict declaration, consensus, shortlist, panel and award. Compose it from the stage library.
 10. **privacy**: Data Protection Act 2024 consent text, retention period and purpose.
@@ -139,7 +139,7 @@ Guards run on upload and on submit, and the results are stored as `CheckResult`s
 - **Files:** real type by magic bytes against the allowed list; size caps; archive inspection (zip bomb ratio, zip-slip paths, nested archive depth); SHA-256 duplicate detection across entries; PDF page count against limits (for example a 10-page proposal).
 - **Malware, secrets and dependencies:** use an adapter interface with a working stub that flags EICAR and obvious patterns. Add a real ClamAV adapter when `CLAMAV_HOST` is set. Run secret scanning on uploaded source (regexes for keys and tokens) and an OSV dependency check on `package.json`/`requirements.txt` when it can reach the network.
 - **Links:** the live URL must answer over HTTPS with a valid certificate and no redirect to a different domain. The repo link must be reachable.
-- **Compliance and faithfulness:** eligibility rules; every question answered or N/A; affiliations declared; consents recorded; optional GitHub commit-window check (public repos via the GitHub API: share of commits inside the build window).
+- **Compliance and faithfulness:** eligibility rules; every question answered or N/A; affiliations declared; consents recorded.
 
 **Participant pre-flight:** before final submit, the team sees the same checklist and can fix problems before the deadline. Hard fails block submission. Warnings go to screeners.
 
