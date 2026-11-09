@@ -21,10 +21,25 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     include: { instance: { include: { template: true } } },
   });
   if (!ev || ev.evaluatorId !== user.id) return notFound();
-  if (ev.submittedAt) return badRequest("This scorecard has already been submitted");
-  if (!["UNDER_REVIEW"].includes(ev.instance.status)) return badRequest("This idea is no longer being evaluated");
 
   const body = await req.json().catch(() => ({}));
+
+  if (body?.reopen === true) {
+    await prisma.evaluation.update({
+      where: { id: ev.id },
+      data: { submittedAt: null, conflict: false, conflictNote: null },
+    });
+    if (["SHORTLISTED", "UNDER_REVIEW"].includes(ev.instance.status)) {
+      await prisma.instance.update({
+        where: { id: ev.instanceId },
+        data: { status: "UNDER_REVIEW" },
+      });
+    }
+    return NextResponse.json({ reopened: true });
+  }
+
+  if (ev.submittedAt) return badRequest("This scorecard has already been submitted");
+  if (!["UNDER_REVIEW"].includes(ev.instance.status)) return badRequest("This idea is no longer being evaluated");
 
   if (typeof body?.conflict === "boolean") {
     if (ev.conflict !== null) return badRequest("You have already declared");

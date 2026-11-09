@@ -5,6 +5,7 @@ import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { sectorName } from "@/lib/labels";
 import { cn, formatDate, relativeDeadline } from "@/lib/utils";
+import { ResetEvaluatorQueueButton } from "./reset-queue-button";
 
 export const dynamic = "force-dynamic";
 
@@ -25,11 +26,14 @@ export default async function EvaluatorHome() {
 
   return (
     <div>
-      <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">My assignments</h1>
-        <p className="mt-1 text-muted-foreground">
-          Declare any conflict first, then score each idea against the call&apos;s criteria. You see the idea, not the applicant&apos;s personal details.
-        </p>
+      <div className="mb-6 flex flex-wrap items-start justify-between gap-3">
+        <div>
+          <h1 className="text-2xl font-bold text-ceda-navy">My assignments</h1>
+          <p className="mt-1 text-muted-foreground">
+            Declare any conflict first, then score each idea against the call&apos;s criteria. You see the idea, not the applicant&apos;s personal details.
+          </p>
+        </div>
+        <ResetEvaluatorQueueButton />
       </div>
 
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
@@ -40,9 +44,13 @@ export default async function EvaluatorHome() {
       </div>
 
       <div className="space-y-6">
-        <Group title="To score" empty="Nothing waiting. CEDA will notify you when an idea is assigned." items={todo} />
-        <Group title="Submitted" items={done} />
-        {stepped.length > 0 && <Group title="Stepped aside (conflict declared)" items={stepped} />}
+        <Group
+          title="To score"
+          empty="All assigned ideas have been scored. Click 'Restore demo queue' above to reopen 6 ideas for grading, or click any idea in 'Submitted' below to reopen and re-grade it."
+          items={todo}
+        />
+        <Group title="Submitted (click any idea to view or reopen & re-grade)" items={done} />
+        {stepped.length > 0 && <Group title="Stepped aside (conflict declared — click to change)" items={stepped} />}
       </div>
     </div>
   );
@@ -65,12 +73,12 @@ function Group({ title, items, empty }: { title: string; items: Ev[]; empty?: st
           {items.map((e) => {
             const due = relativeDeadline(e.dueAt);
             const state = e.submittedAt
-              ? { text: `Scored ${e.total}/100`, cls: "bg-green-100 text-green-700" }
+              ? { text: `Scored ${e.total}/100 · Re-grade`, cls: "bg-green-100 text-green-700" }
               : e.conflict === true
-                ? { text: "Conflict declared", cls: "bg-gray-100 text-gray-600" }
+                ? { text: "Conflict declared · Change", cls: "bg-gray-100 text-gray-600" }
                 : e.conflict === null
                   ? { text: "Declare conflict", cls: "bg-amber-100 text-amber-800" }
-                  : { text: "In progress", cls: "bg-blue-100 text-blue-700" };
+                  : { text: "In progress · Score now", cls: "bg-blue-100 text-blue-700" };
             return (
               <li key={e.id}>
                 <Link href={`/dashboard/evaluator/${e.id}`} className="group flex items-center justify-between gap-3 px-5 py-4 hover:bg-ceda-light/60">

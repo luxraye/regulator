@@ -155,7 +155,13 @@ const STORIES: Story[] = [
     },
     evaluations: [
       { evaluator: "gofaone", scores: [4, 4, 4, 5, 5], feedback: "Strong rural impact. Detail the technician training plan." },
-      { evaluator: "keabetswe", pending: true },
+      {
+        evaluator: "keabetswe",
+        pending: true,
+        conflict: false,
+        scores: [4, 4, 4, 5, 4],
+        feedback: "Strong rural impact and clear pay-as-you-go unit economics. Include a 12-month maintenance schedule for the Kgalagadi technician network.",
+      },
     ],
   },
   {
@@ -438,9 +444,10 @@ export async function seedDemoData(prisma: PrismaClient) {
   const allStories: Story[] = [...STORIES];
   const openCalls = ["AGRI_2026", "DIGI_2026", "GREEN_2026", "CREATE_2026", "SOCIAL_2026"];
   const statusMix: InstanceStatus[] = [
-    InstanceStatus.SUBMITTED, InstanceStatus.SUBMITTED, InstanceStatus.UNDER_REVIEW, InstanceStatus.UNDER_REVIEW,
-    InstanceStatus.SHORTLISTED, InstanceStatus.SHORTLISTED, InstanceStatus.SHORTLISTED, InstanceStatus.FLAGGED, InstanceStatus.DRAFT,
+    InstanceStatus.SUBMITTED, InstanceStatus.SUBMITTED, InstanceStatus.UNDER_REVIEW, InstanceStatus.UNDER_REVIEW, InstanceStatus.UNDER_REVIEW,
+    InstanceStatus.SHORTLISTED, InstanceStatus.SHORTLISTED, InstanceStatus.FLAGGED, InstanceStatus.DRAFT,
   ];
+  let underReviewCount = 0;
   for (let i = 0; i < 34; i++) {
     const first = pick(FIRST);
     const last = pick(LAST);
@@ -452,15 +459,31 @@ export async function seedDemoData(prisma: PrismaClient) {
     const idea = pick(IDEAS);
     const evaluated = ([InstanceStatus.UNDER_REVIEW, InstanceStatus.SHORTLISTED, InstanceStatus.APPROVED, InstanceStatus.AWARDED, InstanceStatus.REJECTED] as InstanceStatus[]).includes(status);
     const base = between(2, 4);
+    const isUnderReview = status === InstanceStatus.UNDER_REVIEW;
+    if (isUnderReview) underReviewCount++;
+    // For UNDER_REVIEW ideas, always include keabetswe (j === 0) as pending so the demo evaluator has a rich queue to score.
+    // For already-decided ideas, rotate evaluator pairs so keabetswe has ~12 past evaluations instead of 25.
+    const pair = isUnderReview
+      ? evaluatorKeys.slice(0, 2 + (rand() < 0.3 ? 1 : 0))
+      : i % 2 === 0
+        ? evaluatorKeys.slice(0, 2 + (rand() < 0.3 ? 1 : 0))
+        : (rand() < 0.3 ? ["gofaone", "masego", "keabetswe"] : ["gofaone", "masego"]);
     const evs = evaluated
-      ? evaluatorKeys
-          .slice(0, 2 + (rand() < 0.3 ? 1 : 0))
-          .map((ev, j) => ({
+      ? pair.map((ev, j) => {
+          const isPending = isUnderReview && j === 0;
+          const preClearedConflict = isPending && underReviewCount % 2 === 1;
+          return {
             evaluator: ev,
-            pending: status === InstanceStatus.UNDER_REVIEW && j === 1,
-            scores: CRITERIA.map(() => Math.min(5, Math.max(1, base + between(-1, 1)))),
-            feedback: "Clear problem statement. Strengthen the evidence that customers will pay and show how the funds will be used.",
-          }))
+            pending: isPending,
+            conflict: isPending ? (preClearedConflict ? false : undefined) : false,
+            scores: isPending && !preClearedConflict
+              ? undefined
+              : CRITERIA.map(() => Math.min(5, Math.max(1, base + between(-1, 1)))),
+            feedback: isPending && !preClearedConflict
+              ? undefined
+              : "Clear problem statement. Strengthen the evidence that customers will pay and show how the funds will be used.",
+          };
+        })
       : undefined;
     const decided = ([InstanceStatus.APPROVED, InstanceStatus.AWARDED, InstanceStatus.REJECTED, InstanceStatus.FLAGGED] as InstanceStatus[]).includes(status);
     allStories.push({
@@ -594,7 +617,7 @@ export async function seedDemoData(prisma: PrismaClient) {
         assignedById: users.tebogo.id,
         assignedAt,
         dueAt: new Date(assignedAt.getTime() + 7 * DAY),
-        conflict: e.pending ? null : e.conflict ?? false,
+        conflict: e.conflict !== undefined ? e.conflict : e.pending ? null : false,
         scores: scores ?? undefined,
         total,
         feedback: e.feedback,

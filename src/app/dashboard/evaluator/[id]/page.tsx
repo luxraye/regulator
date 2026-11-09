@@ -7,7 +7,7 @@ import { fileMetaSelect, fieldsToRecord, schemaOf } from "@/lib/instances";
 import { sectorName, stageName } from "@/lib/labels";
 import { FileList } from "@/components/dashboard/file-list";
 import { formatDate } from "@/lib/utils";
-import { ConflictDeclaration, Scorecard } from "./scorecard";
+import { ConflictDeclaration, Scorecard, SteppedAsideCard } from "./scorecard";
 
 export const dynamic = "force-dynamic";
 
@@ -54,10 +54,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
       )}
 
       {ev.conflict === true && (
-        <div className="rounded-xl border border-border bg-white p-6 text-sm text-muted-foreground">
-          You declared a conflict of interest, so this idea is hidden from you and CEDA has been asked to reassign it.
-          {ev.conflictNote && <p className="mt-2 italic">&ldquo;{ev.conflictNote}&rdquo;</p>}
-        </div>
+        <SteppedAsideCard evaluationId={ev.id} conflictNote={ev.conflictNote} />
       )}
 
       {canSee && (
@@ -99,6 +96,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
                 locked={locked}
                 submittedAt={ev.submittedAt?.toISOString() ?? null}
                 total={ev.total}
+                canReopen={["UNDER_REVIEW", "SHORTLISTED"].includes(instance.status)}
               />
             </div>
           </div>

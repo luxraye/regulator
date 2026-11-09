@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
-import { CheckCircle2, Loader2, Save, Scale, Send } from "lucide-react";
+import { CheckCircle2, Loader2, RotateCcw, Save, Scale, Send } from "lucide-react";
 import type { Criterion } from "@/lib/instance-schema";
 import { SCORE_GUIDE, SCORE_MAX, weightedTotal } from "@/lib/scoring";
 import { cn, formatDate } from "@/lib/utils";
@@ -72,6 +72,36 @@ export function ConflictDeclaration({ evaluationId, company, title }: { evaluati
   );
 }
 
+export function SteppedAsideCard({ evaluationId, conflictNote }: { evaluationId: string; conflictNote: string | null }) {
+  const router = useRouter();
+  const [busy, setBusy] = useState(false);
+
+  async function reopen() {
+    setBusy(true);
+    await patch(evaluationId, { reopen: true });
+    setBusy(false);
+    router.refresh();
+  }
+
+  return (
+    <div className="flex flex-wrap items-center justify-between gap-4 rounded-xl border border-border bg-white p-6 text-sm text-muted-foreground">
+      <div>
+        <p>You declared a conflict of interest, so this idea is hidden from you and CEDA has been asked to reassign it.</p>
+        {conflictNote && <p className="mt-2 italic">&ldquo;{conflictNote}&rdquo;</p>}
+      </div>
+      <button
+        type="button"
+        onClick={reopen}
+        disabled={busy}
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-ceda-light px-3 py-2 text-xs font-medium text-ceda-navy hover:bg-slate-200 disabled:opacity-50"
+      >
+        {busy ? <Loader2 size={14} className="animate-spin" /> : <RotateCcw size={14} />}
+        Change declaration &amp; score idea
+      </button>
+    </div>
+  );
+}
+
 export function Scorecard({
   evaluationId,
   criteria,
@@ -79,6 +109,7 @@ export function Scorecard({
   locked,
   submittedAt,
   total: savedTotal,
+  canReopen = true,
 }: {
   evaluationId: string;
   criteria: Criterion[];
@@ -86,26 +117,36 @@ export function Scorecard({
   locked: boolean;
   submittedAt: string | null;
   total: number | null;
+  canReopen?: boolean;
 }) {
   const router = useRouter();
   const [scores, setScores] = useState(initial.scores);
   const [feedback, setFeedback] = useState(initial.feedback);
   const [privateNote, setPrivateNote] = useState(initial.privateNote);
-  const [busy, setBusy] = useState<"save" | "submit" | null>(null);
+  const [busy, setBusy] = useState<"save" | "submit" | "reopen" | null>(null);
   const [msg, setMsg] = useState<{ ok: boolean; text: string } | null>(null);
 
   const total = useMemo(() => weightedTotal(criteria, scores), [criteria, scores]);
   const scored = criteria.filter((c) => scores[c.key]).length;
 
   async function save(submit: boolean) {
-    if (submit && !confirm("Submit this scorecard? You can't change it afterwards.")) return;
     setBusy(submit ? "submit" : "save");
     setMsg(null);
     const { ok, data } = await patch(evaluationId, { scores, feedback, privateNote, submit });
     setBusy(null);
     if (!ok) return setMsg({ ok: false, text: data.error ?? "Could not save" });
-    setMsg({ ok: true, text: submit ? "Submitted. Thank you." : "Draft saved" });
+    setMsg({ ok: true, text: submit ? "Scorecard submitted. You can reopen it above if you want to adjust your scores." : "Draft saved" });
     if (submit) router.refresh();
+  }
+
+  async function reopenScorecard() {
+    setBusy("reopen");
+    setMsg(null);
+    const { ok, data } = await patch(evaluationId, { reopen: true });
+    setBusy(null);
+    if (!ok) return setMsg({ ok: false, text: data.error ?? "Could not reopen scorecard" });
+    setMsg({ ok: true, text: "Scorecard unlocked for editing." });
+    router.refresh();
   }
 
   return (
@@ -121,10 +162,24 @@ export function Scorecard({
         </div>
       </div>
 
-      {locked && submittedAt && (
-        <p className="mb-4 flex items-center gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
-          <CheckCircle2 size={16} /> Submitted {formatDate(submittedAt, true)}
-        </p>
+      {locked && (
+        <div className="mb-4 flex flex-wrap items-center justify-between gap-2 rounded-lg bg-green-50 p-3 text-sm text-green-800">
+          <span className="flex items-center gap-2">
+            <CheckCircle2 size={16} />
+            {submittedAt ? `Submitted ${formatDate(submittedAt, true)}` : "Evaluation locked"}
+          </span>
+          {canReopen && (
+            <button
+              type="button"
+              onClick={reopenScorecard}
+              disabled={!!busy}
+              className="inline-flex items-center gap-1.5 rounded-md border border-green-300 bg-white px-2.5 py-1 text-xs font-medium text-ceda-navy shadow-sm hover:bg-green-100 disabled:opacity-50"
+            >
+              {busy === "reopen" ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
+              Reopen to edit / re-grade
+            </button>
+          )}
+        </div>
       )}
 
       <div className="space-y-4">
