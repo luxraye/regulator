@@ -2,6 +2,12 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-09 23:55 UTC
+- CI on PR #6 was red again after e7cb3d7: `/` and `/instances` returned 500. Cause: `ensureFlagshipInstance` wrote a `publishedAt` field that the Instance model doesn't have, never set the required `createdById` on InstanceVersion, and relied on a "ceda" partner that only the SQL migration creates (CI uses `db push` + seed). The `prismaClient: any` type hid all three from tsc.
+- I pushed a fix to `src/lib/instance-engine/flagship.ts`: it upserts the CEDA partner, credits version 1 to the first SUPERADMIN/ADMIN, and catches errors so a page never 500s because of it. All 28 smoke tests pass against a fresh `db push` + seed. Pull before touching that file.
+- Rules from here: type Prisma clients as `PrismaClient` (not `any`), and before each push run the CI sequence on a fresh DB: `prisma db push` → `tsx prisma/seed.ts` → `yarn build` → `yarn start` → `npx playwright test`. Anything the app needs at runtime must be seeded in `src/lib/seed-demo.ts`, not only in a SQL migration.
+- Next: carry on with Phase 5 (guards and pre-flight).
+
 ## 2026-11-09 21:45 UTC
 - CI on PR #6 was red: the smoke test looked for the old `bg-ceda-blue` active class. I pushed f28271a, which adds `aria-current="page"` to the active sidebar link and makes the test look for that. Pull before editing `dashboard-sidebar.tsx` or `smoke.spec.ts`.
 - Keep CI green: check the PR's checks after each push and fix any red before moving on.

@@ -377,46 +377,65 @@ export const FLAGSHIP_CEDA_HACKATHON_2026: InstanceDefinition = {
 /**
  * Ensures the flagship Hackathon 2026 instance exists in the database.
  */
+/**
+ * Makes sure the flagship Instance exists. Safe to call from any page:
+ * it creates the CEDA partner if missing and never throws, so a seeding
+ * problem can't take the home page down.
+ */
 export async function ensureFlagshipInstance(prismaClient: any) {
-  const existing = await prismaClient.instance.findUnique({
-    where: { slug: "ceda-hackathon-2026" },
-  });
-  if (existing) return existing;
+  try {
+    const existing = await prismaClient.instance.findUnique({
+      where: { slug: "ceda-hackathon-2026" },
+    });
+    if (existing) return existing;
 
-  let partner = await prismaClient.partner.findUnique({ where: { slug: "ceda" } });
-  if (!partner) {
-    partner = await prismaClient.partner.findFirst();
-  }
+    const partner = await prismaClient.partner.upsert({
+      where: { slug: "ceda" },
+      update: {},
+      create: { name: "Citizen Entrepreneurial Development Agency", slug: "ceda", primaryColor: "#d94914" },
+    });
 
-  const { computeRulesHash, canonicalizeJson } = await import("./canonical");
-  const rulesHash = computeRulesHash(FLAGSHIP_CEDA_HACKATHON_2026);
-  const canonJson = JSON.parse(canonicalizeJson(FLAGSHIP_CEDA_HACKATHON_2026));
+    const author =
+      (await prismaClient.user.findFirst({ where: { role: "SUPERADMIN" } })) ??
+      (await prismaClient.user.findFirst({ where: { role: "ADMIN" } }));
 
-  const opensAt = new Date(FLAGSHIP_CEDA_HACKATHON_2026.timeline[0].start);
-  const closesAt = new Date(FLAGSHIP_CEDA_HACKATHON_2026.timeline[FLAGSHIP_CEDA_HACKATHON_2026.timeline.length - 1].end);
+    const { computeRulesHash, canonicalizeJson } = await import("./canonical");
+    const rulesHash = computeRulesHash(FLAGSHIP_CEDA_HACKATHON_2026);
+    const canonJson = JSON.parse(canonicalizeJson(FLAGSHIP_CEDA_HACKATHON_2026));
 
-  const instance = await prismaClient.instance.create({
-    data: {
-      partnerId: partner?.id,
-      name: FLAGSHIP_CEDA_HACKATHON_2026.meta.name,
-      slug: "ceda-hackathon-2026",
-      definition: canonJson,
-      rulesHash,
-      status: "LIVE",
-      opensAt,
-      closesAt,
-      publishedAt: new Date(),
-      versions: {
-        create: {
-          version: 1,
-          reason: "Initial publication of official flagship Hackathon 2026 competition definition.",
-          definition: canonJson,
-          rulesHash,
-          diff: { initial: true },
-        },
+    const timeline = FLAGSHIP_CEDA_HACKATHON_2026.timeline;
+    const opensAt = new Date(timeline[0].start);
+    const closesAt = new Date(timeline[timeline.length - 1].end);
+
+    return await prismaClient.instance.create({
+      data: {
+        partnerId: partner.id,
+        name: FLAGSHIP_CEDA_HACKATHON_2026.meta.name,
+        slug: "ceda-hackathon-2026",
+        description: FLAGSHIP_CEDA_HACKATHON_2026.meta.description,
+        definition: canonJson,
+        rulesHash,
+        status: "LIVE",
+        opensAt,
+        closesAt,
+        ...(author
+          ? {
+              versions: {
+                create: {
+                  version: 1,
+                  reason: "Initial publication of official flagship Hackathon 2026 competition definition.",
+                  definition: canonJson,
+                  rulesHash,
+                  diff: { initial: true },
+                  createdById: author.id,
+                },
+              },
+            }
+          : {}),
       },
-    },
-  });
-
-  return instance;
+    });
+  } catch (err) {
+    console.error("ensureFlagshipInstance failed", err);
+    return null;
+  }
 }
