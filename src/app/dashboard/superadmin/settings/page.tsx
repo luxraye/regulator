@@ -1,6 +1,7 @@
 import { CheckCircle2, XCircle } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { isJwtSecretConfigured } from "@/lib/jwt-sign";
+import { ResetDemoButton } from "./reset-demo-button";
 
 export const dynamic = "force-dynamic";
 
@@ -80,6 +81,7 @@ export default async function SettingsPage() {
           <p className="mt-4 font-mono text-xs text-muted-foreground">
             Node {process.versions.node} · Next.js 14 · Prisma 5 · Auth.js 5
           </p>
+          <ResetDemoButton />
         </section>
       </div>
     </div>
