@@ -71,7 +71,9 @@ export default function LoginPage() {
         {SHOW_DEMO && (
           <div className="rounded-xl border border-border bg-white p-6">
             <h2 className="font-semibold text-ceda-navy">Try it as any role</h2>
-            <p className="mb-4 text-xs text-muted-foreground">Demo accounts with realistic data. One click signs you in.</p>
+            <p className="mb-4 text-xs text-muted-foreground">
+              Judges: pick any role below to explore. Password for all: <code className="rounded bg-ceda-light px-1 font-semibold text-ceda-navy">{DEMO_PASSWORD}</code>
+            </p>
             <ul className="space-y-2">
               {DEMO.map((d) => (
                 <li key={d.email}>
@@ -91,7 +93,9 @@ export default function LoginPage() {
                 </li>
               ))}
             </ul>
-            <p className="mt-4 text-xs text-muted-foreground">Password for every demo account: <code className="rounded bg-ceda-light px-1">{DEMO_PASSWORD}</code></p>
+            <p className="mt-4 text-xs text-muted-foreground">
+              New to the evaluation walkthrough? <Link href="/about#how-to-judge" className="font-medium text-ceda-blue hover:underline">How to judge this portal (2-minute path per role)</Link>
+            </p>
           </div>
         )}
       </div>

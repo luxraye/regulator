@@ -70,7 +70,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
         <input type="hidden" name="filter" value={active.key} />
         <div className="relative min-w-[220px] flex-1">
           <Search size={15} className="absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground" />
-          <input name="q" defaultValue={q} placeholder="Search title, reference or company" className="w-full rounded-lg border border-border bg-white py-2 pl-9 pr-3 text-sm" />
+          <input name="q" defaultValue={q} placeholder="Search title, reference or company" aria-label="Search title, reference or company" className="w-full rounded-lg border border-border bg-white py-2 pl-9 pr-3 text-sm" />
         </div>
         <select name="call" defaultValue={call?.code ?? ""} className="rounded-lg border border-border bg-white px-3 py-2 text-sm" aria-label="Call">
           <option value="">All calls</option>

@@ -1,0 +1,90 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  check:
+    name: Lint, type check, build and smoke test
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: ceda
+          POSTGRES_PASSWORD: ceda
+          POSTGRES_DB: ceda
+        ports: ["5432:5432"]
+        options: >-
+          --health-cmd "pg_isready -U ceda"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+
+    env:
+      DATABASE_URL: postgresql://ceda:ceda@localhost:5432/ceda
+      DIRECT_URL: postgresql://ceda:ceda@localhost:5432/ceda
+      AUTH_SECRET: ci-only-auth-secret-not-for-production-0000
+      JWT_SECRET: ci-only-jwt-secret-not-for-production-0000
+      AUTH_TRUST_HOST: "true"
+      NEXTAUTH_URL: http://localhost:3000
+      NEXT_PUBLIC_SHOW_DEMO_LOGINS: "true"
+      NEXT_TELEMETRY_DISABLED: "1"
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+          cache: yarn
+
+      - name: Install
+        run: yarn install --frozen-lockfile
+
+      - name: Lint
+        run: yarn lint
+
+      - name: Type check
+        run: npx tsc --noEmit
+
+      - name: Set up the database
+        run: |
+          npx prisma db push --skip-generate
+          npx tsx prisma/seed.ts
+
+      - name: Build
+        run: yarn build
+
+      - name: Start the app
+        run: |
+          yarn start -p 3000 > app.log 2>&1 &
+          for i in $(seq 1 60); do curl -fsS http://localhost:3000/api/health && exit 0; sleep 1; done
+          cat app.log; exit 1
+
+      - name: Install the test browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Smoke test every role
+        run: npx playwright test
+        env:
+          BASE_URL: http://localhost:3000
+
+      - name: Keep the report and server log
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: smoke-report
+          path: |
+            playwright-report/
+            test-results/
+            app.log
+          retention-days: 7

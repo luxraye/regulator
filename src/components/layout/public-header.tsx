@@ -14,6 +14,8 @@ const navLinks: { href: string; key: TranslationKey }[] = [
   { href: "/#how-it-works", key: "nav.how" },
   { href: "/eligibility", key: "nav.eligibility" },
   { href: "/track", key: "nav.track" },
+  { href: "/funded", key: "nav.funded" },
+  { href: "/community", key: "nav.community" },
   { href: "/about", key: "nav.about" },
 ];
 
@@ -24,11 +26,11 @@ export function PublicHeader() {
   const dashboardHref = session?.user ? "/dashboard" : "/login";
 
   return (
-    <header className="sticky top-0 z-50 border-b border-white/10 bg-ceda-navy/95 text-white shadow-[0_2px_8px_rgba(0,0,0,0.18)] backdrop-blur">
+    <header className="fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur">
       <div className="border-b border-white/10">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <span className="truncate text-xs text-white/50">Citizen Entrepreneurial Development Agency · Botswana</span>
-          <div className="flex items-center gap-3 text-xs text-white/50">
+          <span className="truncate text-xs text-white/75">Citizen Entrepreneurial Development Agency · Botswana</span>
+          <div className="flex items-center gap-3 text-xs text-white/75">
             <button
               onClick={() => setLocale(locale === "en" ? "tn" : "en")}
               className="flex items-center gap-1 font-medium transition-colors hover:text-white"
@@ -37,7 +39,7 @@ export function PublicHeader() {
               <Globe2 className="h-3 w-3" />
               {t("nav.language")}
             </button>
-            <span className="hidden text-white/20 sm:inline">|</span>
+            <span className="hidden text-white/30 sm:inline">|</span>
             <Link href="/ussd-demo" className="hidden transition-colors hover:text-white sm:inline">No data? Dial *161#</Link>
           </div>
         </div>
@@ -56,8 +58,13 @@ export function PublicHeader() {
               </Link>
             ))}
             <SearchTrigger />
+            {session?.user?.name && (
+              <span className="ml-2 max-w-[140px] truncate text-xs text-white/80" title={session.user.name}>
+                {session.user.name}
+              </span>
+            )}
             <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-blue px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-blue/80">
-              {session ? t("nav.dashboard") : t("nav.signin")}
+              {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>
 
@@ -76,8 +83,11 @@ export function PublicHeader() {
                 {t(link.key)}
               </Link>
             ))}
+            {session?.user?.name && (
+              <p className="px-3 pt-2 text-xs text-white/70">Signed in as {session.user.name}</p>
+            )}
             <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-blue px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
-              {session ? t("nav.dashboard") : t("nav.signin")}
+              {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>
         )}

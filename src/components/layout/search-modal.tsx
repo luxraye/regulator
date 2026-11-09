@@ -64,6 +64,7 @@ export function SearchModal({ open, onClose }: { open: boolean; onClose: () => v
               if (e.key === "Enter" && results[sel]) go(results[sel]);
             }}
             placeholder="Search calls, eligibility, help…"
+            aria-label="Search calls, eligibility, help"
             className="h-14 flex-1 bg-transparent text-sm outline-none"
           />
           <button onClick={onClose} aria-label="Close search"><X size={18} className="text-muted-foreground" /></button>

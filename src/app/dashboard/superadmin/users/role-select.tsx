@@ -38,6 +38,7 @@ export function RoleSelect({ userId, role, disabled }: { userId: string; role: s
         value={value}
         disabled={disabled || saving}
         onChange={(e) => change(e.target.value)}
+        aria-label="User role"
         title={disabled ? "You can't change your own role" : undefined}
         className="rounded-lg border border-border bg-white px-2 py-1 text-xs font-medium disabled:opacity-60"
       >

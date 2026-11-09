@@ -3,21 +3,13 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
+import { BlueBackdrop } from "@/components/home/blue-backdrop";
 
 export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   const { t } = useLanguage();
   return (
-    <section className="relative overflow-hidden bg-ceda-navy text-white">
-      <div className="absolute inset-0 opacity-[0.05]" aria-hidden>
-        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
-          <defs>
-            <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
-              <path d="M48 0H0V48" fill="none" stroke="white" strokeWidth="0.6" />
-            </pattern>
-          </defs>
-          <rect width="100%" height="100%" fill="url(#grid)" />
-        </svg>
-      </div>
+    <section className="relative overflow-hidden bg-[#0b4a86] text-white">
+      <BlueBackdrop />
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
@@ -39,19 +31,24 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
               </Link>
             </div>
           </div>
-          <div className="relative hidden lg:block">
-            <div className="relative mx-auto aspect-[4/5] w-full max-w-md overflow-hidden rounded-2xl border-2 border-white/10">
-              <Image src="/images/hero.jpg" alt="The Three Dikgosi Monument in Gaborone" fill priority sizes="28rem" className="object-cover object-top" />
-              <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
-                <p className="text-sm text-white/80">Built on the same idea as Botswana itself: fair rules, applied openly, for every citizen.</p>
+          <div className="relative block">
+            <figure className="relative mx-auto w-full max-w-lg">
+              <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border-2 border-white/10 shadow-2xl shadow-black/30">
+                <Image src="/images/hero-innovation.jpg" alt="Young developers building software together at their laptops" fill priority sizes="(min-width: 1024px) 32rem, 100vw" className="object-cover" />
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
+                  <p className="text-sm text-white/90">Ideas start at a kitchen table. We help the good ones become companies.</p>
+                </div>
               </div>
-            </div>
+              <figcaption className="mt-2 text-right text-[11px] text-white/75">
+                Photo: Deo photographer, <a href="https://commons.wikimedia.org/wiki/File:Computer_engineer.jpg" className="underline hover:text-white" target="_blank" rel="noopener noreferrer">CC BY-SA 4.0</a>
+              </figcaption>
+            </figure>
           </div>
         </div>
         <dl className="mt-12 grid grid-cols-2 gap-4 border-t border-white/10 pt-8 sm:grid-cols-4">
           {stats.map((s) => (
             <div key={s.label}>
-              <dt className="text-xs uppercase tracking-wide text-white/50">{s.label}</dt>
+              <dt className="text-xs uppercase tracking-wide text-white/75">{s.label}</dt>
               <dd className="text-2xl font-bold text-white">{s.value}</dd>
             </div>
           ))}

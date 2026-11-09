@@ -138,7 +138,7 @@ export default function CallsPage() {
             <p className="mb-2 mt-2 text-xs text-muted-foreground">
               Starts with the standard CEDA questions. Field types: text, number, textarea, date, select. Files: key, label, extensions, maxSizeMB, optional.
             </p>
-            <textarea value={form.form} onChange={set("form")} rows={14} spellCheck={false} className={`${input} font-mono text-xs`} />
+            <textarea value={form.form} onChange={set("form")} rows={14} spellCheck={false} aria-label="Application form JSON" className={`${input} font-mono text-xs`} />
           </details>
           <div className="flex items-center justify-between gap-3">
             <span className={cn("text-xs", "error" in schemaCheck ? "text-red-600" : "text-green-700")}>
@@ -297,9 +297,9 @@ function CriteriaEditor({ criteria, onChange, compact }: { criteria: Criterion[]
 
 function Field({ label, children, className }: { label: string; children: React.ReactNode; className?: string }) {
   return (
-    <div className={className}>
-      <label className="mb-1.5 block text-sm font-medium">{label}</label>
+    <label className={cn("block", className)}>
+      <span className="mb-1.5 block text-sm font-medium">{label}</span>
       {children}
-    </div>
+    </label>
   );
 }

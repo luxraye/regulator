@@ -13,7 +13,7 @@ export function MobileBottomNav() {
   if (tabs.length === 0) return null;
 
   return (
-    <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-ceda-navy md:hidden">
+    <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-ceda-navy md:hidden print:hidden">
       <div className="flex items-stretch">
         {tabs.map((tab) => (
           <Link
@@ -21,7 +21,7 @@ export function MobileBottomNav() {
             href={tab.href}
             className={cn(
               "flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
-              isActive(pathname, tab.href) ? "text-ceda-amber" : "text-white/60 active:text-white/80"
+              isActive(pathname, tab.href) ? "text-ceda-amber" : "text-white/80 active:text-white"
             )}
           >
             {tab.icon}

@@ -6,17 +6,21 @@ import { DATA_TYPES, typeLabels } from "@/lib/labels";
 import { formatPula } from "@/lib/utils";
 import { Hero, HowItWorks } from "@/components/home/hero";
 import { CallCard } from "@/components/ideas/call-card";
+import { BlueBackdrop } from "@/components/home/blue-backdrop";
 import { PWAInstallSection } from "@/components/home/pwa-install-section";
+import { FundedCard } from "@/components/funded/funded-card";
+import { fundedShowcase } from "@/lib/funded";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
   const now = new Date();
-  const [calls, submitted, awarded, districts] = await Promise.all([
+  const [calls, submitted, awarded, districts, funded] = await Promise.all([
     prisma.template.findMany({ where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } }, orderBy: { closesAt: "asc" } }),
     prisma.instance.count({ where: { status: { not: "DRAFT" } } }),
     prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
     prisma.user.findMany({ where: { role: "INNOVATOR", instances: { some: { status: { not: "DRAFT" } } } }, select: { district: true }, distinct: ["district"] }),
+    fundedShowcase(3),
   ]);
 
   const stats = [
@@ -98,11 +102,32 @@ export default async function HomePage() {
         </div>
       </section>
 
-      <section className="bg-ceda-navy py-16 text-white">
-        <div className="mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
+      {funded.length > 0 && (
+        <section className="bg-white py-16 lg:py-20">
+          <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
+              <div>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-ceda-blue">Recognition</p>
+                <h2 className="text-3xl font-bold text-ceda-navy">Recently funded</h2>
+                <p className="mt-1 text-muted-foreground">Young founders whose ideas made it all the way through. Every award comes with a certificate anyone can check.</p>
+              </div>
+              <Link href="/funded" className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+                All funded innovators <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+            <div className="grid gap-5 md:grid-cols-3">
+              {funded.map((f) => <FundedCard key={f.referenceCode} f={f} />)}
+            </div>
+          </div>
+        </section>
+      )}
+
+      <section className="relative overflow-hidden py-16 text-white">
+        <BlueBackdrop />
+        <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Fair by design</p>
           <h2 className="mb-3 text-3xl font-bold">Judged on the idea, not on who you know</h2>
-          <p className="mx-auto mb-10 max-w-2xl text-white/70">
+          <p className="mx-auto mb-10 max-w-2xl text-white/80">
             Young founders often tell us the hardest part is not knowing what happened to their application. Every step here is recorded and explainable.
           </p>
           <div className="grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -112,10 +137,10 @@ export default async function HomePage() {
               { icon: <Fingerprint className="h-5 w-5 text-ceda-amber" />, title: "Signed receipt", body: "Your answers and documents are hashed and signed, so nobody can change them later.", border: "border-ceda-amber/30", bg: "bg-ceda-amber/20" },
               { icon: <FileCheck2 className="h-5 w-5 text-ceda-orange" />, title: "Feedback for everyone", body: "Win or not, you get the scores and evaluator comments to improve your next pitch.", border: "border-ceda-orange/30", bg: "bg-ceda-orange/20" },
             ].map((p) => (
-              <div key={p.title} className={`rounded-xl border bg-white/5 p-5 ${p.border}`}>
+              <div key={p.title} className={`rounded-xl border bg-ceda-navy/45 p-5 backdrop-blur-sm ${p.border}`}>
                 <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${p.bg}`}>{p.icon}</div>
                 <h3 className="mb-1 font-semibold">{p.title}</h3>
-                <p className="text-sm text-white/60">{p.body}</p>
+                <p className="text-sm text-white/80">{p.body}</p>
               </div>
             ))}
           </div>

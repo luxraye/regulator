@@ -55,8 +55,74 @@ export default function AboutPage() {
           </p>
         </section>
 
+        <section id="how-to-judge" className="scroll-mt-24 rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
+            <div>
+              <p className="text-xs font-semibold uppercase tracking-widest text-ceda-blue">Walkthrough guide</p>
+              <h2 className="mt-1 text-2xl font-semibold text-ceda-navy">How to judge this portal</h2>
+            </div>
+            <Link href="/login" className="rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90">
+              Open one-click demo logins →
+            </Link>
+          </div>
+          <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
+            Each demo account on <Link href="/login" className="text-ceda-blue hover:underline">/login</Link> (password <code className="rounded bg-ceda-light px-1.5 py-0.5 font-semibold text-ceda-navy">CedaDemo2026!</code>) is pre-loaded with live applications so you can test all six challenge requirements—<strong>submission</strong>, <strong>multi-level evaluation</strong>, <strong>feedback</strong>, <strong>resubmission</strong>, <strong>approval</strong>, and <strong>recognition</strong>—in about two minutes per role:
+          </p>
+          <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold text-ceda-navy">1. Innovator — Naledi Molefe (<code>innovator@demo.ceda.bw</code>)</h3>
+                <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Submission · Feedback · Resubmission · Recognition</span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Open <strong>Mokoro Stories</strong> (status: <em>Changes requested</em>) to read evaluator scores, programme feedback and message history, upload a supporting document (SHA-256 verified in browser &amp; server), and click <strong>Sign &amp; resubmit</strong> to receive a fresh cryptographic JWT receipt. Then open <strong>Sefofu: recycled-glass tiles made in Maun</strong> (status: <em>Awarded</em>) and click <strong>Award certificate</strong> to inspect the printable award certificate and scan/follow its public <Link href="/verify" className="text-ceda-blue hover:underline">QR verification link</Link>.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold text-ceda-navy">2. Evaluator — Dr Keabetswe Ntshole (<code>evaluator@demo.ceda.bw</code>)</h3>
+                <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">Multi-level evaluation · Blind review · Feedback</span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Open <strong>Pula Pumps</strong> in your queue. Notice that personal identifiers (Omang, phone, email) are hidden for blind review. Declare <strong>No conflict of interest</strong>, score the five weighted criteria (1–5 sliders with live weighted total out of 100), write constructive applicant feedback plus an optional private note for the panel, and submit the scorecard. Once the second evaluator&apos;s score is in, the idea automatically advances to the adjudication shortlist.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold text-ceda-navy">3. Adjudicator — Mma Dineo Seabo (<code>panel@demo.ceda.bw</code>)</h3>
+                <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Multi-level evaluation · Approval · Recognition</span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Review the ranked shortlist by call. Open <strong>Spaza Ledger</strong>, where the portal flags a <strong>score spread warning (&gt;20 pts)</strong> between evaluators so the panel can inspect side-by-side scorecards and private evaluator notes. Record a panel decision—<strong>Award funding</strong> (with Pula amount), <strong>Approve</strong>, <strong>Request changes</strong>, or <strong>Decline</strong>—which immediately notifies the innovator and updates the public <Link href="/funded" className="text-ceda-blue hover:underline">Funded ideas showcase</Link>.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold text-ceda-navy">4. Programme Admin — Tebogo Ramasedi (<code>admin@demo.ceda.bw</code>)</h3>
+                <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Screening · Call management · Inclusion reports</span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Open <strong>Kgomo Tag</strong> (status: <em>Screening</em>) to inspect automated eligibility checks (age 18–35, citizenship/Omang, youth shareholding ≥51%, call ceiling, cost per job) and assign two or more evaluators. Visit <strong>Calls</strong> to configure weighted criteria or launch a new call, and open <strong>Reports</strong> to view inclusion breakdowns by Botswana district, gender, age group, and stage—or export an anonymised CSV.
+              </p>
+            </div>
+
+            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-2">
+                <h3 className="font-semibold text-ceda-navy">5. Super Admin — Kgosi Mothibi (<code>super@demo.ceda.bw</code>)</h3>
+                <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-800">Audit trail · Cryptographic verification · Demo reset</span>
+              </div>
+              <p className="mt-1.5 text-sm text-muted-foreground">
+                Inspect the append-only <strong>Audit log</strong> recording every submission, conflict declaration, scorecard, file download and panel decision. Use <strong>Verify &amp; hash</strong> to validate any applicant&apos;s signed submission receipt or SHA-256 document hash, manage evaluator/panel roles in <strong>People</strong>, or use <strong>Settings → Reset demo data</strong> to restore the database to a clean baseline at any time.
+              </p>
+            </div>
+          </div>
+        </section>
+
         <p className="rounded-xl bg-ceda-light p-4 text-sm text-muted-foreground">
-          This is a hackathon prototype built for CEDA&apos;s Innovation Portal challenge. It is not an official CEDA service, and demo data is fictional.
+          Built for the CEDA Innovation Portal challenge. Demo accounts and applications use illustrative data for evaluation.
         </p>
       </div>
     </div>

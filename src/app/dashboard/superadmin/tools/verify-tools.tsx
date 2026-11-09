@@ -58,6 +58,7 @@ export function HashVerifier() {
           value={hash}
           onChange={(e) => setHash(e.target.value)}
           placeholder="…or paste a SHA-256 hash"
+          aria-label="SHA-256 hash"
           className="min-w-0 flex-1 rounded-lg border border-border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-ceda-blue"
         />
         <button onClick={() => lookup(hash)} disabled={busy || !hash} className="rounded-lg bg-ceda-navy px-3 py-2 text-sm font-medium text-white disabled:opacity-40">
@@ -131,6 +132,7 @@ export function ReceiptInspector() {
         onChange={(e) => setToken(e.target.value)}
         rows={4}
         placeholder="eyJhbGciOiJIUzI1NiIs…"
+        aria-label="Submission receipt token"
         className="w-full rounded-lg border border-border px-3 py-2 font-mono text-xs focus:outline-none focus:ring-2 focus:ring-ceda-blue"
       />
       <button onClick={check} disabled={busy || !token.trim()} className="mt-2 flex items-center gap-2 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white disabled:opacity-40">

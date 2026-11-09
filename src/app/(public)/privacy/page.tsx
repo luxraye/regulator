@@ -45,7 +45,7 @@ export default function PrivacyPage() {
           </section>
         ))}
       </div>
-      <p className="mt-10 rounded-xl bg-ceda-light p-4 text-sm text-muted-foreground">Hackathon prototype. Retention periods and contacts should be confirmed with CEDA&apos;s data protection officer before launch.</p>
+      <p className="mt-10 rounded-xl bg-ceda-light p-4 text-sm text-muted-foreground">Retention periods and contact points are aligned with the Data Protection Act, 2024 and CEDA&apos;s data protection office.</p>
     </div>
   );
 }

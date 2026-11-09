@@ -16,7 +16,7 @@ export interface SubmissionReceipt {
 
 const ISSUER = "ceda-innovation-portal";
 
-function secret(): string {
+export function secret(): string {
   const s = process.env.JWT_SECRET;
   if (s) return s;
   if (process.env.NODE_ENV === "production") {

@@ -1,19 +1,10 @@
 "use client";
 
-import { LogoMark } from "@/components/brand/logo";
-import { useState, useEffect } from "react";
-import { Smartphone, QrCode, Check, Share2, Phone } from "lucide-react";
+import { Smartphone, Check, Share2, Phone } from "lucide-react";
+import { PhoneFlipCard } from "@/components/home/phone-flip-card";
 import Link from "next/link";
 
 export function PWAInstallSection() {
-  const [origin, setOrigin] = useState("");
-
-  useEffect(() => {
-    setOrigin(window.location.origin);
-  }, []);
-
-  const qrUrl = origin ? `${origin}/register?type=citizen` : "";
-
   return (
     <section className="py-16 bg-white">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -83,79 +74,8 @@ export function PWAInstallSection() {
             </div>
           </div>
 
-          {/* Right: QR code + phone mockup */}
-          <div className="flex flex-col items-center">
-            {/* Phone mockup */}
-            <div className="relative w-64 mx-auto mb-8">
-              <div className="bg-ceda-navy rounded-[2rem] p-3 shadow-2xl">
-                <div className="bg-ceda-light rounded-[1.5rem] overflow-hidden">
-                  {/* Status bar */}
-                  <div className="bg-ceda-navy px-4 py-2 flex items-center justify-between">
-                    <span className="text-white text-[10px] font-medium">9:41</span>
-                    <div className="flex gap-1">
-                      <div className="w-3 h-2 bg-white/60 rounded-sm" />
-                      <div className="w-3 h-2 bg-white/60 rounded-sm" />
-                      <div className="w-4 h-2 bg-white/60 rounded-sm" />
-                    </div>
-                  </div>
-                  {/* App content preview */}
-                  <div className="p-3 space-y-2 bg-ceda-light min-h-[280px]">
-                    <div className="flex items-center gap-2 mb-3">
-                      <LogoMark className="h-3 w-3" />
-                      <span className="text-[9px] font-bold text-ceda-navy">CEDA Ideas</span>
-                    </div>
-                    <p className="text-[10px] font-bold text-ceda-navy">Dumela, Naledi</p>
-                    <div className="grid grid-cols-3 gap-1.5">
-                      <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">2</p>
-                        <p className="text-[7px] text-muted-foreground">Ideas</p>
-                      </div>
-                      <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">1</p>
-                        <p className="text-[7px] text-muted-foreground">In review</p>
-                      </div>
-                      <div className="bg-white rounded-lg p-2 text-center">
-                        <p className="text-sm font-bold text-ceda-navy">1</p>
-                        <p className="text-[7px] text-muted-foreground">Awarded</p>
-                      </div>
-                    </div>
-                    <div className="bg-white rounded-lg p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-K7Q2</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-green-100 text-green-700 rounded-full font-medium">Awarded</span>
-                      </div>
-                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Solar cold rooms, Tlokweng</p>
-                    </div>
-                    <div className="bg-white rounded-lg p-2">
-                      <div className="flex items-center justify-between">
-                        <span className="text-[8px] font-mono text-muted-foreground">CEDA-26-P4M9</span>
-                        <span className="text-[7px] px-1.5 py-0.5 bg-amber-100 text-amber-700 rounded-full font-medium">With panel</span>
-                      </div>
-                      <p className="text-[8px] text-ceda-navy font-medium mt-1">Setswana coding app</p>
-                    </div>
-                  </div>
-                </div>
-              </div>
-              {/* Home indicator */}
-              <div className="absolute bottom-1 left-1/2 -translate-x-1/2 w-24 h-1 bg-white/60 rounded-full" />
-            </div>
-
-            {/* QR Code */}
-            <div className="bg-white rounded-2xl border border-border p-6 text-center shadow-sm">
-              <QrCode className="w-6 h-6 text-ceda-blue mx-auto mb-2" />
-              <p className="text-sm font-medium text-ceda-navy mb-3">Scan to get started</p>
-              {qrUrl ? (
-                <div className="bg-white p-3 rounded-xl border border-border inline-block">
-                  <QRCodeSVG value={qrUrl} size={140} />
-                </div>
-              ) : (
-                <div className="w-[164px] h-[164px] bg-ceda-light rounded-xl animate-pulse mx-auto" />
-              )}
-              <p className="text-xs text-muted-foreground mt-3 max-w-[200px] mx-auto">
-                Point your phone camera at the code to create a citizen account
-              </p>
-            </div>
-          </div>
+          {/* Right: phone that flips over to the QR code */}
+          <PhoneFlipCard />
         </div>
 
         {/* Rural access banner */}
@@ -180,90 +100,4 @@ export function PWAInstallSection() {
       </div>
     </section>
   );
-}
-
-function QRCodeSVG({ value, size }: { value: string; size: number }) {
-  const modules = generateQR(value);
-  const moduleCount = modules.length;
-  const cellSize = size / moduleCount;
-
-  return (
-    <svg width={size} height={size} viewBox={`0 0 ${size} ${size}`}>
-      {modules.map((row, y) =>
-        row.map((cell, x) =>
-          cell ? (
-            <rect
-              key={`${x}-${y}`}
-              x={x * cellSize}
-              y={y * cellSize}
-              width={cellSize}
-              height={cellSize}
-              fill="#0A1628"
-              rx={cellSize * 0.15}
-            />
-          ) : null
-        )
-      )}
-    </svg>
-  );
-}
-
-// Minimal QR code generator (version 2, ~25 chars, good enough for URLs)
-function generateQR(text: string): boolean[][] {
-  const size = 25;
-  const grid: boolean[][] = Array.from({ length: size }, () => Array(size).fill(false));
-
-  // Finder patterns (top-left, top-right, bottom-left)
-  function drawFinder(cx: number, cy: number) {
-    for (let dy = -3; dy <= 3; dy++) {
-      for (let dx = -3; dx <= 3; dx++) {
-        const x = cx + dx, y = cy + dy;
-        if (x < 0 || x >= size || y < 0 || y >= size) continue;
-        const ring = Math.max(Math.abs(dx), Math.abs(dy));
-        grid[y][x] = ring !== 2;
-      }
-    }
-  }
-
-  drawFinder(3, 3);
-  drawFinder(size - 4, 3);
-  drawFinder(3, size - 4);
-
-  // Timing patterns
-  for (let i = 8; i < size - 8; i++) {
-    grid[6][i] = i % 2 === 0;
-    grid[i][6] = i % 2 === 0;
-  }
-
-  // Alignment pattern
-  const ac = size - 7;
-  for (let dy = -2; dy <= 2; dy++) {
-    for (let dx = -2; dx <= 2; dx++) {
-      const ring = Math.max(Math.abs(dx), Math.abs(dy));
-      grid[ac + dy][ac + dx] = ring !== 1;
-    }
-  }
-
-  // Encode data as a deterministic pattern seeded from the URL
-  let hash = 0;
-  for (let i = 0; i < text.length; i++) {
-    hash = ((hash << 5) - hash + text.charCodeAt(i)) | 0;
-  }
-
-  for (let y = 0; y < size; y++) {
-    for (let x = 0; x < size; x++) {
-      if (grid[y][x]) continue;
-      // Skip reserved areas
-      if (x <= 8 && y <= 8) continue;
-      if (x >= size - 8 && y <= 8) continue;
-      if (x <= 8 && y >= size - 8) continue;
-      if (x === 6 || y === 6) continue;
-      if (x >= ac - 2 && x <= ac + 2 && y >= ac - 2 && y <= ac + 2) continue;
-
-      hash = ((hash << 7) ^ (hash >> 3) ^ (x * 31 + y * 17)) | 0;
-      grid[y][x] = (hash & 1) === 1;
-    }
-  }
-
-  return grid;
 }
