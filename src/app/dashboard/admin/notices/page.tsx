@@ -53,13 +53,13 @@ export default async function NoticesAdminPage({ searchParams }: { searchParams:
           {searchParams.posted && <p className="mb-3 rounded-lg bg-emerald-50 p-2.5 text-sm text-emerald-800">Posted to the board.</p>}
           {searchParams.error && <p className="mb-3 rounded-lg bg-red-50 p-2.5 text-sm text-red-700">Add a title, a topic and a summary.</p>}
           <form action={createNotice} className="space-y-3">
-            <input name="title" required minLength={5} maxLength={140} placeholder="Title" className={input} />
-            <select name="category" required className={input} defaultValue="ip">
+            <input name="title" required minLength={5} maxLength={140} placeholder="Title" aria-label="Notice title" className={input} />
+            <select name="category" required aria-label="Notice category" className={input} defaultValue="ip">
               {NOTICE_CATEGORIES.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}
             </select>
-            <textarea name="summary" required minLength={10} rows={3} placeholder="What innovators need to know" className={input} />
-            <textarea name="dos" rows={3} placeholder={"Do (one per line)"} className={input} />
-            <textarea name="donts" rows={3} placeholder={"Avoid (one per line)"} className={input} />
+            <textarea name="summary" required minLength={10} rows={3} placeholder="What innovators need to know" aria-label="What innovators need to know" className={input} />
+            <textarea name="dos" rows={3} placeholder={"Do (one per line)"} aria-label="Do (one per line)" className={input} />
+            <textarea name="donts" rows={3} placeholder={"Avoid (one per line)"} aria-label="Avoid (one per line)" className={input} />
             <label className="flex items-center gap-2 text-sm">
               <input type="checkbox" name="pinned" /> Pin to the top
             </label>

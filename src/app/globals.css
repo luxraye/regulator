@@ -15,10 +15,10 @@
     --secondary: #F5F7FA;
     --secondary-foreground: #003366;
     --muted: #F5F7FA;
-    --muted-foreground: #6b7280;
+    --muted-foreground: #4b5563;
     --accent: #F5F7FA;
     --accent-foreground: #003366;
-    --destructive: #ef4444;
+    --destructive: #dc2626;
     --destructive-foreground: #ffffff;
     --border: #e5e7eb;
     --input: #e5e7eb;
@@ -27,9 +27,9 @@
 
     --chart-1: #003366;
     --chart-2: #0066CC;
-    --chart-3: #28A745;
+    --chart-3: #15803d;
     --chart-4: #FFC107;
-    --chart-5: #FF6B35;
+    --chart-5: #c2410c;
 
     --sidebar: #003366;
     --sidebar-foreground: #ffffff;

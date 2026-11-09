@@ -36,7 +36,7 @@ export function DashboardSidebar() {
             href={item.href}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive(pathname, item.href) ? "bg-ceda-blue text-white" : "text-white/70 hover:bg-white/10 hover:text-white"
+              isActive(pathname, item.href) ? "bg-ceda-blue text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
             )}
             title={collapsed ? item.label : undefined}
           >
@@ -48,7 +48,7 @@ export function DashboardSidebar() {
 
       <div className="space-y-2 border-t border-white/10 p-4">
         {!collapsed && session?.user && (
-          <div className="mb-2 text-xs text-white/60">
+          <div className="mb-2 text-xs text-white/75">
             <p className="truncate font-medium text-white">{session.user.name}</p>
             <p className="truncate">{session.user.email}</p>
             <p className="mt-1 text-ceda-amber">{roleLabels[session.user.role ?? ""] ?? session.user.role}</p>
@@ -56,7 +56,7 @@ export function DashboardSidebar() {
         )}
         <button
           onClick={() => signOut({ callbackUrl: "/" })}
-          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-white/70 transition-colors hover:bg-white/10 hover:text-white"
+          className="flex w-full items-center gap-3 rounded-md px-3 py-2 text-sm text-white/80 transition-colors hover:bg-white/10 hover:text-white"
           title={collapsed ? "Sign out" : undefined}
         >
           <LogOut size={20} />

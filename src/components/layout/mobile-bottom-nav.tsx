@@ -21,7 +21,7 @@ export function MobileBottomNav() {
             href={tab.href}
             className={cn(
               "flex min-h-[56px] flex-1 flex-col items-center justify-center gap-0.5 py-2 text-[10px] font-medium transition-colors",
-              isActive(pathname, tab.href) ? "text-ceda-amber" : "text-white/60 active:text-white/80"
+              isActive(pathname, tab.href) ? "text-ceda-amber" : "text-white/80 active:text-white"
             )}
           >
             {tab.icon}

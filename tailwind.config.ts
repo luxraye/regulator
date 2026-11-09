@@ -19,9 +19,9 @@ const config: Config = {
         ceda: {
           navy: "#003366",
           blue: "#0066CC",
-          green: "#28A745",
+          green: "#15803d",
           amber: "#FFC107",
-          orange: "#FF6B35",
+          orange: "#c2410c",
           light: "#F5F7FA",
         },
         primary: {

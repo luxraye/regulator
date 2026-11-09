@@ -127,7 +127,7 @@ export default async function HomePage() {
         <div className="relative mx-auto max-w-7xl px-4 text-center sm:px-6 lg:px-8">
           <p className="mb-3 text-xs font-semibold uppercase tracking-widest text-ceda-amber">Fair by design</p>
           <h2 className="mb-3 text-3xl font-bold">Judged on the idea, not on who you know</h2>
-          <p className="mx-auto mb-10 max-w-2xl text-white/70">
+          <p className="mx-auto mb-10 max-w-2xl text-white/80">
             Young founders often tell us the hardest part is not knowing what happened to their application. Every step here is recorded and explainable.
           </p>
           <div className="grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">
@@ -140,7 +140,7 @@ export default async function HomePage() {
               <div key={p.title} className={`rounded-xl border bg-ceda-navy/45 p-5 backdrop-blur-sm ${p.border}`}>
                 <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${p.bg}`}>{p.icon}</div>
                 <h3 className="mb-1 font-semibold">{p.title}</h3>
-                <p className="text-sm text-white/60">{p.body}</p>
+                <p className="text-sm text-white/80">{p.body}</p>
               </div>
             ))}
           </div>

@@ -29,8 +29,8 @@ export function PublicHeader() {
     <header className="fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur">
       <div className="border-b border-white/10">
         <div className="mx-auto flex h-8 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
-          <span className="truncate text-xs text-white/50">Citizen Entrepreneurial Development Agency · Botswana</span>
-          <div className="flex items-center gap-3 text-xs text-white/50">
+          <span className="truncate text-xs text-white/75">Citizen Entrepreneurial Development Agency · Botswana</span>
+          <div className="flex items-center gap-3 text-xs text-white/75">
             <button
               onClick={() => setLocale(locale === "en" ? "tn" : "en")}
               className="flex items-center gap-1 font-medium transition-colors hover:text-white"
@@ -39,7 +39,7 @@ export function PublicHeader() {
               <Globe2 className="h-3 w-3" />
               {t("nav.language")}
             </button>
-            <span className="hidden text-white/20 sm:inline">|</span>
+            <span className="hidden text-white/30 sm:inline">|</span>
             <Link href="/ussd-demo" className="hidden transition-colors hover:text-white sm:inline">No data? Dial *161#</Link>
           </div>
         </div>

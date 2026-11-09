@@ -114,6 +114,48 @@ test.describe("public site", () => {
     expect(res.ok()).toBeTruthy();
     expect((await res.json()).database).toBe("up");
   });
+
+  test("security headers, hero photo credit, login judge copy, and how-to-judge guide are present", async ({ page, request }) => {
+    const res = await request.get("/");
+    const headers = res.headers();
+    expect(headers["x-frame-options"]).toBe("DENY");
+    expect(headers["referrer-policy"]).toBe("strict-origin-when-cross-origin");
+    expect(headers["content-security-policy"]).toContain("default-src 'self'");
+    expect(headers["permissions-policy"]).toContain("camera=()");
+
+    await page.goto("/");
+    await expect(page.getByText(/Deo photographer/i)).toBeVisible();
+
+    await page.goto("/login");
+    await expect(page.getByText(/Judges: pick any role below to explore\. Password for all:/i)).toBeVisible();
+
+    await page.goto("/about#how-to-judge");
+    await expect(page.getByRole("heading", { name: "How to judge this portal" })).toBeVisible();
+  });
+
+  test("360px mobile layout: flip-phone card, mobile bottom nav, and certificate fit cleanly", async ({ page }) => {
+    await page.setViewportSize({ width: 360, height: 740 });
+    await page.goto("/");
+    const acceptCookies = page.getByRole("button", { name: "Accept" });
+    if (await acceptCookies.isVisible()) await acceptCookies.click();
+
+    const flipBtn = page.getByRole("button", { name: /Flip for the QR code/i });
+    await expect(flipBtn).toBeVisible();
+    await flipBtn.click();
+    await expect(page.getByRole("button", { name: /Back to the mobile screen/i })).toBeVisible();
+
+    await signIn(page, "innovator@demo.ceda.bw");
+    const bottomNav = page.locator("nav.fixed.bottom-0");
+    await expect(bottomNav).toBeVisible();
+
+    await page.goto("/dashboard/innovator/instances");
+    const certHref = await page.getByRole("link", { name: /Award certificate/i }).first().getAttribute("href");
+    expect(certHref).toBeTruthy();
+    await page.goto(certHref!);
+    await expect(page.getByText(/Certificate of award/i)).toBeVisible();
+    const overflow = await page.evaluate(() => document.documentElement.scrollWidth > document.documentElement.clientWidth);
+    expect(overflow).toBe(false);
+  });
 });
 
 for (const r of ROLES) {
