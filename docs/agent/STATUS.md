@@ -1,6 +1,6 @@
 # Status (Antigravity updates this)
 
-- Phase: Phase 3 complete (Definition schema, rules engine and compiler), starting Phase 4 (Instance Studio and Instance Console)
-- Done: 45%
+- Phase: Phase 4 complete (Instance Studio, Instance Console, Blueprint Catalog, Simulate, Publish & Public Rule Verifier), starting Phase 5 (Pre-emptive security & compliance checks, participant pre-flight)
+- Done: 65%
 - Blockers: none
 - Questions for the strategy lead: none

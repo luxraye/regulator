@@ -18,10 +18,10 @@ export const translations = {
     "nav.dashboard": "Dashboard",
     "nav.language": "Setswana",
 
-    "hero.kicker": "CEDA Innovation Portal · Youth innovation challenge 2026",
-    "hero.title": "Turn your idea into a funded Botswana business",
+    "hero.kicker": "CEDA Innovation Portal · Programmable Competition Engine",
+    "hero.title": "Every CEDA challenge, programmable and verifiable",
     "hero.subtitle":
-      "Batswana aged 18 to 35 submit ideas to CEDA in one place, get scored fairly by independent experts, see exactly where their application is, and get feedback they can act on.",
+      "Batswana aged 18 to 35 submit ideas to CEDA in one place. Every competition runs on mathematically sealed, transparent rules with cryptographic verification.",
     "hero.cta.apply": "See open calls",
     "hero.cta.eligible": "Check eligibility",
     "hero.cta.track": "Track with a reference",
@@ -58,10 +58,10 @@ export const translations = {
     "nav.dashboard": "Tsamaiso",
     "nav.language": "English",
 
-    "hero.kicker": "CEDA Innovation Portal · Kgaisano ya botlhami jwa basha 2026",
-    "hero.title": "Fetola kakanyo ya gago go nna kgwebo ya Botswana e e thusiwang ka madi",
+    "hero.kicker": "CEDA Innovation Portal · Enjene ya Dikgaisano e e Rulagantsweng",
+    "hero.title": "Kgaisano nngwe le nngwe ya CEDA, e rulagantswe e bile e netefaditswe",
     "hero.subtitle":
-      "Batswana ba dingwaga di le 18 go ya go 35 ba romela dikakanyo kwa CEDA mo lefelong le le lengwe, ba tlhatlhobiwa ka tekatekano ke baitseanape, ba bona kopo ya bone e le kae, mme ba amogela dikakgelo.",
+      "Banana ba Batswana ba tsenya dikakanyo mo CEDA felo go le gongwe, di sekwasekwilwe ka melao e e tsepameng e e tlhomamisitsweng ka botlalo.",
     "hero.cta.apply": "Bona dikopo tse di buleng",
     "hero.cta.eligible": "Tlhola fa o tshwanelega",
     "hero.cta.track": "Latela ka nomoro",

@@ -5,4 +5,5 @@ export * from "./canonical";
 export * from "./rules";
 export * from "./compiler";
 export * from "./flagship";
+export * from "./blueprints";
 export * from "./service";

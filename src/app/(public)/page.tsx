@@ -10,10 +10,12 @@ import { BlueBackdrop } from "@/components/home/blue-backdrop";
 import { PWAInstallSection } from "@/components/home/pwa-install-section";
 import { FundedCard } from "@/components/funded/funded-card";
 import { fundedShowcase } from "@/lib/funded";
+import { ensureFlagshipInstance } from "@/lib/instance-engine/flagship";
 
 export const dynamic = "force-dynamic";
 
 export default async function HomePage() {
+  await ensureFlagshipInstance(prisma);
   const now = new Date();
   const [calls, submitted, awarded, districts, funded] = await Promise.all([
     prisma.template.findMany({ where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } }, orderBy: { closesAt: "asc" } }),
@@ -33,6 +35,55 @@ export default async function HomePage() {
   return (
     <>
       <Hero stats={stats} />
+
+      {/* Featured Flagship Challenge Section */}
+      <section className="bg-white py-12 border-b border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+          <div className="rounded-3xl border border-border bg-gradient-to-br from-ceda-sand/70 via-white to-ceda-sand/40 p-8 shadow-sm">
+            <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-6">
+              <div className="space-y-3 max-w-2xl">
+                <div className="flex items-center gap-2">
+                  <span className="rounded-full bg-ceda-orange px-3 py-0.5 text-xs font-bold uppercase tracking-wider text-white">
+                    Featured Flagship Challenge
+                  </span>
+                  <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-bold text-emerald-800">
+                    LIVE &amp; VERIFIABLE
+                  </span>
+                </div>
+                <h2 className="text-2xl sm:text-3xl font-extrabold text-ceda-ink">
+                  CEDA Innovation Management Portal Hackathon 2026
+                </h2>
+                <p className="text-sm text-ceda-slate leading-relaxed">
+                  Design, build and deploy Botswana&apos;s next-generation innovation portal. Open to citizen youth innovators with P95,000 in total prizes, incubator pilot contracts, and mathematically sealed judging rules.
+                </p>
+                <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-ceda-copper pt-1">
+                  <span>🏆 P95,000 Prize Pool</span>
+                  <span>•</span>
+                  <span>⚡ 7 Programmable Stages</span>
+                  <span>•</span>
+                  <span>🛡 Cryptographic Rules Fingerprint</span>
+                </div>
+              </div>
+
+              <div className="flex flex-col sm:flex-row lg:flex-col gap-3 flex-shrink-0">
+                <Link
+                  href="/instances/ceda-hackathon-2026"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl bg-ceda-orange px-6 py-3.5 text-sm font-bold text-white shadow-sm hover:bg-ceda-copper transition"
+                >
+                  <span>Explore Flagship Hackathon</span>
+                  <ArrowRight size={16} />
+                </Link>
+                <Link
+                  href="/instances"
+                  className="inline-flex items-center justify-center gap-2 rounded-xl border border-border bg-white px-5 py-3 text-xs font-semibold text-ceda-ink hover:bg-slate-50 transition"
+                >
+                  <span>Browse All Challenges</span>
+                </Link>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
 
       <section className="bg-ceda-sand py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">

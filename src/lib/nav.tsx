@@ -43,14 +43,24 @@ const adjudicator: NavItem[] = [
 ];
 
 const admin: NavItem[] = [
+  { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
   { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
   { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
-  { href: "/dashboard/admin/calls", label: "Calls", icon: i(Layers) },
+  { href: "/dashboard/admin/calls", label: "Calls", icon: i(Megaphone) },
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
   { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
   { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
   { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
+];
+
+const partnerAdmin: NavItem[] = [
+  { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
+  { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
+  { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
+  { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
 ];
 
 const superadmin: NavItem[] = [
@@ -66,6 +76,7 @@ export function navFor(role?: string): NavItem[] {
   switch (role) {
     case "SUPERADMIN": return superadmin;
     case "ADMIN": return admin;
+    case "PARTNER_ADMIN": return partnerAdmin;
     case "ADJUDICATOR": return adjudicator;
     case "EVALUATOR": return evaluator;
     case "INNOVATOR": return innovator;
@@ -79,6 +90,7 @@ export const HOME_FOR: Record<string, string> = {
   ADJUDICATOR: "/dashboard/panel",
   ADMIN: "/dashboard/admin",
   SUPERADMIN: "/dashboard/admin",
+  PARTNER_ADMIN: "/dashboard/instances",
 };
 
 /** Overview links only light up on an exact match; others also on sub-pages. */

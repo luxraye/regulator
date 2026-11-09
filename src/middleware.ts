@@ -6,15 +6,16 @@ import { auth } from "@/lib/auth";
  * so this only guards dashboard pages and sends people to the right place.
  */
 export const pageRoles: [prefix: string, roles: string[]][] = [
+  ["/dashboard/instances", ["ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
   ["/dashboard/superadmin", ["SUPERADMIN"]],
-  ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
+  ["/dashboard/admin", ["ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
   ["/dashboard/panel", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
   ["/dashboard/evaluator", ["EVALUATOR"]],
   ["/dashboard/innovator", ["INNOVATOR"]],
   ["/dashboard/calls", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
+  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
 ];
 
 export default auth((req) => {

@@ -47,6 +47,7 @@ const ROLES = [
 ];
 
 const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
+  ["/dashboard/instances", ["ADMIN", "SUPERADMIN"]],
   ["/dashboard/superadmin", ["SUPERADMIN"]],
   ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
   ["/dashboard/panel", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
@@ -60,6 +61,7 @@ const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
 
 const PUBLIC_PAGES = [
   "/",
+  "/instances",
   "/calls",
   "/eligibility",
   "/track",
