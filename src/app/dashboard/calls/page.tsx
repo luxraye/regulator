@@ -25,16 +25,16 @@ export default async function DashboardCallsAndRubricsPage() {
     <div>
       <div className="mb-6 flex flex-wrap items-start justify-between gap-4">
         <div>
-          <h1 className="text-2xl font-bold text-ceda-navy">Calls &amp; scoring rubrics</h1>
+          <h1 className="text-2xl font-bold text-ceda-ink">Calls &amp; scoring rubrics</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             Active funding calls, eligibility scope, and the published criterion weights used during blind evaluation.
           </p>
         </div>
         <Link
           href="/eligibility"
-          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-medium text-ceda-navy hover:bg-ceda-light"
+          className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3.5 py-2 text-xs font-medium text-ceda-ink hover:bg-ceda-sand"
         >
-          <Scale size={14} className="text-ceda-blue" /> Public eligibility rules
+          <Scale size={14} className="text-ceda-orange" /> Public eligibility rules
         </Link>
       </div>
 
@@ -60,7 +60,7 @@ export default async function DashboardCallsAndRubricsPage() {
                         {criteria.map((k) => (
                           <span
                             key={k.key}
-                            className="rounded bg-ceda-light px-1.5 py-0.5 text-[11px] font-medium text-ceda-navy"
+                            className="rounded bg-ceda-sand px-1.5 py-0.5 text-[11px] font-medium text-ceda-ink"
                           >
                             {k.label} · {k.weight}%
                           </span>
@@ -72,7 +72,7 @@ export default async function DashboardCallsAndRubricsPage() {
                 action={
                   <Link
                     href={`/calls/${c.code}`}
-                    className="inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline"
+                    className="inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline"
                   >
                     Full call specification <ArrowRight size={14} />
                   </Link>
@@ -85,7 +85,7 @@ export default async function DashboardCallsAndRubricsPage() {
 
       {closed.length > 0 && (
         <div className="mt-10">
-          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-ceda-navy">
+          <h2 className="mb-4 flex items-center gap-2 text-lg font-semibold text-ceda-ink">
             <Layers size={18} className="text-muted-foreground" /> Recently closed calls
           </h2>
           <div className="grid grid-cols-1 gap-6 opacity-85 md:grid-cols-2 xl:grid-cols-3">
@@ -101,7 +101,7 @@ export default async function DashboardCallsAndRubricsPage() {
                         {criteria.map((k) => (
                           <span
                             key={k.key}
-                            className="rounded bg-ceda-light px-1.5 py-0.5 text-[11px] text-muted-foreground"
+                            className="rounded bg-ceda-sand px-1.5 py-0.5 text-[11px] text-muted-foreground"
                           >
                             {k.label} {k.weight}%
                           </span>

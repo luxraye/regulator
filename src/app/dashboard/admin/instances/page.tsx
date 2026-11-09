@@ -62,7 +62,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">Ideas &amp; screening</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Ideas &amp; screening</h1>
         <p className="mt-1 text-muted-foreground">Screen new submissions, assign evaluators, and follow every idea to a decision. Oldest first.</p>
       </div>
 
@@ -76,7 +76,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
           <option value="">All calls</option>
           {calls.map((c) => <option key={c.id} value={c.code}>{c.code}</option>)}
         </select>
-        <button className="rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white">Filter</button>
+        <button className="rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white">Filter</button>
       </form>
 
       <div className="mb-4 flex gap-2 overflow-x-auto pb-1">
@@ -84,7 +84,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
           <Link
             key={f.key}
             href={qs({ filter: f.key })}
-            className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active.key === f.key ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white hover:bg-ceda-light")}
+            className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active.key === f.key ? "border-ceda-ink bg-ceda-ink text-white" : "border-border bg-white hover:bg-ceda-sand")}
           >
             {f.label} <span className="opacity-60">{countFor(f.statuses)}</span>
           </Link>
@@ -116,7 +116,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
                   </div>
                 </div>
               );
-              return <li key={i.id}>{href ? <Link href={href} className="block hover:bg-ceda-light/60">{body}</Link> : body}</li>;
+              return <li key={i.id}>{href ? <Link href={href} className="block hover:bg-ceda-sand/60">{body}</Link> : body}</li>;
             })}
           </ul>
         )}

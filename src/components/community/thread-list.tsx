@@ -26,7 +26,7 @@ export function ThreadList({ threads, basePath = "/community" }: { threads: Thre
   const [cat, setCat] = useState<string>("all");
   const shown = cat === "all" ? threads : threads.filter((t) => t.category === cat);
   const chip = (on: boolean) =>
-    `rounded-full border px-3 py-1.5 text-sm transition-colors ${on ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white text-ceda-navy hover:border-ceda-blue"}`;
+    `rounded-full border px-3 py-1.5 text-sm transition-colors ${on ? "border-ceda-ink bg-ceda-ink text-white" : "border-border bg-white text-ceda-ink hover:border-ceda-orange"}`;
 
   return (
     <div>
@@ -43,10 +43,10 @@ export function ThreadList({ threads, basePath = "/community" }: { threads: Thre
       <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-white">
         {shown.map((t) => (
           <li key={t.id}>
-            <Link href={`${basePath}/${t.id}`} className="flex gap-4 p-4 transition-colors hover:bg-ceda-light sm:p-5">
+            <Link href={`${basePath}/${t.id}`} className="flex gap-4 p-4 transition-colors hover:bg-ceda-sand sm:p-5">
               <span
                 className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${
-                  t.authorIsStaff ? "bg-ceda-navy text-white" : "bg-ceda-blue/10 text-ceda-blue"
+                  t.authorIsStaff ? "bg-ceda-ink text-white" : "bg-ceda-orange/10 text-ceda-orange"
                 }`}
                 aria-hidden
               >
@@ -59,14 +59,14 @@ export function ThreadList({ threads, basePath = "/community" }: { threads: Thre
                       <Pin className="h-3 w-3" /> Pinned
                     </span>
                   )}
-                  <span className="rounded bg-ceda-light px-1.5 py-0.5 font-medium text-ceda-navy">{t.categoryLabel}</span>
+                  <span className="rounded bg-ceda-sand px-1.5 py-0.5 font-medium text-ceda-ink">{t.categoryLabel}</span>
                   <span>
                     {t.author}
                     {t.authorIsStaff ? " · CEDA" : t.authorOrg ? ` · ${t.authorOrg}` : ""}
                     {t.authorFunded && <span className="ml-1.5 rounded bg-ceda-amber/20 px-1 py-0.5 text-[10px] font-semibold text-amber-800">CEDA-funded</span>}
                   </span>
                 </span>
-                <span className="block font-semibold text-ceda-navy">{t.title}</span>
+                <span className="block font-semibold text-ceda-ink">{t.title}</span>
                 <span className="mt-1 line-clamp-2 block text-sm text-muted-foreground">{t.excerpt}</span>
               </span>
               <span className="hidden shrink-0 flex-col items-end gap-1 text-xs text-muted-foreground sm:flex">

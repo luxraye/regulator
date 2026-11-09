@@ -28,7 +28,7 @@ export const sectorName = (dataType: string) => typeLabels[dataType]?.full ?? da
 export const instanceStatusMeta: Record<string, { label: string; className: string }> = {
   DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-600" },
   SUBMITTED: { label: "Screening", className: "bg-indigo-100 text-indigo-700" },
-  UNDER_REVIEW: { label: "Under evaluation", className: "bg-blue-100 text-blue-700" },
+  UNDER_REVIEW: { label: "Under evaluation", className: "bg-amber-100 text-amber-800" },
   SHORTLISTED: { label: "With panel", className: "bg-purple-100 text-purple-700" },
   FLAGGED: { label: "Changes requested", className: "bg-orange-100 text-orange-700" },
   APPROVED: { label: "Approved", className: "bg-green-100 text-green-700" },

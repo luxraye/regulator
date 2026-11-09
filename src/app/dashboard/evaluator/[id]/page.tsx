@@ -38,12 +38,12 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
 
   return (
     <div>
-      <Link href="/dashboard/evaluator" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy">
+      <Link href="/dashboard/evaluator" className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-ink">
         <ArrowLeft size={14} /> My assignments
       </Link>
       <div className="mb-6">
         <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
-        <h1 className="text-2xl font-bold text-ceda-navy">{instance.title}</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">{instance.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           {instance.template.name} · {sectorName(instance.template.dataType)} · {stageName(instance.template.scale)} stage · score by {formatDate(ev.dueAt)}
         </p>
@@ -60,16 +60,16 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
       {canSee && (
         <div className="grid grid-cols-1 gap-6 lg:grid-cols-5">
           <div className="space-y-6 lg:col-span-3">
-            <div className="flex items-center gap-2 rounded-lg bg-ceda-light px-3 py-2 text-xs text-muted-foreground">
+            <div className="flex items-center gap-2 rounded-lg bg-ceda-sand px-3 py-2 text-xs text-muted-foreground">
               <EyeOff size={14} /> Blind review: the applicant&apos;s name, Omang, age and contact details are hidden from you.
             </div>
             <section className="rounded-xl border border-border bg-white p-5">
-              <h2 className="mb-2 font-semibold text-ceda-navy">The idea</h2>
+              <h2 className="mb-2 font-semibold text-ceda-ink">The idea</h2>
               <dl className="divide-y divide-border text-sm">
                 {schema.fields.map((f) =>
                   f.type === "textarea" ? (
                     <div key={f.key} className="py-3">
-                      <dt className="font-medium text-ceda-navy">{f.label}</dt>
+                      <dt className="font-medium text-ceda-ink">{f.label}</dt>
                       <dd className="mt-1 whitespace-pre-wrap text-muted-foreground">{values[f.key] || "—"}</dd>
                     </div>
                   ) : (

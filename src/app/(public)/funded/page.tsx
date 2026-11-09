@@ -26,7 +26,7 @@ export default async function FundedPage() {
   ];
 
   return (
-    <div className="bg-ceda-light/60">
+    <div className="bg-ceda-sand/60">
       <section className="relative overflow-hidden text-white">
         <BlueBackdrop />
         <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
@@ -53,7 +53,7 @@ export default async function FundedPage() {
         </div>
         <p className="mt-8 rounded-xl border border-border bg-white p-5 text-sm text-muted-foreground">
           Founders choose whether their award is listed here{hidden > 0 ? `, and ${hidden} chose not to be` : ""}. We show the idea&apos;s title and headline numbers only, never the application, so nobody&apos;s plans or IP are exposed.
-          {" "}Have an idea of your own? <Link href="/calls" className="font-medium text-ceda-blue hover:underline">See the open calls</Link>.
+          {" "}Have an idea of your own? <Link href="/calls" className="font-medium text-ceda-orange hover:underline">See the open calls</Link>.
         </p>
       </div>
     </div>

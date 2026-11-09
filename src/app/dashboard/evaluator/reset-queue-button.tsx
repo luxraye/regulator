@@ -30,7 +30,7 @@ export function ResetEvaluatorQueueButton({ label = "Restore demo queue (10 to s
         type="button"
         onClick={resetQueue}
         disabled={busy}
-        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-ceda-navy shadow-sm transition-colors hover:border-ceda-blue hover:text-ceda-blue disabled:opacity-50"
+        className="inline-flex items-center gap-1.5 rounded-lg border border-border bg-white px-3 py-1.5 text-xs font-medium text-ceda-ink shadow-sm transition-colors hover:border-ceda-orange hover:text-ceda-orange disabled:opacity-50"
       >
         {busy ? <Loader2 size={13} className="animate-spin" /> : <RotateCcw size={13} />}
         {busy ? "Restoring queue…" : label}

@@ -9,10 +9,10 @@ export function FundedCard({ f }: { f: FundedItem }) {
   return (
     <article className="flex flex-col rounded-2xl border border-border bg-white p-5 shadow-sm transition-shadow hover:shadow-md">
       <div className="mb-3 flex items-start justify-between gap-3">
-        <span className="rounded-full bg-ceda-blue/10 px-2.5 py-1 text-xs font-medium text-ceda-blue">{sectorName(f.template.dataType)}</span>
+        <span className="rounded-full bg-ceda-orange/10 px-2.5 py-1 text-xs font-medium text-ceda-orange">{sectorName(f.template.dataType)}</span>
         <span className="text-lg font-bold text-ceda-green">{formatPula(f.awardAmount)}</span>
       </div>
-      <h3 className="mb-1 font-semibold leading-snug text-ceda-navy">{f.title}</h3>
+      <h3 className="mb-1 font-semibold leading-snug text-ceda-ink">{f.title}</h3>
       <p className="mb-4 text-sm text-muted-foreground">{f.innovator.organizationName ?? "Youth-owned company"}</p>
       <div className="mt-auto space-y-1.5 text-sm text-muted-foreground">
         {f.innovator.district && (
@@ -24,7 +24,7 @@ export function FundedCard({ f }: { f: FundedItem }) {
       </div>
       <div className="mt-4 flex items-center justify-between border-t border-border pt-3 text-xs">
         <span className="text-muted-foreground">{f.template.name} · {formatDate(f.reviewedAt)}</span>
-        <Link href={verifyPath(f.referenceCode, f.code)} className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+        <Link href={verifyPath(f.referenceCode, f.code)} className="inline-flex items-center gap-1 font-medium text-ceda-orange hover:underline">
           <BadgeCheck className="h-3.5 w-3.5" /> Verified
         </Link>
       </div>

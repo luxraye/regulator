@@ -23,13 +23,13 @@ export function ReportCharts({
             <div key={f.name}>
               <div className="mb-1 flex justify-between text-sm">
                 <span>{f.name}</span>
-                <span className="font-semibold text-ceda-navy">
+                <span className="font-semibold text-ceda-ink">
                   {f.value}
                   {i > 0 && <span className="ml-1 text-xs font-normal text-muted-foreground">({Math.round((f.value / top) * 100)}%)</span>}
                 </span>
               </div>
-              <div className="h-3 rounded-full bg-ceda-light">
-                <div className="h-3 rounded-full bg-ceda-blue" style={{ width: `${(f.value / top) * 100}%` }} />
+              <div className="h-3 rounded-full bg-ceda-sand">
+                <div className="h-3 rounded-full bg-ceda-orange" style={{ width: `${(f.value / top) * 100}%` }} />
               </div>
             </div>
           ))}
@@ -52,7 +52,7 @@ export function ReportCharts({
 function Card({ title, sub, children }: { title: string; sub?: string; children: React.ReactNode }) {
   return (
     <section className="rounded-xl border border-border bg-white p-5">
-      <h3 className="font-semibold text-ceda-navy">{title}</h3>
+      <h3 className="font-semibold text-ceda-ink">{title}</h3>
       {sub && <p className="text-xs text-muted-foreground">{sub}</p>}
       <div className="mt-3">{children}</div>
     </section>

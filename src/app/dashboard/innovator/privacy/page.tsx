@@ -30,7 +30,7 @@ export default async function MyDataPage() {
   return (
     <div className="max-w-3xl">
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">My data</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">My data</h1>
         <p className="mt-1 text-muted-foreground">What CEDA holds about you, and your rights under the Data Protection Act, 2024.</p>
       </div>
 
@@ -49,7 +49,7 @@ export default async function MyDataPage() {
       </section>
 
       <section className="mb-6 rounded-xl border border-border bg-white p-5">
-        <h2 className="mb-2 flex items-center gap-2 font-semibold text-ceda-navy"><ShieldCheck size={18} className="text-ceda-green" /> Your rights</h2>
+        <h2 className="mb-2 flex items-center gap-2 font-semibold text-ceda-ink"><ShieldCheck size={18} className="text-ceda-green" /> Your rights</h2>
         <ul className="list-disc space-y-1 pl-5 text-sm text-muted-foreground">
           <li><span className="text-foreground">Access:</span> download a copy of everything linked to your account below.</li>
           <li><span className="text-foreground">Correction:</span> message CEDA from any application to fix a detail.</li>
@@ -57,13 +57,13 @@ export default async function MyDataPage() {
           <li><span className="text-foreground">Need to know:</span> evaluators see your idea, not your Omang, date of birth or contact details.</li>
           <li><span className="text-foreground">Retention and erasure:</span> ask CEDA to delete your account once no application is open.</li>
         </ul>
-        <a href="/api/me" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90">
+        <a href="/api/me" className="mt-4 inline-flex items-center gap-2 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90">
           <Download size={15} /> Download my data (JSON)
         </a>
       </section>
 
       <p className="text-sm text-muted-foreground">
-        Read the full <Link href="/privacy" className="text-ceda-blue hover:underline">privacy notice</Link>.
+        Read the full <Link href="/privacy" className="text-ceda-orange hover:underline">privacy notice</Link>.
       </p>
     </div>
   );

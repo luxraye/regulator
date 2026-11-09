@@ -3,13 +3,21 @@
 import Link from "next/link";
 import Image from "next/image";
 import { useLanguage } from "@/components/providers/language-provider";
-import { BlueBackdrop } from "@/components/home/blue-backdrop";
 
 export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   const { t } = useLanguage();
   return (
-    <section className="relative overflow-hidden bg-[#0b4a86] text-white">
-      <BlueBackdrop />
+    <section className="relative overflow-hidden bg-ceda-ink text-white">
+      <div className="absolute inset-0 opacity-[0.05]" aria-hidden>
+        <svg width="100%" height="100%" xmlns="http://www.w3.org/2000/svg">
+          <defs>
+            <pattern id="grid" width="48" height="48" patternUnits="userSpaceOnUse">
+              <path d="M48 0H0V48" fill="none" stroke="white" strokeWidth="0.6" />
+            </pattern>
+          </defs>
+          <rect width="100%" height="100%" fill="url(#grid)" />
+        </svg>
+      </div>
       <div className="relative mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24">
         <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-2">
           <div>
@@ -17,7 +25,7 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
             <h1 className="mb-6 text-4xl font-bold leading-tight lg:text-5xl">{t("hero.title")}</h1>
             <p className="mb-8 text-lg leading-relaxed text-white/80">{t("hero.subtitle")}</p>
             <div className="grid w-full max-w-lg grid-cols-2 gap-3">
-              <Link href="/calls" className="flex min-h-12 items-center justify-center rounded-lg bg-ceda-amber px-4 py-3 text-center font-semibold text-ceda-navy transition-colors hover:bg-ceda-amber/90">
+              <Link href="/calls" className="flex min-h-12 items-center justify-center rounded-lg bg-ceda-amber px-4 py-3 text-center font-semibold text-ceda-ink transition-colors hover:bg-ceda-amber/90">
                 {t("hero.cta.apply")}
               </Link>
               <Link href="/eligibility" className="flex min-h-12 items-center justify-center rounded-lg bg-white/10 px-4 py-3 text-center font-medium transition-colors hover:bg-white/20">
@@ -26,7 +34,7 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
               <Link href="/track" className="flex min-h-12 items-center justify-center rounded-lg bg-white/10 px-4 py-3 text-center font-medium transition-colors hover:bg-white/20">
                 {t("hero.cta.track")}
               </Link>
-              <Link href="/register" className="flex min-h-12 items-center justify-center rounded-lg bg-ceda-blue px-4 py-3 text-center font-medium transition-colors hover:bg-ceda-blue/80">
+              <Link href="/register" className="flex min-h-12 items-center justify-center rounded-lg bg-ceda-orange px-4 py-3 text-center font-medium text-white transition-colors hover:bg-ceda-orange/90">
                 {t("hero.cta.register")}
               </Link>
             </div>
@@ -35,7 +43,7 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
             <figure className="relative mx-auto w-full max-w-lg">
               <div className="relative aspect-[4/3] overflow-hidden rounded-2xl border-2 border-white/10 shadow-2xl shadow-black/30">
                 <Image src="/images/hero-innovation.jpg" alt="Young developers building software together at their laptops" fill priority sizes="(min-width: 1024px) 32rem, 100vw" className="object-cover" />
-                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-navy/90 to-transparent p-5 pt-16">
+                <div className="absolute inset-x-0 bottom-0 bg-gradient-to-t from-ceda-ink/90 to-transparent p-5 pt-16">
                   <p className="text-sm text-white/90">Ideas start at a kitchen table. We help the good ones become companies.</p>
                 </div>
               </div>
@@ -58,10 +66,11 @@ export function Hero({ stats }: { stats: { label: string; value: string }[] }) {
   );
 }
 
+
 const STAGES = [
-  { key: "submission", color: "bg-ceda-blue" },
+  { key: "submission", color: "bg-ceda-orange" },
   { key: "review", color: "bg-purple-600" },
-  { key: "feedback", color: "bg-ceda-orange" },
+  { key: "feedback", color: "bg-ceda-red" },
   { key: "approval", color: "bg-ceda-green" },
   { key: "award", color: "bg-ceda-amber" },
 ] as const;
@@ -72,14 +81,14 @@ export function HowItWorks() {
     <section id="how-it-works" className="scroll-mt-24 bg-white py-16 lg:py-24">
       <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
         <div className="mb-12 text-center">
-          <h2 className="mb-3 text-3xl font-bold text-ceda-navy">{t("how.title")}</h2>
+          <h2 className="mb-3 text-3xl font-bold text-ceda-ink">{t("how.title")}</h2>
           <p className="mx-auto max-w-2xl text-muted-foreground">{t("how.subtitle")}</p>
         </div>
         <ol className="grid grid-cols-1 gap-6 md:grid-cols-5">
           {STAGES.map((s, i) => (
-            <li key={s.key} className="relative rounded-2xl border border-border bg-ceda-light p-5">
-              <span className={`mb-4 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white ${s.color} ${s.key === "award" ? "text-ceda-navy" : ""}`}>{i + 1}</span>
-              <h3 className="mb-2 font-semibold text-ceda-navy">{t(`stage.${s.key}`)}</h3>
+            <li key={s.key} className="relative rounded-2xl border border-border bg-ceda-sand p-5">
+              <span className={`mb-4 flex h-10 w-10 items-center justify-center rounded-full text-sm font-bold text-white ${s.color} ${s.key === "award" ? "text-ceda-ink" : ""}`}>{i + 1}</span>
+              <h3 className="mb-2 font-semibold text-ceda-ink">{t(`stage.${s.key}`)}</h3>
               <p className="text-sm leading-relaxed text-muted-foreground">{t(`stage.${s.key}.desc`)}</p>
             </li>
           ))}

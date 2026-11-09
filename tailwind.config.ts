@@ -1,4 +1,5 @@
 import type { Config } from "tailwindcss";
+import { CEDA_PALETTE } from "./src/theme/ceda";
 
 const config: Config = {
   darkMode: "class",
@@ -7,6 +8,7 @@ const config: Config = {
     "./src/components/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/app/**/*.{js,ts,jsx,tsx,mdx}",
     "./src/lib/**/*.{js,ts,jsx,tsx}",
+    "./src/theme/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
     extend: {
@@ -17,12 +19,14 @@ const config: Config = {
         input: "var(--input)",
         ring: "var(--ring)",
         ceda: {
-          navy: "#003366",
-          blue: "#0066CC",
-          green: "#15803d",
-          amber: "#FFC107",
-          orange: "#c2410c",
-          light: "#F5F7FA",
+          ink: CEDA_PALETTE.ink,
+          brown: CEDA_PALETTE.brown,
+          orange: CEDA_PALETTE.orange,
+          red: CEDA_PALETTE.red,
+          amber: CEDA_PALETTE.amber,
+          yellow: CEDA_PALETTE.yellow,
+          green: CEDA_PALETTE.green,
+          sand: CEDA_PALETTE.sand,
         },
         primary: {
           DEFAULT: "var(--primary)",
@@ -76,7 +80,7 @@ const config: Config = {
         sm: "calc(var(--radius) - 4px)",
       },
       fontFamily: {
-        sans: ["var(--font-sans)", "system-ui", "sans-serif"],
+        sans: ["var(--font-sans)", "system-ui", "-apple-system", "BlinkMacSystemFont", "Segoe UI", "Roboto", "sans-serif"],
       },
     },
   },

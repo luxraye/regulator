@@ -35,17 +35,17 @@ const SECTIONS: [string, string[]][] = [
 export default function PrivacyPage() {
   return (
     <div className="mx-auto max-w-3xl px-4 py-12 sm:px-6">
-      <h1 className="text-3xl font-bold text-ceda-navy">Privacy notice</h1>
+      <h1 className="text-3xl font-bold text-ceda-ink">Privacy notice</h1>
       <p className="mb-8 mt-2 text-muted-foreground">How the CEDA Innovation Portal handles your personal data, in line with Botswana&apos;s Data Protection Act, 2024.</p>
       <div className="space-y-8">
         {SECTIONS.map(([h, items]) => (
           <section key={h}>
-            <h2 className="mb-2 text-xl font-semibold text-ceda-navy">{h}</h2>
+            <h2 className="mb-2 text-xl font-semibold text-ceda-ink">{h}</h2>
             <ul className="list-disc space-y-1.5 pl-5 text-muted-foreground">{items.map((i) => <li key={i}>{i}</li>)}</ul>
           </section>
         ))}
       </div>
-      <p className="mt-10 rounded-xl bg-ceda-light p-4 text-sm text-muted-foreground">Retention periods and contact points are aligned with the Data Protection Act, 2024 and CEDA&apos;s data protection office.</p>
+      <p className="mt-10 rounded-xl bg-ceda-sand p-4 text-sm text-muted-foreground">Retention periods and contact points are aligned with the Data Protection Act, 2024 and CEDA&apos;s data protection office.</p>
     </div>
   );
 }

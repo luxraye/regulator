@@ -6,12 +6,12 @@ const partners = [
   { label: "CEDA", url: "https://www.ceda.co.bw/" },
   { label: "CIPA company registry", url: "https://www.cipa.co.bw/" },
   { label: "Local Enterprise Authority", url: "https://www.lea.co.bw/" },
-  { label: "Botswana Innovation Hub", url: "https://www.bih.co.bw/" },
+  { label: "Botswana Digital Innovation Hub", url: "https://www.bih.co.bw/" },
 ];
 
 export function Footer() {
   return (
-    <footer className="fold-top relative bg-ceda-navy text-white/80">
+    <footer className="relative bg-ceda-ink text-white/80 border-t border-white/10">
       <div className="mx-auto max-w-7xl px-4 py-12 sm:px-6 lg:px-8">
         <div className="grid grid-cols-1 gap-8 md:grid-cols-2 lg:grid-cols-4">
           <div>

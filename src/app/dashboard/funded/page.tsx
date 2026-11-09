@@ -26,7 +26,7 @@ export default async function DashboardFundedShowcasePage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">Funded innovators showcase</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Funded innovators showcase</h1>
         <p className="mt-1 text-sm text-muted-foreground">
           Young Batswana whose ideas came through screening, blind scoring, and the adjudication panel. Every award includes a verifiable QR certificate.
         </p>
@@ -35,8 +35,8 @@ export default async function DashboardFundedShowcasePage() {
       <div className="mb-8 grid grid-cols-2 gap-4 lg:grid-cols-4">
         {stats.map((s) => (
           <div key={s.label} className="rounded-xl border border-border bg-white p-4">
-            <s.icon className="mb-2 h-5 w-5 text-ceda-blue" />
-            <p className="text-2xl font-bold text-ceda-navy">{s.value}</p>
+            <s.icon className="mb-2 h-5 w-5 text-ceda-orange" />
+            <p className="text-2xl font-bold text-ceda-ink">{s.value}</p>
             <p className="text-xs text-muted-foreground">{s.label}</p>
           </div>
         ))}

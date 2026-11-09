@@ -66,7 +66,7 @@ export function NotificationBell() {
     <div className="relative" ref={ref}>
       <button
         onClick={() => setOpen((o) => !o)}
-        className="relative rounded-lg p-2 text-ceda-navy hover:bg-ceda-light transition-colors"
+        className="relative rounded-lg p-2 text-ceda-ink hover:bg-ceda-sand transition-colors"
         aria-label={`Notifications${unread ? `, ${unread} unread` : ""}`}
         aria-expanded={open}
       >
@@ -81,11 +81,11 @@ export function NotificationBell() {
       {open && (
         <div className="absolute right-0 z-50 mt-2 w-[min(22rem,calc(100vw-2rem))] overflow-hidden rounded-xl border border-border bg-white shadow-xl">
           <div className="flex items-center justify-between border-b border-border px-4 py-3">
-            <p className="text-sm font-semibold text-ceda-navy">Notifications</p>
+            <p className="text-sm font-semibold text-ceda-ink">Notifications</p>
             {unread > 0 && (
               <button
                 onClick={() => markRead({ all: true })}
-                className="flex items-center gap-1 text-xs font-medium text-ceda-blue hover:underline"
+                className="flex items-center gap-1 text-xs font-medium text-ceda-orange hover:underline"
               >
                 <CheckCheck size={14} /> Mark all read
               </button>
@@ -97,11 +97,11 @@ export function NotificationBell() {
             ) : (
               items.map((n) => {
                 const content = (
-                  <div className={cn("px-4 py-3 text-left", !n.read && "bg-ceda-blue/5")}>
+                  <div className={cn("px-4 py-3 text-left", !n.read && "bg-ceda-orange/5")}>
                     <div className="flex items-start gap-2">
-                      {!n.read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-ceda-blue" />}
+                      {!n.read && <span className="mt-1.5 h-2 w-2 shrink-0 rounded-full bg-ceda-orange" />}
                       <div className="min-w-0">
-                        <p className="text-sm font-medium text-ceda-navy">{n.title}</p>
+                        <p className="text-sm font-medium text-ceda-ink">{n.title}</p>
                         <p className="mt-0.5 line-clamp-2 text-xs text-muted-foreground">{n.body}</p>
                         <p className="mt-1 text-[11px] text-muted-foreground">{timeAgo(n.createdAt)}</p>
                       </div>
@@ -113,11 +113,11 @@ export function NotificationBell() {
                   setOpen(false);
                 };
                 return n.link ? (
-                  <Link key={n.id} href={n.link} onClick={onClick} className="block hover:bg-ceda-light">
+                  <Link key={n.id} href={n.link} onClick={onClick} className="block hover:bg-ceda-sand">
                     {content}
                   </Link>
                 ) : (
-                  <button key={n.id} onClick={onClick} className="block w-full hover:bg-ceda-light">
+                  <button key={n.id} onClick={onClick} className="block w-full hover:bg-ceda-sand">
                     {content}
                   </button>
                 );

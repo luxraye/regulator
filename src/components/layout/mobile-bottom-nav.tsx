@@ -13,7 +13,7 @@ export function MobileBottomNav() {
   if (tabs.length === 0) return null;
 
   return (
-    <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-ceda-navy md:hidden print:hidden">
+    <nav className="safe-bottom fixed bottom-0 left-0 right-0 z-50 border-t border-white/10 bg-ceda-ink md:hidden print:hidden">
       <div className="flex items-stretch">
         {tabs.map((tab) => (
           <Link

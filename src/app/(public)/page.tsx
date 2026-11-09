@@ -34,14 +34,14 @@ export default async function HomePage() {
     <>
       <Hero stats={stats} />
 
-      <section className="bg-ceda-light py-16 lg:py-20">
+      <section className="bg-ceda-sand py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
           <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
             <div>
-              <h2 className="text-3xl font-bold text-ceda-navy">Open calls</h2>
+              <h2 className="text-3xl font-bold text-ceda-ink">Open calls</h2>
               <p className="mt-1 text-muted-foreground">Each call names its sector, stage, funding and how ideas will be scored.</p>
             </div>
-            <Link href="/calls" className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+            <Link href="/calls" className="inline-flex items-center gap-1 font-medium text-ceda-orange hover:underline">
               All calls <ArrowRight size={16} />
             </Link>
           </div>
@@ -51,7 +51,7 @@ export default async function HomePage() {
                 key={c.id}
                 call={c}
                 action={
-                  <Link href={`/calls/${c.code}`} className="inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+                  <Link href={`/calls/${c.code}`} className="inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
                     Details and criteria <ArrowRight size={14} />
                   </Link>
                 }
@@ -63,9 +63,9 @@ export default async function HomePage() {
 
       <HowItWorks />
 
-      <section className="bg-ceda-light py-16 lg:py-20">
+      <section className="bg-ceda-sand py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-navy">Priority sectors</h2>
+          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-ink">Priority sectors</h2>
           <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">
             Calls are aimed at the sectors that diversify Botswana&apos;s economy beyond diamonds, at every stage from first idea to export.
           </p>
@@ -73,7 +73,7 @@ export default async function HomePage() {
             {DATA_TYPES.map((dt) => (
               <Link key={dt} href="/calls" className="group relative aspect-[4/3] overflow-hidden rounded-2xl">
                 <Image src={typeLabels[dt].photo} alt="" fill sizes="(min-width: 768px) 33vw, 50vw" className="object-cover transition-transform duration-500 group-hover:scale-105" />
-                <div className="absolute inset-0 bg-gradient-to-t from-ceda-navy/90 via-ceda-navy/20 to-transparent" />
+                <div className="absolute inset-0 bg-gradient-to-t from-ceda-ink/90 via-ceda-ink/20 to-transparent" />
                 <p className="absolute bottom-3 left-4 right-4 font-semibold text-white sm:text-lg">{typeLabels[dt].full}</p>
               </Link>
             ))}
@@ -83,7 +83,7 @@ export default async function HomePage() {
 
       <section className="bg-white py-16 lg:py-20">
         <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
-          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-navy">One portal, four roles</h2>
+          <h2 className="mb-2 text-center text-3xl font-bold text-ceda-ink">One portal, four roles</h2>
           <p className="mx-auto mb-10 max-w-2xl text-center text-muted-foreground">Everyone sees only what their job needs.</p>
           <div className="grid grid-cols-1 gap-6 sm:grid-cols-2 lg:grid-cols-4">
             {[
@@ -93,8 +93,8 @@ export default async function HomePage() {
               { icon: <LineChart />, title: "CEDA programme team", body: "Open calls, screen, assign evaluators, chase overdue scores and export participation reports." },
             ].map((r) => (
               <div key={r.title} className="rounded-2xl border border-border p-6">
-                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ceda-blue/10 text-ceda-blue [&>svg]:h-5 [&>svg]:w-5">{r.icon}</div>
-                <h3 className="mb-2 font-semibold text-ceda-navy">{r.title}</h3>
+                <div className="mb-4 flex h-10 w-10 items-center justify-center rounded-lg bg-ceda-orange/10 text-ceda-orange [&>svg]:h-5 [&>svg]:w-5">{r.icon}</div>
+                <h3 className="mb-2 font-semibold text-ceda-ink">{r.title}</h3>
                 <p className="text-sm leading-relaxed text-muted-foreground">{r.body}</p>
               </div>
             ))}
@@ -107,11 +107,11 @@ export default async function HomePage() {
           <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
             <div className="mb-8 flex flex-wrap items-end justify-between gap-4">
               <div>
-                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-ceda-blue">Recognition</p>
-                <h2 className="text-3xl font-bold text-ceda-navy">Recently funded</h2>
+                <p className="mb-2 text-xs font-semibold uppercase tracking-widest text-ceda-orange">Recognition</p>
+                <h2 className="text-3xl font-bold text-ceda-ink">Recently funded</h2>
                 <p className="mt-1 text-muted-foreground">Young founders whose ideas made it all the way through. Every award comes with a certificate anyone can check.</p>
               </div>
-              <Link href="/funded" className="inline-flex items-center gap-1 font-medium text-ceda-blue hover:underline">
+              <Link href="/funded" className="inline-flex items-center gap-1 font-medium text-ceda-orange hover:underline">
                 All funded innovators <ArrowRight className="h-4 w-4" />
               </Link>
             </div>
@@ -132,12 +132,12 @@ export default async function HomePage() {
           </p>
           <div className="grid grid-cols-1 gap-6 text-left sm:grid-cols-2 lg:grid-cols-4">
             {[
-              { icon: <EyeOff className="h-5 w-5 text-ceda-blue" />, title: "Blind scoring", body: "Evaluators never see your name, Omang, age or phone number.", border: "border-ceda-blue/30", bg: "bg-ceda-blue/20" },
+              { icon: <EyeOff className="h-5 w-5 text-ceda-orange" />, title: "Blind scoring", body: "Evaluators never see your name, Omang, age or phone number.", border: "border-ceda-orange/30", bg: "bg-ceda-orange/20" },
               { icon: <Scale className="h-5 w-5 text-ceda-green" />, title: "Conflicts declared", body: "Each evaluator confirms no link to your company before opening your idea.", border: "border-ceda-green/30", bg: "bg-ceda-green/20" },
               { icon: <Fingerprint className="h-5 w-5 text-ceda-amber" />, title: "Signed receipt", body: "Your answers and documents are hashed and signed, so nobody can change them later.", border: "border-ceda-amber/30", bg: "bg-ceda-amber/20" },
               { icon: <FileCheck2 className="h-5 w-5 text-ceda-orange" />, title: "Feedback for everyone", body: "Win or not, you get the scores and evaluator comments to improve your next pitch.", border: "border-ceda-orange/30", bg: "bg-ceda-orange/20" },
             ].map((p) => (
-              <div key={p.title} className={`rounded-xl border bg-ceda-navy/45 p-5 backdrop-blur-sm ${p.border}`}>
+              <div key={p.title} className={`rounded-xl border bg-ceda-ink/45 p-5 backdrop-blur-sm ${p.border}`}>
                 <div className={`mb-3 flex h-10 w-10 items-center justify-center rounded-lg ${p.bg}`}>{p.icon}</div>
                 <h3 className="mb-1 font-semibold">{p.title}</h3>
                 <p className="text-sm text-white/80">{p.body}</p>
@@ -153,11 +153,11 @@ export default async function HomePage() {
         <div className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8">
           <div className="relative overflow-hidden rounded-2xl">
             <Image src="/photos/team-laptop.webp" alt="" fill sizes="56rem" className="object-cover" />
-            <div className="relative bg-ceda-navy/85 p-8 text-center text-white sm:p-12">
+            <div className="relative bg-ceda-ink/85 p-8 text-center text-white sm:p-12">
               <h2 className="mb-3 text-2xl font-bold lg:text-3xl">Aged 18 to 35 with an idea for Botswana?</h2>
               <p className="mx-auto mb-6 max-w-xl text-white/80">Check you qualify in 30 seconds, then start your application. Drafts save as you go.</p>
               <div className="flex flex-wrap justify-center gap-3">
-                <Link href="/eligibility" className="rounded-lg bg-ceda-amber px-6 py-3 font-semibold text-ceda-navy hover:bg-ceda-amber/90">Am I eligible?</Link>
+                <Link href="/eligibility" className="rounded-lg bg-ceda-amber px-6 py-3 font-semibold text-ceda-ink hover:bg-ceda-amber/90">Am I eligible?</Link>
                 <Link href="/register" className="rounded-lg bg-white/10 px-6 py-3 font-medium hover:bg-white/20">Create an account</Link>
               </div>
             </div>

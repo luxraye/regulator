@@ -4,8 +4,8 @@
   "description": "Submit ideas, track your application and get feedback from CEDA",
   "start_url": "/dashboard",
   "display": "standalone",
-  "background_color": "#003366",
-  "theme_color": "#003366",
+  "background_color": "#3a2a24",
+  "theme_color": "#3a2a24",
   "orientation": "portrait-primary",
   "scope": "/",
   "icons": [

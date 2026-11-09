@@ -50,7 +50,7 @@ export function MessageThread({ instanceId, staff = false, title = "Messages" }:
 
   return (
     <section className="rounded-xl border border-border bg-white p-5">
-      <h3 className="mb-3 flex items-center gap-2 font-semibold text-ceda-navy">
+      <h3 className="mb-3 flex items-center gap-2 font-semibold text-ceda-ink">
         <MessageSquare size={16} /> {title}
       </h3>
       {messages === null ? (
@@ -66,7 +66,7 @@ export function MessageThread({ instanceId, staff = false, title = "Messages" }:
               <div
                 className={cn(
                   "max-w-[85%] rounded-xl px-3 py-2 text-sm",
-                  m.internal ? "border border-dashed border-amber-300 bg-amber-50" : m.mine ? "bg-ceda-blue text-white" : "bg-ceda-light"
+                  m.internal ? "border border-dashed border-amber-300 bg-amber-50" : m.mine ? "bg-ceda-orange text-white" : "bg-ceda-sand"
                 )}
               >
                 <p className={cn("mb-0.5 text-[11px]", m.mine && !m.internal ? "text-white/70" : "text-muted-foreground")}>
@@ -86,7 +86,7 @@ export function MessageThread({ instanceId, staff = false, title = "Messages" }:
           onChange={(e) => setBody(e.target.value)}
           rows={2}
           placeholder={staff ? (internal ? "Internal note (the innovator won't see this)" : "Message the innovator") : "Write to the CEDA team"}
-          className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue"
+          className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-orange"
           aria-label="Message"
         />
         <div className="flex items-center justify-between gap-2">
@@ -100,7 +100,7 @@ export function MessageThread({ instanceId, staff = false, title = "Messages" }:
           <button
             onClick={send}
             disabled={sending || body.trim().length < 2}
-            className="flex items-center gap-1.5 rounded-lg bg-ceda-navy px-3 py-1.5 text-sm font-medium text-white hover:bg-ceda-navy/90 disabled:opacity-40"
+            className="flex items-center gap-1.5 rounded-lg bg-ceda-ink px-3 py-1.5 text-sm font-medium text-white hover:bg-ceda-ink/90 disabled:opacity-40"
           >
             {sending ? <Loader2 size={14} className="animate-spin" /> : <Send size={14} />} Send
           </button>

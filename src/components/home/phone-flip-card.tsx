@@ -22,7 +22,7 @@ export function PhoneFlipCard() {
           type="button"
           onClick={() => setFlipped((f) => !f)}
           aria-label={flipped ? "Show the mobile screen" : "Show the QR code to install on your phone"}
-          className="group relative block h-[560px] w-[272px] rounded-[46px] text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-ceda-blue/40"
+          className="group relative block h-[560px] w-[272px] rounded-[46px] text-left focus:outline-none focus-visible:ring-4 focus-visible:ring-ceda-orange/40"
         >
           <div
             className="relative h-full w-full transition-transform duration-700 ease-[cubic-bezier(.2,.8,.2,1)] [transform-style:preserve-3d] motion-reduce:transition-none"
@@ -40,7 +40,7 @@ export function PhoneFlipCard() {
       <button
         type="button"
         onClick={() => setFlipped((f) => !f)}
-        className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-ceda-navy shadow-sm transition-colors hover:border-ceda-blue hover:text-ceda-blue"
+        className="mt-6 inline-flex items-center gap-2 rounded-full border border-border bg-white px-4 py-2 text-sm font-medium text-ceda-ink shadow-sm transition-colors hover:border-ceda-orange hover:text-ceda-orange"
       >
         {flipped ? <RotateCcw className="h-4 w-4" /> : <ScanLine className="h-4 w-4" />}
         {flipped ? "Back to the mobile screen" : "Flip for the QR code"}
@@ -58,9 +58,9 @@ function PhoneShell({ children, className = "" }: { children: React.ReactNode; c
       <span className="absolute -left-[3px] top-[228px] h-14 w-[3px] rounded-l bg-[#2a2f38]" aria-hidden />
       <span className="absolute -right-[3px] top-[180px] h-20 w-[3px] rounded-r bg-[#2a2f38]" aria-hidden />
       {/* Frame */}
-      <div className="h-full w-full rounded-[46px] bg-gradient-to-br from-[#3a404b] via-[#1b1f26] to-[#2c313a] p-[3px] shadow-[0_30px_60px_-20px_rgba(0,30,70,0.45),0_12px_24px_-12px_rgba(0,0,0,0.35)]">
+      <div className="h-full w-full rounded-[46px] bg-gradient-to-br from-[#3a404b] via-[#1b1f26] to-[#2c313a] p-[3px] shadow-[0_30px_60px_-20px_rgba(58,42,36,0.35),0_12px_24px_-12px_rgba(0,0,0,0.35)]">
         <div className="h-full w-full rounded-[43px] bg-black p-[9px]">
-          <div className="relative h-full w-full overflow-hidden rounded-[35px] bg-[#f4f6f9]">
+          <div className="relative h-full w-full overflow-hidden rounded-[35px] bg-[#faf6f2]">
             {/* Dynamic island */}
             <span className="absolute left-1/2 top-[9px] z-20 h-[24px] w-[84px] -translate-x-1/2 rounded-full bg-black" aria-hidden />
             {children}
@@ -93,7 +93,7 @@ function Tracker({ at }: { at: number }) {
   return (
     <div className="mt-2.5 flex items-center gap-1" aria-hidden>
       {STAGES.map((s, i) => (
-        <span key={s} className={`h-1.5 flex-1 rounded-full ${i < at ? "bg-ceda-blue" : i === at ? "bg-ceda-amber" : "bg-slate-200"}`} />
+        <span key={s} className={`h-1.5 flex-1 rounded-full ${i < at ? "bg-ceda-orange" : i === at ? "bg-ceda-amber" : "bg-slate-200"}`} />
       ))}
     </div>
   );
@@ -106,25 +106,25 @@ function AppScreen() {
       <div className="flex items-center justify-between px-4 pb-2 pt-1">
         <span className="flex items-center gap-1.5">
           <LogoMark className="h-4 w-4" />
-          <span className="text-[13px] font-bold text-ceda-navy">CEDA Ideas</span>
+          <span className="text-[13px] font-bold text-ceda-ink">CEDA Ideas</span>
         </span>
         <span className="relative">
-          <Bell className="h-[18px] w-[18px] text-ceda-navy" />
-          <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-red-500 text-[8px] font-bold text-white">2</span>
+          <Bell className="h-[18px] w-[18px] text-ceda-ink" />
+          <span className="absolute -right-1 -top-1 flex h-3.5 w-3.5 items-center justify-center rounded-full bg-ceda-red text-[8px] font-bold text-white">2</span>
         </span>
       </div>
 
       <div className="flex-1 space-y-2.5 overflow-hidden px-4">
         <div>
-          <p className="text-[17px] font-bold leading-tight text-ceda-navy">Dumela, Naledi</p>
+          <p className="text-[17px] font-bold leading-tight text-ceda-ink">Dumela, Naledi</p>
           <p className="text-[11px] text-slate-600">1 idea needs your attention</p>
         </div>
 
         <div className="rounded-2xl border border-amber-200 bg-amber-50 p-3">
           <p className="text-[10px] font-semibold uppercase tracking-wide text-amber-800">Changes requested</p>
-          <p className="mt-0.5 text-[12px] font-semibold text-ceda-navy">Mokoro Stories, Okavango</p>
+          <p className="mt-0.5 text-[12px] font-semibold text-ceda-ink">Mokoro Stories, Okavango</p>
           <p className="mt-0.5 text-[11px] leading-snug text-slate-700">Add a budget breakdown and a letter of intent from a lodge.</p>
-          <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-ceda-navy px-2.5 py-1.5 text-[11px] font-medium text-white">
+          <span className="mt-2 inline-flex items-center gap-1 rounded-lg bg-ceda-ink px-2.5 py-1.5 text-[11px] font-medium text-white">
             <Upload className="h-3 w-3" /> Upload documents
           </span>
         </div>
@@ -133,7 +133,7 @@ function AppScreen() {
 
         <div className="rounded-2xl bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-ceda-navy">Mokoro Stories</span>
+            <span className="text-[12px] font-semibold text-ceda-ink">Mokoro Stories</span>
             <span className="rounded-full bg-amber-100 px-2 py-0.5 text-[9px] font-semibold text-amber-800">Feedback</span>
           </div>
           <p className="text-[10px] text-slate-600">Creative Industries call · 4 days ago</p>
@@ -142,7 +142,7 @@ function AppScreen() {
 
         <div className="rounded-2xl bg-white p-3 shadow-[0_1px_2px_rgba(0,0,0,0.06)]">
           <div className="flex items-center justify-between">
-            <span className="text-[12px] font-semibold text-ceda-navy">Sefofu glass tiles</span>
+            <span className="text-[12px] font-semibold text-ceda-ink">Sefofu glass tiles</span>
             <span className="rounded-full bg-emerald-100 px-2 py-0.5 text-[9px] font-semibold text-emerald-800">Awarded</span>
           </div>
           <p className="text-[10px] text-slate-600">P320,000 asset finance</p>
@@ -151,7 +151,7 @@ function AppScreen() {
       </div>
 
       <nav className="grid grid-cols-4 border-t border-slate-200 bg-white/95 px-2 pb-6 pt-2 text-[9px] font-medium text-slate-600" aria-hidden>
-        <span className="flex flex-col items-center gap-0.5 text-ceda-blue"><Home className="h-[18px] w-[18px]" />Home</span>
+        <span className="flex flex-col items-center gap-0.5 text-ceda-orange"><Home className="h-[18px] w-[18px]" />Home</span>
         <span className="flex flex-col items-center gap-0.5"><Megaphone className="h-[18px] w-[18px]" />Calls</span>
         <span className="flex flex-col items-center gap-0.5"><FileBox className="h-[18px] w-[18px]" />Ideas</span>
         <span className="flex flex-col items-center gap-0.5"><Inbox className="h-[18px] w-[18px]" />Inbox</span>
@@ -171,7 +171,7 @@ function QrScreen({ url }: { url: string }) {
   }, [url]);
 
   return (
-    <div className="flex h-full flex-col bg-gradient-to-b from-[#0b4a86] to-ceda-navy text-white">
+    <div className="flex h-full flex-col bg-gradient-to-b from-ceda-ink via-ceda-brown to-[#221814] text-white">
       <StatusBar dark />
       <div className="flex flex-1 flex-col items-center justify-center px-6 pb-10 text-center">
         <LogoMark className="mb-3 h-7 w-7" />

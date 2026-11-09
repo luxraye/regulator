@@ -17,7 +17,7 @@ export function DashboardSidebar() {
   const nav = navFor(session?.user?.role);
 
   return (
-    <aside className={cn("flex h-screen flex-col bg-ceda-navy text-white transition-all duration-200", collapsed ? "w-16" : "w-64")}>
+    <aside className={cn("flex h-screen flex-col bg-ceda-ink text-white transition-all duration-200", collapsed ? "w-16" : "w-64")}>
       <div className="flex items-center justify-between border-b border-white/10 p-4">
         <Link href="/">{collapsed ? <LogoMark /> : <Logo tone="light" sub={false} />}</Link>
         <button
@@ -36,7 +36,7 @@ export function DashboardSidebar() {
             href={item.href}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive(pathname, item.href) ? "bg-ceda-blue text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
+              isActive(pathname, item.href) ? "bg-ceda-orange text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
             )}
             title={collapsed ? item.label : undefined}
           >

@@ -11,12 +11,12 @@ export default function RootError({
   reset: () => void;
 }) {
   return (
-    <div className="flex min-h-[80vh] flex-col items-center justify-center bg-ceda-light px-4 py-16 text-center">
+    <div className="flex min-h-[80vh] flex-col items-center justify-center bg-ceda-sand px-4 py-16 text-center">
       <div className="max-w-md rounded-2xl border border-border bg-white p-8 shadow-sm">
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-800">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h1 className="text-2xl font-bold text-ceda-navy">Something went wrong</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Something went wrong</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           We couldn&apos;t load this page right now. Your saved application data is safe.
         </p>
@@ -27,11 +27,11 @@ export default function RootError({
           <button
             type="button"
             onClick={() => reset()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90 transition-colors"
           >
             <RotateCcw className="h-4 w-4" /> Try again
           </button>
-          <Link href="/" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ceda-navy hover:bg-ceda-light">
+          <Link href="/" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ceda-ink hover:bg-ceda-sand transition-colors">
             Back to home
           </Link>
         </div>

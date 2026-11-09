@@ -18,7 +18,7 @@ export function CommunityHeader({
 }) {
   const tab = (on: boolean) =>
     `inline-flex items-center gap-2 rounded-t-lg px-4 py-2.5 text-sm font-semibold transition-colors ${
-      on ? "bg-white text-ceda-navy" : "text-white/80 hover:bg-white/10 hover:text-white"
+      on ? "bg-white text-ceda-ink" : "text-white/80 hover:bg-white/10 hover:text-white"
     }`;
   return (
     <section className={`relative overflow-hidden bg-[#0b4a86] text-white ${inDashboard ? "rounded-t-2xl" : ""}`}>
