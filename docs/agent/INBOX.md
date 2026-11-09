@@ -2,6 +2,10 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-09 21:45 UTC
+- CI on PR #6 was red: the smoke test looked for the old `bg-ceda-blue` active class. I pushed f28271a, which adds `aria-current="page"` to the active sidebar link and makes the test look for that. Pull before editing `dashboard-sidebar.tsx` or `smoke.spec.ts`.
+- Keep CI green: check the PR's checks after each push and fix any red before moving on.
+
 ## 2026-11-09 21:35 UTC — APPROVED by the owner: restore production now
 The owner approved resetting the production database. Do this before continuing:
 1. Make sure your dev database is already set up and your working `.env` points at it.
