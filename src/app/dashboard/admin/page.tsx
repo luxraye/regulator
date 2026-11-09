@@ -12,29 +12,29 @@ export default async function AdminDashboard() {
   const now = new Date();
 
   const [byStatus, awardSum, overdueEvals, conflicts, closing, activity, innovators] = await Promise.all([
-    prisma.instance.groupBy({ by: ["status"], _count: true }),
-    prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true } }),
+    prisma.entry.groupBy({ by: ["status"], _count: true }),
+    prisma.entry.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true } }),
     prisma.evaluation.findMany({
-      where: { submittedAt: null, conflict: { not: true }, dueAt: { lt: now }, instance: { status: "UNDER_REVIEW" } },
-      include: { evaluator: { select: { name: true } }, instance: { select: { id: true, referenceCode: true } } },
+      where: { submittedAt: null, conflict: { not: true }, dueAt: { lt: now }, entry: { status: "UNDER_REVIEW" } },
+      include: { evaluator: { select: { name: true } }, entry: { select: { id: true, referenceCode: true } } },
       orderBy: { dueAt: "asc" },
       take: 6,
     }),
     prisma.evaluation.findMany({
-      where: { conflict: true, instance: { status: "UNDER_REVIEW" } },
-      include: { evaluator: { select: { name: true } }, instance: { select: { id: true, referenceCode: true, title: true } } },
+      where: { conflict: true, entry: { status: "UNDER_REVIEW" } },
+      include: { evaluator: { select: { name: true } }, entry: { select: { id: true, referenceCode: true, title: true } } },
       take: 5,
     }),
     prisma.template.findMany({
       where: { status: "OPEN", closesAt: { gte: now } },
       orderBy: { closesAt: "asc" },
       take: 4,
-      include: { _count: { select: { instances: true } }, instances: { where: { status: { not: "DRAFT" } }, select: { id: true } } },
+      include: { _count: { select: { entries: true } }, entries: { where: { status: { not: "DRAFT" } }, select: { id: true } } },
     }),
     prisma.auditLog.findMany({
       orderBy: { createdAt: "desc" },
       take: 8,
-      include: { actor: { select: { name: true } }, instance: { select: { id: true, referenceCode: true } } },
+      include: { actor: { select: { name: true } }, entry: { select: { id: true, referenceCode: true } } },
     }),
     prisma.user.count({ where: { role: "INNOVATOR" } }),
   ]);
@@ -94,8 +94,8 @@ export default async function AdminDashboard() {
                       </p>
                     </div>
                     <div className="text-right text-xs text-muted-foreground">
-                      <p className="text-base font-bold text-ceda-ink">{t.instances.length}</p>
-                      submitted · {t._count.instances - t.instances.length} drafts
+                      <p className="text-base font-bold text-ceda-ink">{t.entries.length}</p>
+                      submitted · {t._count.entries - t.entries.length} drafts
                     </div>
                   </li>
                 );
@@ -113,9 +113,9 @@ export default async function AdminDashboard() {
               <ul className="space-y-2">
                 {conflicts.map((e) => (
                   <li key={e.id}>
-                    <Link href={`/dashboard/admin/instances/${e.instance.id}`} className="flex items-start gap-2 text-sm hover:text-ceda-orange">
+                    <Link href={`/dashboard/admin/instances/${e.entry.id}`} className="flex items-start gap-2 text-sm hover:text-ceda-orange">
                       <UserX size={15} className="mt-0.5 shrink-0 text-gray-400" />
-                      <span><span className="font-mono text-xs">{e.instance.referenceCode}</span> · {e.evaluator.name} declared a conflict</span>
+                      <span><span className="font-mono text-xs">{e.entry.referenceCode}</span> · {e.evaluator.name} declared a conflict</span>
                     </Link>
                   </li>
                 ))}
@@ -130,8 +130,8 @@ export default async function AdminDashboard() {
               <ul className="space-y-2">
                 {overdueEvals.map((e) => (
                   <li key={e.id}>
-                    <Link href={`/dashboard/admin/instances/${e.instance.id}`} className="flex items-center justify-between gap-2 text-sm hover:text-ceda-orange">
-                      <span className="truncate">{e.evaluator.name} · <span className="font-mono text-xs">{e.instance.referenceCode}</span></span>
+                    <Link href={`/dashboard/admin/instances/${e.entry.id}`} className="flex items-center justify-between gap-2 text-sm hover:text-ceda-orange">
+                      <span className="truncate">{e.evaluator.name} · <span className="font-mono text-xs">{e.entry.referenceCode}</span></span>
                       <span className="shrink-0 text-xs text-red-600">{relativeDeadline(e.dueAt).text}</span>
                     </Link>
                   </li>
@@ -146,7 +146,7 @@ export default async function AdminDashboard() {
                 <li key={a.id} className="text-sm">
                   <p>
                     <span className="font-medium">{a.actor.name}</span> <span className="text-muted-foreground">· {actionLabel(a.action).toLowerCase()}</span>
-                    {a.instance && <span className="font-mono text-xs"> {a.instance.referenceCode}</span>}
+                    {a.entry && <span className="font-mono text-xs"> {a.entry.referenceCode}</span>}
                   </p>
                   <p className="text-xs text-muted-foreground">{timeAgo(a.createdAt)}</p>
                 </li>

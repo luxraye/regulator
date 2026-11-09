@@ -10,15 +10,16 @@ export const dynamic = "force-dynamic";
 export default async function DashboardFundedShowcasePage() {
   const [items, all] = await Promise.all([
     fundedShowcase(),
-    prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
+    prisma.entry.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
   ]);
+  const totalCount = all._count ?? 0;
   const jobs = items.reduce((n, f) => n + (f.jobs ?? 0), 0);
   const districts = new Set(items.map((f) => f.innovator.district).filter(Boolean)).size;
-  const hidden = all._count - items.length;
+  const hidden = totalCount - items.length;
 
   const stats = [
-    { icon: Award, label: "Ideas funded", value: String(all._count) },
-    { icon: ShieldCheck, label: "Awarded in total", value: formatPula(all._sum.awardAmount ?? 0) },
+    { icon: Award, label: "Ideas funded", value: String(totalCount) },
+    { icon: ShieldCheck, label: "Awarded in total", value: formatPula(all._sum?.awardAmount ?? 0) },
     { icon: Briefcase, label: "Jobs planned (listed)", value: String(jobs) },
     { icon: MapPin, label: "Districts (listed)", value: String(districts) },
   ];

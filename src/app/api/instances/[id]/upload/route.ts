@@ -16,7 +16,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
-  const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
+  const instance = await prisma.entry.findUnique({ where: { id: params.id }, include: { template: true } });
   if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This idea is submitted and locked. It can only be edited if CEDA asks for changes");
 
@@ -65,10 +65,10 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     uploadedAt: new Date(),
   };
 
-  const saved = await prisma.instanceFile.upsert({
-    where: { instanceId_fileKey: { instanceId: instance.id, fileKey } },
+  const saved = await prisma.entryFile.upsert({
+    where: { entryId_fileKey: { entryId: instance.id, fileKey } },
     update: data,
-    create: { ...data, instanceId: instance.id, fileKey },
+    create: { ...data, entryId: instance.id, fileKey },
     select: { id: true, fileKey: true, fileName: true, fileSize: true, serverHash: true },
   });
 

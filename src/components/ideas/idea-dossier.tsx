@@ -25,7 +25,7 @@ import type { SessionUser } from "@/lib/session";
  * and the adjudication panel (scores first).
  */
 export async function IdeaDossier({ id, user, mode }: { id: string; user: SessionUser; mode: "admin" | "panel" }) {
-  const instance = await prisma.instance.findUnique({
+  const instance = await prisma.entry.findUnique({
     where: { id },
     include: {
       template: true,
@@ -161,8 +161,8 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
           <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
           <h1 className="text-2xl font-bold text-ceda-ink">{instance.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            {instance.innovator.organizationName ?? instance.innovator.name} · {instance.template.name} · {sectorName(instance.template.dataType)},{" "}
-            {stageName(instance.template.scale)} stage
+            {instance.innovator.organizationName ?? instance.innovator.name} · {instance.template?.name ?? "CEDA Innovation Call"} · {sectorName(instance.template?.dataType ?? "")},{" "}
+            {stageName(instance.template?.scale ?? "")} stage
           </p>
         </div>
         <StatusBadge status={instance.status} />
@@ -173,7 +173,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
       </div>
 
       <div className="mb-6 grid grid-cols-2 gap-3 lg:grid-cols-4">
-        <Meta label="Panel score" value={summary.mean !== null ? `${summary.mean}/100` : "—"} sub={`${summary.count} of ${instance.evaluations.filter((e) => !e.conflict).length || instance.template.reviewersPerIdea} scores in`} />
+        <Meta label="Panel score" value={summary.mean !== null ? `${summary.mean}/100` : "—"} sub={`${summary.count} of ${instance.evaluations.filter((e) => !e.conflict).length || (instance.template?.reviewersPerIdea ?? 2)} scores in`} />
         <Meta label="Funding requested" value={formatPula(requested)} sub={instance.status === "AWARDED" ? `Awarded ${formatPula(instance.awardAmount)}` : undefined} />
         <Meta label="Submitted" value={formatDate(instance.submittedAt, true)} sub={instance.submissionCount > 1 ? `Resubmission #${instance.submissionCount}` : undefined} />
         <Meta
@@ -223,7 +223,7 @@ export async function IdeaDossier({ id, user, mode }: { id: string; user: Sessio
           {canAssign && (
             <AssignEvaluators
               instanceId={instance.id}
-              suggested={instance.template.reviewersPerIdea}
+              suggested={instance.template?.reviewersPerIdea ?? 2}
               evaluators={evaluatorOptions.map((e) => ({ id: e.id, name: e.name, expertise: e.expertise, open: e.evaluations.length, assigned: assignedIds.has(e.id) }))}
             />
           )}

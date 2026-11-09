@@ -1,5 +1,5 @@
 import Link from "next/link";
-import type { InstanceStatus, Prisma } from "@prisma/client";
+import type { EntryStatus as InstanceStatus, Prisma } from "@prisma/client";
 import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/ui/status-badge";
@@ -23,7 +23,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
   const calls = await prisma.template.findMany({ select: { id: true, code: true }, orderBy: { code: "asc" } });
   const call = calls.find((c) => c.code === searchParams.call);
 
-  const base: Prisma.InstanceWhereInput = {
+  const base: Prisma.EntryWhereInput = {
     ...(call ? { templateId: call.id } : {}),
     ...(q
       ? {
@@ -35,10 +35,10 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
         }
       : {}),
   };
-  const where: Prisma.InstanceWhereInput = { ...base, ...(active.statuses ? { status: { in: active.statuses } } : {}) };
+  const where: Prisma.EntryWhereInput = { ...base, ...(active.statuses ? { status: { in: active.statuses } } : {}) };
 
   const [ideas, counts] = await Promise.all([
-    prisma.instance.findMany({
+    prisma.entry.findMany({
       where,
       select: {
         id: true, title: true, referenceCode: true, status: true, createdAt: true, submittedAt: true, submissionCount: true,
@@ -49,7 +49,7 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
       orderBy: [{ submittedAt: { sort: "asc", nulls: "last" } }, { createdAt: "desc" }],
       take: 200,
     }),
-    prisma.instance.groupBy({ by: ["status"], where: base, _count: true }),
+    prisma.entry.groupBy({ by: ["status"], where: base, _count: true }),
   ]);
   const countFor = (statuses?: InstanceStatus[]) =>
     counts.filter((c) => !statuses || statuses.includes(c.status)).reduce((s, c) => s + c._count, 0);
@@ -105,11 +105,11 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
                   <div className="min-w-0">
                     <p className="truncate text-sm font-medium">{i.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      <span className="font-mono">{i.referenceCode}</span> · {i.template.code} · {i.innovator.organizationName ?? "—"} · {i.innovator.district ?? "—"}
+                      <span className="font-mono">{i.referenceCode}</span> · {i.template?.code ?? "—"} · {i.innovator.organizationName ?? "—"} · {i.innovator.district ?? "—"}
                     </p>
                   </div>
                   <div className="flex items-center gap-3 text-xs text-muted-foreground">
-                    {i.status === "UNDER_REVIEW" && <span>{scored}/{active.length || i.template.reviewersPerIdea} scored</span>}
+                    {i.status === "UNDER_REVIEW" && <span>{scored}/{active.length || (i.template?.reviewersPerIdea ?? 2)} scored</span>}
                     {i.submissionCount > 1 && <span className="rounded bg-orange-50 px-1.5 py-0.5 text-orange-700">resubmitted</span>}
                     <span>{i.submittedAt ? formatDate(i.submittedAt) : `started ${formatDate(i.createdAt)}`}</span>
                     <StatusBadge status={i.status} />

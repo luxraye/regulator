@@ -10,8 +10,8 @@ export default async function SettingsPage() {
   const [users, templates, instances, files, evaluations, audit] = await Promise.all([
     prisma.user.count(),
     prisma.template.count(),
-    prisma.instance.count(),
-    prisma.instanceFile.aggregate({ _count: true, _sum: { fileSize: true } }),
+    prisma.entry.count(),
+    prisma.entryFile.aggregate({ _count: true, _sum: { fileSize: true } }),
     prisma.evaluation.count(),
     prisma.auditLog.count(),
   ]);

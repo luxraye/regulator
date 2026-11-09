@@ -18,7 +18,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   const ev = await prisma.evaluation.findUnique({
     where: { id: params.id },
-    include: { instance: { include: { template: true } } },
+    include: { entry: { include: { template: true } } },
   });
   if (!ev || ev.evaluatorId !== user.id) return notFound();
 
@@ -29,9 +29,9 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
       where: { id: ev.id },
       data: { submittedAt: null, conflict: false, conflictNote: null },
     });
-    if (["SHORTLISTED", "UNDER_REVIEW"].includes(ev.instance.status)) {
-      await prisma.instance.update({
-        where: { id: ev.instanceId },
+    if (["SHORTLISTED", "UNDER_REVIEW"].includes(ev.entry.status)) {
+      await prisma.entry.update({
+        where: { id: ev.entryId },
         data: { status: "UNDER_REVIEW" },
       });
     }
@@ -39,7 +39,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 
   if (ev.submittedAt) return badRequest("This scorecard has already been submitted");
-  if (!["UNDER_REVIEW"].includes(ev.instance.status)) return badRequest("This idea is no longer being evaluated");
+  if (!["UNDER_REVIEW"].includes(ev.entry.status)) return badRequest("This idea is no longer being evaluated");
 
   if (typeof body?.conflict === "boolean") {
     if (ev.conflict !== null) return badRequest("You have already declared");
@@ -47,15 +47,15 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
     if (body.conflict && !conflictNote) return badRequest("Briefly describe the conflict");
     await prisma.evaluation.update({ where: { id: ev.id }, data: { conflict: body.conflict, conflictNote } });
     await audit(user.id, body.conflict ? "CONFLICT_DECLARED" : "NO_CONFLICT_DECLARED", {
-      instanceId: ev.instanceId,
+      entryId: ev.entryId,
       metadata: { conflictNote },
     });
     if (body.conflict) {
       await notifyRoles(
         ["ADMIN", "SUPERADMIN"],
         "Evaluator stepped aside",
-        `${user.name} declared a conflict on ${ev.instance.referenceCode}. Assign someone else.`,
-        `/dashboard/admin/instances/${ev.instanceId}`
+        `${user.name} declared a conflict on ${ev.entry.referenceCode}. Assign someone else.`,
+        `/dashboard/admin/instances/${ev.entryId}`
       );
     }
     return NextResponse.json({ conflict: body.conflict });
@@ -63,7 +63,7 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
 
   if (ev.conflict !== false) return badRequest("Declare any conflict of interest first");
 
-  const criteria = schemaOf(ev.instance.template).criteria;
+  const criteria = schemaOf(ev.entry.template).criteria;
   const raw = (body?.scores ?? {}) as Record<string, unknown>;
   const scores: Record<string, number> = {};
   for (const c of criteria) {
@@ -88,23 +88,23 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   });
 
   if (body?.submit) {
-    await audit(user.id, "EVALUATION_SUBMITTED", { instanceId: ev.instanceId, metadata: { total } });
+    await audit(user.id, "EVALUATION_SUBMITTED", { entryId: ev.entryId, metadata: { total } });
 
     // When every active evaluator has scored, the idea moves to the panel automatically.
-    const all = await prisma.evaluation.findMany({ where: { instanceId: ev.instanceId }, select: { conflict: true, submittedAt: true } });
+    const all = await prisma.evaluation.findMany({ where: { entryId: ev.entryId }, select: { conflict: true, submittedAt: true } });
     const active = all.filter((e) => e.conflict !== true);
     if (active.length > 0 && active.every((e) => e.submittedAt)) {
-      const moved = await prisma.instance.updateMany({
-        where: { id: ev.instanceId, status: "UNDER_REVIEW" },
+      const moved = await prisma.entry.updateMany({
+        where: { id: ev.entryId, status: "UNDER_REVIEW" },
         data: { status: "SHORTLISTED" },
       });
       if (moved.count) {
-        await audit(user.id, "IDEA_SHORTLISTED", { instanceId: ev.instanceId, metadata: { reason: "all evaluations in" } });
+        await audit(user.id, "IDEA_SHORTLISTED", { entryId: ev.entryId, metadata: { reason: "all evaluations in" } });
         await notifyRoles(
           ["ADJUDICATOR", "ADMIN"],
           "Idea ready for the panel",
-          `All scores are in for ${ev.instance.referenceCode} "${ev.instance.title}".`,
-          `/dashboard/panel/${ev.instanceId}`
+          `All scores are in for ${ev.entry.referenceCode} "${ev.entry.title}".`,
+          `/dashboard/panel/${ev.entryId}`
         );
       }
     }

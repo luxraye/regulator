@@ -15,10 +15,10 @@ export default async function ActivityPage() {
   if (!user) redirect("/login");
 
   const entries = await prisma.auditLog.findMany({
-    where: { instance: { innovatorId: user.id }, action: { notIn: HIDDEN } },
+    where: { entry: { innovatorId: user.id }, action: { notIn: HIDDEN } },
     orderBy: { createdAt: "desc" },
     take: 100,
-    include: { instance: { select: { id: true, title: true, referenceCode: true } } },
+    include: { entry: { select: { id: true, title: true, referenceCode: true } } },
   });
 
   return (
@@ -38,11 +38,11 @@ export default async function ActivityPage() {
                 <p className="text-sm font-medium text-ceda-ink">{actionLabel(e.action)}</p>
                 <p className="text-xs text-muted-foreground">
                   {formatDate(e.createdAt, true)}
-                  {e.instance && (
+                  {e.entry && (
                     <>
                       {" · "}
-                      <Link href={`/dashboard/innovator/instance-runner/${e.instance.id}`} className="text-ceda-orange hover:underline">
-                        {e.instance.referenceCode} {e.instance.title}
+                      <Link href={`/dashboard/innovator/instance-runner/${e.entry.id}`} className="text-ceda-orange hover:underline">
+                        {e.entry.referenceCode} {e.entry.title}
                       </Link>
                     </>
                   )}

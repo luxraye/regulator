@@ -4,10 +4,10 @@ import { prisma } from "@/lib/prisma";
 export async function audit(
   actorId: string,
   action: string,
-  opts: { instanceId?: string; metadata?: Prisma.InputJsonValue } = {}
+  opts: { entryId?: string; instanceId?: string; metadata?: Prisma.InputJsonValue } = {}
 ) {
   await prisma.auditLog.create({
-    data: { actorId, action, instanceId: opts.instanceId, metadata: opts.metadata },
+    data: { actorId, action, instanceId: opts.instanceId, entryId: opts.entryId, metadata: opts.metadata },
   });
 }
 

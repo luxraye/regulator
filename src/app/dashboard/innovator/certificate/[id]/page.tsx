@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 export default async function CertificatePage({ params, searchParams }: { params: { id: string }; searchParams: { saved?: string } }) {
   const user = await getSessionUser();
   if (!user) redirect("/login");
-  const inst = await prisma.instance.findFirst({
+  const inst = await prisma.entry.findFirst({
     where: { id: params.id, innovatorId: user.id, status: "AWARDED" },
     select: {
       id: true, referenceCode: true, title: true, awardAmount: true, reviewedAt: true, showcase: true,
@@ -51,13 +51,13 @@ export default async function CertificatePage({ params, searchParams }: { params
           <h1 className="relative mt-2 break-words text-center text-2xl font-bold text-ceda-ink sm:text-4xl">{inst.innovator.organizationName ?? inst.innovator.name}</h1>
           <p className="relative mt-1 text-center text-sm text-muted-foreground">represented by {inst.innovator.name}</p>
           <p className="relative mx-auto mt-6 max-w-xl text-center leading-relaxed text-slate-700">
-            was awarded <strong className="text-ceda-ink">{formatPula(inst.awardAmount)}</strong> under the <strong className="text-ceda-ink">{inst.template.name}</strong> call
+            was awarded <strong className="text-ceda-ink">{formatPula(inst.awardAmount)}</strong> under the <strong className="text-ceda-ink">{inst.template?.name ?? "CEDA Innovation Call"}</strong> call
             for the idea <strong className="text-ceda-ink">&ldquo;{inst.title}&rdquo;</strong>, after independent blind scoring and a decision by the CEDA adjudication panel.
           </p>
           <div className="relative mt-8 grid gap-6 sm:mt-10 sm:grid-cols-[1fr_auto] sm:items-end">
             <dl className="grid grid-cols-1 gap-x-6 gap-y-2 text-sm sm:grid-cols-2">
-              <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Sector</dt><dd className="font-medium text-ceda-ink">{sectorName(inst.template.dataType)}</dd></div>
-              <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Stage</dt><dd className="font-medium text-ceda-ink">{stageName(inst.template.scale)}</dd></div>
+              <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Sector</dt><dd className="font-medium text-ceda-ink">{sectorName(inst.template?.dataType ?? "")}</dd></div>
+              <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Stage</dt><dd className="font-medium text-ceda-ink">{stageName(inst.template?.scale ?? "")}</dd></div>
               <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Awarded on</dt><dd className="font-medium text-ceda-ink">{formatDate(inst.reviewedAt)}</dd></div>
               <div className="flex justify-between sm:contents"><dt className="text-muted-foreground">Certificate code</dt><dd className="font-mono font-medium text-ceda-ink">{code}</dd></div>
             </dl>

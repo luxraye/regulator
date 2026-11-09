@@ -18,7 +18,7 @@ export async function GET() {
     select: {
       name: true, email: true, phone: true, role: true, omang: true, dateOfBirth: true, gender: true, district: true,
       organizationName: true, licenseNumber: true, youthShareholding: true, consentAt: true, createdAt: true,
-      instances: {
+      entries: {
         select: {
           referenceCode: true, title: true, status: true, submittedAt: true, reviewNotes: true, awardAmount: true,
           template: { select: { code: true, name: true } },

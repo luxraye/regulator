@@ -8,10 +8,10 @@ export const dynamic = "force-dynamic";
 /** Sector × venture stage: where CEDA has calls, and where ideas are coming from. */
 export default async function MatrixPage() {
   const calls = await prisma.template.findMany({
-    include: { instances: { where: { status: { not: "DRAFT" } }, select: { status: true } } },
+    include: { entries: { where: { status: { not: "DRAFT" } }, select: { status: true } } },
   });
   const cell = (dt: string, sc: string) => calls.filter((c) => c.dataType === dt && c.scale === sc);
-  const max = Math.max(1, ...calls.map((c) => c.instances.length));
+  const max = Math.max(1, ...calls.map((c) => c.entries.length));
 
   return (
     <div>
@@ -45,7 +45,7 @@ export default async function MatrixPage() {
                         <span className="text-xs text-muted-foreground/40">·</span>
                       ) : (
                         here.map((c) => {
-                          const n = c.instances.length;
+                          const n = c.entries.length;
                           const shade = n / max;
                           return (
                             <Link

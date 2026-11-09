@@ -17,9 +17,9 @@ export default async function HomePage() {
   const now = new Date();
   const [calls, submitted, awarded, districts, funded] = await Promise.all([
     prisma.template.findMany({ where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } }, orderBy: { closesAt: "asc" } }),
-    prisma.instance.count({ where: { status: { not: "DRAFT" } } }),
-    prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
-    prisma.user.findMany({ where: { role: "INNOVATOR", instances: { some: { status: { not: "DRAFT" } } } }, select: { district: true }, distinct: ["district"] }),
+    prisma.entry.count({ where: { status: { not: "DRAFT" } } }),
+    prisma.entry.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
+    prisma.user.findMany({ where: { role: "INNOVATOR", entries: { some: { status: { not: "DRAFT" } } } }, select: { district: true }, distinct: ["district"] }),
     fundedShowcase(3),
   ]);
 
@@ -27,7 +27,7 @@ export default async function HomePage() {
     { label: "Open calls", value: String(calls.length) },
     { label: "Ideas submitted", value: String(submitted) },
     { label: "Districts reached", value: String(districts.filter((d) => d.district).length) },
-    { label: "Awarded so far", value: formatPula(awarded._sum.awardAmount ?? 0) },
+    { label: "Awarded so far", value: formatPula(awarded._sum?.awardAmount ?? 0) },
   ];
 
   return (

@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
     let integrity = null;
     let matchesStored = false;
     if (result.payload?.instanceId) {
-      const inst = await prisma.instance.findUnique({
+      const inst = await prisma.entry.findUnique({
         where: { id: result.payload.instanceId },
         select: { submissionJwt: true },
       });
@@ -35,13 +35,13 @@ export async function POST(req: NextRequest) {
   if (typeof body?.hash === "string") {
     const hash = body.hash.trim().toLowerCase();
     if (!/^[a-f0-9]{64}$/.test(hash)) return badRequest("Expected a 64-character SHA-256 hex string");
-    const files = await prisma.instanceFile.findMany({
+    const files = await prisma.entryFile.findMany({
       where: { serverHash: hash },
       select: {
         fileName: true,
         fileKey: true,
         uploadedAt: true,
-        instance: {
+        entry: {
           select: {
             id: true,
             status: true,
@@ -51,7 +51,11 @@ export async function POST(req: NextRequest) {
         },
       },
     });
-    return NextResponse.json({ kind: "hash", hash, matches: files });
+    return NextResponse.json({
+      kind: "hash",
+      hash,
+      matches: files.map((f) => ({ ...f, instance: f.entry })),
+    });
   }
 
   return badRequest("Send { token } or { hash }");

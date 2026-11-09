@@ -18,7 +18,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
   const ev = await prisma.evaluation.findUnique({
     where: { id: params.id },
     include: {
-      instance: {
+      entry: {
         include: {
           template: true,
           innovator: { select: { organizationName: true } },
@@ -30,7 +30,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
   });
   if (!ev || ev.evaluatorId !== user.id) notFound();
 
-  const { instance } = ev;
+  const instance = ev.entry;
   const schema = schemaOf(instance.template);
   const values = fieldsToRecord(instance.fields);
   const canSee = ev.conflict === false;
@@ -45,7 +45,7 @@ export default async function EvaluatePage({ params }: { params: { id: string } 
         <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
         <h1 className="text-2xl font-bold text-ceda-ink">{instance.title}</h1>
         <p className="mt-1 text-sm text-muted-foreground">
-          {instance.template.name} · {sectorName(instance.template.dataType)} · {stageName(instance.template.scale)} stage · score by {formatDate(ev.dueAt)}
+          {instance.template?.name ?? "CEDA Innovation Call"} · {sectorName(instance.template?.dataType ?? "")} · {stageName(instance.template?.scale ?? "")} stage · score by {formatDate(ev.dueAt)}
         </p>
       </div>
 

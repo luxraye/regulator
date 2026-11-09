@@ -14,9 +14,56 @@ enum Role {
   ADJUDICATOR
   ADMIN
   SUPERADMIN
+  PARTNER_ADMIN
+  COMMITTEE_OBSERVER
+  CONSULTANT
 }
 
-/// Venture stage (rows of the classification matrix).
+enum InstanceRoleType {
+  ORGANISER
+  EVALUATOR
+  ADJUDICATOR
+  OBSERVER
+  CONSULTANT
+  MENTOR
+}
+
+enum PartnerStatus {
+  ACTIVE
+  SUSPENDED
+}
+
+enum BlueprintStatus {
+  DRAFT
+  PUBLISHED
+  ARCHIVED
+}
+
+enum InstanceLifecycleStatus {
+  DRAFT
+  PUBLISHED
+  LIVE
+  CLOSED
+  ARCHIVED
+}
+
+enum EntryStatus {
+  DRAFT
+  SUBMITTED
+  UNDER_REVIEW
+  SHORTLISTED
+  FLAGGED
+  APPROVED
+  AWARDED
+  REJECTED
+}
+
+enum CheckStatus {
+  PASS
+  WARN
+  FAIL
+}
+
 enum Scale {
   SCALE_1
   SCALE_2
@@ -26,7 +73,6 @@ enum Scale {
   SCALE_6
 }
 
-/// Sector (columns of the classification matrix).
 enum DataType {
   TYPE_A
   TYPE_B
@@ -34,18 +80,6 @@ enum DataType {
   TYPE_D
   TYPE_E
   TYPE_F
-}
-
-/// Lifecycle of an idea instance: Submitted -> Review -> Feedback -> Approval -> Award.
-enum InstanceStatus {
-  DRAFT
-  SUBMITTED
-  UNDER_REVIEW
-  SHORTLISTED
-  FLAGGED
-  APPROVED
-  AWARDED
-  REJECTED
 }
 
 enum CallStatus {
@@ -60,6 +94,8 @@ model User {
   passwordHash      String
   name              String
   role              Role      @default(INNOVATOR)
+  partnerId         String?
+  partner           Partner?  @relation(fields: [partnerId], references: [id], onDelete: SetNull)
   phone             String?
   /// Omang (national ID) number, used for the citizenship check.
   omang             String?
@@ -79,84 +115,279 @@ model User {
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
-  instances         Instance[]     @relation("InnovatorInstances")
-  reviewedInstances Instance[]     @relation("ReviewedInstances")
-  createdTemplates  Template[]
-  evaluations       Evaluation[]   @relation("EvaluatorEvaluations")
-  messages          Message[]
-  auditLogs         AuditLog[]
-  notifications     Notification[]
-  forumThreads      ForumThread[]
-  forumReplies      ForumReply[]
-  notices           Notice[]
+  entries          Entry[]           @relation("InnovatorEntries")
+  reviewedEntries  Entry[]           @relation("ReviewedEntries")
+  createdTemplates Template[]
+  instanceRoles    InstanceRole[]
+  instanceVersions InstanceVersion[]
+  evaluations      Evaluation[]      @relation("EvaluatorEvaluations")
+  messages         Message[]
+  auditLogs        AuditLog[]
+  notifications    Notification[]
+  forumThreads     ForumThread[]
+  forumReplies     ForumReply[]
+  notices          Notice[]
+  ledTeams         Team[]            @relation("TeamLead")
+  teamMemberships  TeamMember[]
+  apiKeysCreated   ApiKey[]          @relation("ApiKeyCreator")
+
+  @@index([partnerId])
 }
 
-/// A call for ideas. Its schema holds the application form and the scoring rubric.
-model Template {
-  id               String     @id @default(cuid())
-  code             String     @unique
-  name             String
-  description      String?
-  scale            Scale
-  dataType         DataType
-  /// { fields: [...], required_files: [...], criteria: [{ key, label, weight, guide }] }
-  schema           Json
-  status           CallStatus @default(OPEN)
-  opensAt          DateTime   @default(now())
-  closesAt         DateTime
-  /// What winners receive, e.g. "Up to P250,000 grant + 6 months incubation".
-  fundingSummary   String?
-  /// Evaluators per idea.
-  reviewersPerIdea Int        @default(2)
-  createdById      String
-  createdBy        User       @relation(fields: [createdById], references: [id])
-  createdAt        DateTime   @default(now())
-  updatedAt        DateTime   @updatedAt
+/// An organiser space (e.g. CEDA, BDIH, BTC Innovation).
+model Partner {
+  id             String        @id @default(cuid())
+  name           String
+  slug           String        @unique
+  logoUrl        String?
+  primaryColor   String?
+  secondaryColor String?
+  status         PartnerStatus @default(ACTIVE)
+
+  instances        Instance[]
+  users            User[]
+  matrixDimensions MatrixDimension[]
+  apiKeys          ApiKey[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+}
+
+/// A reusable, versioned Instance definition (e.g. 11-day hackathon, Ideas call).
+model Blueprint {
+  id          String          @id @default(cuid())
+  key         String
+  name        String
+  description String?
+  version     Int             @default(1)
+  definition  Json
+  status      BlueprintStatus @default(DRAFT)
+  publishedAt DateTime?
 
   instances Instance[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([key, version])
 }
 
-/// One idea submitted to a call: a sealed, versioned container of answers and files.
+/// One live competition run of a blueprint: dates, sealed rules, public slug.
 model Instance {
-  id              String         @id @default(cuid())
-  /// Public reference for tracking, e.g. CEDA-26-4F7Q.
-  referenceCode   String         @unique
-  title           String
-  templateId      String
-  template        Template       @relation(fields: [templateId], references: [id])
-  innovatorId     String
-  innovator       User           @relation("InnovatorInstances", fields: [innovatorId], references: [id])
-  status          InstanceStatus @default(DRAFT)
-  deadline        DateTime
-  encryptionKey   String
-  submissionJwt   String?
-  /// SHA-256 of the canonical field data, bound into the signed receipt.
-  dataHash        String?
-  submissionCount Int            @default(0)
-  /// Latest feedback or decision reason shown to the innovator.
-  reviewNotes     String?
-  reviewedById    String?
-  reviewedBy      User?          @relation("ReviewedInstances", fields: [reviewedById], references: [id])
-  awardAmount     Int?
-  /// The founder agreed to list this award on the public Funded innovators page.
-  showcase        Boolean        @default(false)
-  createdAt       DateTime       @default(now())
-  submittedAt     DateTime?
-  reviewedAt      DateTime?
+  id               String                  @id @default(cuid())
+  partnerId        String
+  partner          Partner                 @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  blueprintId      String?
+  blueprint        Blueprint?              @relation(fields: [blueprintId], references: [id])
+  blueprintVersion Int?
+  name             String
+  slug             String                  @unique
+  description      String?
+  definition       Json
+  rulesHash        String
+  status           InstanceLifecycleStatus @default(DRAFT)
+  opensAt          DateTime?
+  closesAt         DateTime?
 
-  files       InstanceFile[]
-  fields      InstanceField[]
-  evaluations Evaluation[]
-  messages    Message[]
-  audits      AuditLog[]
+  entries          Entry[]
+  tracks           Template[]
+  roles            InstanceRole[]
+  versions         InstanceVersion[]
+  matrixDimensions MatrixDimension[]
+  auditLogs        AuditLog[]
 
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
   @@index([status])
 }
 
-model InstanceFile {
+/// Scopes roles per Instance: ORGANISER, EVALUATOR, ADJUDICATOR, OBSERVER, CONSULTANT, MENTOR.
+model InstanceRole {
+  id         String           @id @default(cuid())
+  userId     String
+  user       User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instanceId String
+  instance   Instance         @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  role       InstanceRoleType
+  createdAt  DateTime         @default(now())
+
+  @@unique([userId, instanceId, role])
+  @@index([instanceId])
+  @@index([userId])
+}
+
+/// Change log with required reason and definition diff when changing a published Instance.
+model InstanceVersion {
+  id          String   @id @default(cuid())
+  instanceId  String
+  instance    Instance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  version     Int
+  reason      String
+  diff        Json?
+  definition  Json
+  rulesHash   String
+  createdById String
+  createdBy   User     @relation(fields: [createdById], references: [id])
+  createdAt   DateTime @default(now())
+
+  @@unique([instanceId, version])
+  @@index([instanceId])
+}
+
+/// Dynamic classification matrix dimension (e.g. Sector, Venture Stage, Operator Tier).
+model MatrixDimension {
+  id         String                 @id @default(cuid())
+  partnerId  String?
+  partner    Partner?               @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  instanceId String?
+  instance   Instance?              @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  name       String
+  slug       String
+  sortOrder  Int                    @default(0)
+  values     MatrixDimensionValue[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([partnerId])
+  @@index([instanceId])
+}
+
+model MatrixDimensionValue {
+  id           String              @id @default(cuid())
+  dimensionId  String
+  dimension    MatrixDimension     @relation(fields: [dimensionId], references: [id], onDelete: Cascade)
+  label        String
+  code         String
+  sortOrder    Int                 @default(0)
+  templateTags TemplateMatrixTag[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([dimensionId, code])
+  @@index([dimensionId])
+}
+
+model TemplateMatrixTag {
+  templateId             String
+  template               Template             @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  matrixDimensionValueId String
+  matrixDimensionValue   MatrixDimensionValue @relation(fields: [matrixDimensionValueId], references: [id], onDelete: Cascade)
+
+  @@id([templateId, matrixDimensionValueId])
+}
+
+/// A track / form owned by an Instance (formerly standalone Template).
+model Template {
+  id               String              @id @default(cuid())
+  instanceId       String?
+  instance         Instance?           @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  code             String              @unique
+  name             String
+  description      String?
+  scale            Scale?
+  dataType         DataType?
+  schema           Json
+  status           CallStatus          @default(OPEN)
+  opensAt          DateTime            @default(now())
+  closesAt         DateTime
+  fundingSummary   String?
+  reviewersPerIdea Int                 @default(2)
+  createdById      String
+  createdBy        User                @relation(fields: [createdById], references: [id])
+  matrixTags       TemplateMatrixTag[]
+  entries          Entry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([instanceId])
+}
+
+/// Innovator Team (1 to 5 members).
+model Team {
+  id        String       @id @default(cuid())
+  name      String
+  leadId    String
+  lead      User         @relation("TeamLead", fields: [leadId], references: [id])
+  members   TeamMember[]
+  entries   Entry[]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([leadId])
+}
+
+model TeamMember {
+  id           String   @id @default(cuid())
+  teamId       String
+  team         Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  userId       String?
+  user         User?    @relation(fields: [userId], references: [id])
+  name         String
+  email        String
+  phone        String?
+  omang        String?
+  roleInTeam   String?
+  shareholding Float?
+  isLead       Boolean  @default(false)
+  createdAt    DateTime @default(now())
+
+  @@index([teamId])
+}
+
+/// One team's or founder's submission inside an Instance (formerly Instance).
+model Entry {
+  id              String      @id @default(cuid())
+  referenceCode   String      @unique
+  title           String
+  instanceId      String
+  instance        Instance    @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  templateId      String?
+  template        Template?   @relation(fields: [templateId], references: [id])
+  innovatorId     String
+  innovator       User        @relation("InnovatorEntries", fields: [innovatorId], references: [id])
+  teamId          String?
+  team            Team?       @relation(fields: [teamId], references: [id])
+  status          EntryStatus @default(DRAFT)
+  deadline        DateTime
+  encryptionKey   String
+  submissionJwt   String?
+  dataHash        String?
+  submissionCount Int         @default(0)
+  reviewNotes     String?
+  reviewedById    String?
+  reviewedBy      User?       @relation("ReviewedEntries", fields: [reviewedById], references: [id])
+  awardAmount     Int?
+  showcase        Boolean     @default(false)
+  score           Float?
+  rank            Int?
+  createdAt       DateTime    @default(now())
+  submittedAt     DateTime?
+  reviewedAt      DateTime?
+  awardedAt       DateTime?
+
+  files        EntryFile[]
+  fields       EntryField[]
+  evaluations  Evaluation[]
+  messages     Message[]
+  audits       AuditLog[]
+  checkResults CheckResult[]
+
+  @@index([instanceId])
+  @@index([status])
+  @@index([innovatorId])
+  @@map("entries")
+}
+
+model EntryFile {
   id            String   @id @default(cuid())
-  instanceId    String
-  instance      Instance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  entryId       String
+  entry         Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
   fileKey       String
   fileName      String
   fileExtension String
@@ -164,63 +395,82 @@ model InstanceFile {
   fileSize      Int
   clientHash    String
   serverHash    String
-  /// File bytes live in the database so uploads survive serverless redeploys.
   content       Bytes
   uploadedAt    DateTime @default(now())
 
-  @@unique([instanceId, fileKey])
+  @@unique([entryId, fileKey])
+  @@index([entryId])
+  @@map("entry_files")
 }
 
-model InstanceField {
+model EntryField {
   id          String    @id @default(cuid())
-  instanceId  String
-  instance    Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  entryId     String
+  entry       Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade)
   fieldKey    String
   fieldValue  String
   validatedAt DateTime?
+
+  @@index([entryId])
+  @@map("entry_fields")
 }
 
-/// One evaluator's scorecard for one idea.
+/// Pre-flight and guard check results: real type, size, malware stub, secret scanning, eligibility.
+model CheckResult {
+  id           String      @id @default(cuid())
+  entryId      String
+  entry        Entry       @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  checkKey     String
+  name         String
+  category     String
+  status       CheckStatus
+  detail       String?
+  evidenceHash String?
+  metadata     Json?
+  createdAt    DateTime    @default(now())
+
+  @@index([entryId])
+  @@index([status])
+  @@map("check_results")
+}
+
+/// One evaluator's scorecard for one entry.
 model Evaluation {
   id           String    @id @default(cuid())
-  instanceId   String
-  instance     Instance  @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  entryId      String
+  entry        Entry     @relation(fields: [entryId], references: [id], onDelete: Cascade)
   evaluatorId  String
   evaluator    User      @relation("EvaluatorEvaluations", fields: [evaluatorId], references: [id])
   assignedById String
   assignedAt   DateTime  @default(now())
   dueAt        DateTime
-  /// null until declared. true = conflict, evaluator steps aside.
   conflict     Boolean?
   conflictNote String?
-  /// { criterionKey: 1-5 }
   scores       Json?
-  /// Weighted score out of 100.
   total        Float?
-  /// Shared with the innovator (anonymised).
   feedback     String?
-  /// Only seen by CEDA staff and the panel.
   privateNote  String?
   submittedAt  DateTime?
 
-  @@unique([instanceId, evaluatorId])
+  @@unique([entryId, evaluatorId])
   @@index([evaluatorId, submittedAt])
 }
 
-/// Clarification thread on an idea. Internal messages are never shown to the innovator.
+/// Clarification thread on an entry.
 model Message {
-  id         String   @id @default(cuid())
-  instanceId String
-  instance   Instance @relation(fields: [instanceId], references: [id], onDelete: Cascade)
-  authorId   String
-  author     User     @relation(fields: [authorId], references: [id])
-  body       String
-  internal   Boolean  @default(false)
-  createdAt  DateTime @default(now())
+  id        String   @id @default(cuid())
+  entryId   String
+  entry     Entry    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  authorId  String
+  author    User     @relation(fields: [authorId], references: [id])
+  body      String
+  internal  Boolean  @default(false)
+  createdAt DateTime @default(now())
 
-  @@index([instanceId, createdAt])
+  @@index([entryId, createdAt])
 }
 
+/// Tamper-evident hash-chained audit log.
 model AuditLog {
   id         String    @id @default(cuid())
   actorId    String
@@ -228,10 +478,16 @@ model AuditLog {
   action     String
   instanceId String?
   instance   Instance? @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  entryId    String?
+  entry      Entry?    @relation(fields: [entryId], references: [id], onDelete: SetNull)
   metadata   Json?
+  prevHash   String?
+  hash       String?
   createdAt  DateTime  @default(now())
 
   @@index([createdAt])
+  @@index([instanceId])
+  @@index([entryId])
 }
 
 model Notification {
@@ -247,12 +503,28 @@ model Notification {
   @@index([userId, read])
 }
 
-/// A discussion started by an innovator in the community forum.
+/// Outbound API keys per Partner with SHA-256 hash.
+model ApiKey {
+  id          String    @id @default(cuid())
+  partnerId   String?
+  partner     Partner?  @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  name        String
+  keyPrefix   String
+  keyHash     String
+  createdById String
+  createdBy   User      @relation("ApiKeyCreator", fields: [createdById], references: [id])
+  lastUsedAt  DateTime?
+  revokedAt   DateTime?
+  createdAt   DateTime  @default(now())
+
+  @@index([partnerId])
+  @@index([keyPrefix])
+}
+
 model ForumThread {
   id        String       @id @default(cuid())
   title     String
   body      String
-  /// funding, pitching, building, markets, cofounders, general
   category  String
   pinned    Boolean      @default(false)
   authorId  String
@@ -276,16 +548,12 @@ model ForumReply {
   @@index([threadId, createdAt])
 }
 
-/// An advice notice on the Safe Practices board, posted by CEDA staff.
 model Notice {
   id        String   @id @default(cuid())
   title     String
   summary   String
-  /// Short "do this" points, one per line.
   dos       String   @default("")
-  /// Short "avoid this" points, one per line.
   donts     String   @default("")
-  /// ip, pitching, contracts, scams, data
   category  String
   pinned    Boolean  @default(false)
   authorId  String?

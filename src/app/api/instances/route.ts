@@ -23,7 +23,7 @@ export async function GET() {
   const { user, error } = await requireUser();
   if (error) return error;
   const where = PANEL_ROLES.includes(user.role) ? {} : { innovatorId: user.id };
-  const instances = await prisma.instance.findMany({ where, select: listSelect, orderBy: { createdAt: "desc" } });
+  const instances = await prisma.entry.findMany({ where, select: listSelect, orderBy: { createdAt: "desc" } });
   return NextResponse.json(instances);
 }
 
@@ -57,7 +57,7 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  const existing = await prisma.instance.findFirst({
+  const existing = await prisma.entry.findFirst({
     where: { templateId: call.id, innovatorId: user.id },
     select: { id: true },
   });
@@ -65,13 +65,20 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "You already have an application on this call", id: existing.id }, { status: 409 });
   }
 
-  let referenceCode = newReferenceCode();
-  while (await prisma.instance.findUnique({ where: { referenceCode } })) referenceCode = newReferenceCode();
+  const defaultInstance = await prisma.instance.findFirst({ select: { id: true } });
+  const compInstanceId = call.instanceId || defaultInstance?.id;
+  if (!compInstanceId) {
+    return badRequest("No competition instance is configured for this call");
+  }
 
-  const instance = await prisma.instance.create({
+  let referenceCode = newReferenceCode();
+  while (await prisma.entry.findUnique({ where: { referenceCode } })) referenceCode = newReferenceCode();
+
+  const instance = await prisma.entry.create({
     data: {
       referenceCode,
       title,
+      instanceId: compInstanceId,
       templateId: call.id,
       innovatorId: user.id,
       deadline: call.closesAt,
@@ -79,7 +86,7 @@ export async function POST(req: NextRequest) {
     },
     select: { id: true, referenceCode: true },
   });
-  await audit(user.id, "IDEA_STARTED", { instanceId: instance.id, metadata: { callCode: call.code, referenceCode } });
+  await audit(user.id, "IDEA_STARTED", { entryId: instance.id, instanceId: compInstanceId, metadata: { callCode: call.code, referenceCode } });
 
   return NextResponse.json(instance, { status: 201 });
 }

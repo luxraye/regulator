@@ -7,8 +7,8 @@ export interface CallSummary {
   code: string;
   name: string;
   description: string | null;
-  dataType: string;
-  scale: string;
+  dataType?: string | null;
+  scale?: string | null;
   closesAt: Date | string;
   fundingSummary: string | null;
 }
@@ -16,15 +16,15 @@ export interface CallSummary {
 /** Card for a funding call, with its sector photo. The action slot holds a button or link. */
 export function CallCard({ call, action, footer }: { call: CallSummary; action?: React.ReactNode; footer?: React.ReactNode }) {
   const closes = relativeDeadline(call.closesAt);
-  const photo = typeLabels[call.dataType]?.photo ?? "/images/hero.jpg";
+  const photo = (call.dataType && typeLabels[call.dataType]?.photo) ?? "/images/hero.jpg";
   return (
     <article className="flex flex-col overflow-hidden rounded-2xl border border-border bg-white shadow-sm">
       <div className="relative h-36">
         <Image src={photo} alt="" fill sizes="(min-width: 1024px) 33vw, 100vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-ceda-ink/80 to-transparent" />
         <div className="absolute bottom-3 left-4 right-4 flex flex-wrap gap-1.5">
-          <span className="rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ceda-ink">{sectorName(call.dataType)}</span>
-          <span className="rounded-full bg-ceda-amber px-2 py-0.5 text-[11px] font-medium text-ceda-ink">{stageName(call.scale)} stage</span>
+          <span className="rounded-full bg-white/90 px-2 py-0.5 text-[11px] font-medium text-ceda-ink">{sectorName(call.dataType ?? "")}</span>
+          <span className="rounded-full bg-ceda-amber px-2 py-0.5 text-[11px] font-medium text-ceda-ink">{stageName(call.scale ?? "")} stage</span>
         </div>
       </div>
       <div className="flex flex-1 flex-col p-5">

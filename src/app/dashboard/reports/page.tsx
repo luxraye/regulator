@@ -17,7 +17,7 @@ export default async function ReportsPage({ searchParams }: { searchParams: { ca
       where: { role: "EVALUATOR" },
       select: {
         name: true,
-        evaluations: { where: call ? { instance: { template: { code: call } } } : {}, select: { assignedAt: true, submittedAt: true, dueAt: true, total: true, conflict: true } },
+        evaluations: { where: call ? { entry: { template: { code: call } } } : {}, select: { assignedAt: true, submittedAt: true, dueAt: true, total: true, conflict: true } },
       },
       orderBy: { name: "asc" },
     }),

@@ -9,7 +9,7 @@ export const metadata = { title: "Check a certificate · CEDA Innovation Portal"
 export const dynamic = "force-dynamic";
 
 export default async function VerifyCertificatePage({ params }: { params: { ref: string; code: string } }) {
-  const inst = await prisma.instance.findUnique({
+  const inst = await prisma.entry.findUnique({
     where: { referenceCode: params.ref },
     select: {
       referenceCode: true, title: true, status: true, awardAmount: true, reviewedAt: true,
@@ -33,8 +33,8 @@ export default async function VerifyCertificatePage({ params }: { params: { ref:
               {[
                 ["Company", inst.innovator.organizationName ?? "Youth-owned company"],
                 ["Idea", inst.title],
-                ["Call", inst.template.name],
-                ["Sector", sectorName(inst.template.dataType)],
+                ["Call", inst.template?.name ?? "CEDA Innovation Call"],
+                ["Sector", sectorName(inst.template?.dataType ?? "")],
                 ["Award", formatPula(inst.awardAmount)],
                 ["Awarded on", formatDate(inst.reviewedAt)],
                 ["Reference", inst.referenceCode],

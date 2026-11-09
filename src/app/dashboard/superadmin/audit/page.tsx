@@ -20,7 +20,7 @@ export default async function AuditTrailPage({ searchParams }: { searchParams: {
       take: PAGE_SIZE,
       include: {
         actor: { select: { name: true, email: true, role: true } },
-        instance: { select: { id: true, referenceCode: true, template: { select: { code: true } }, innovator: { select: { organizationName: true } } } },
+        entry: { select: { id: true, referenceCode: true, template: { select: { code: true } }, innovator: { select: { organizationName: true } } } },
       },
     }),
     prisma.auditLog.count({ where }),
@@ -84,9 +84,9 @@ export default async function AuditTrailPage({ searchParams }: { searchParams: {
                 </td>
                 <td className="px-5 py-3 text-xs"><span className="font-medium">{actionLabel(e.action)}</span><span className="block font-mono text-[10px] text-muted-foreground">{e.action}</span></td>
                 <td className="px-5 py-3">
-                  {e.instance ? (
-                    <Link href={`/dashboard/admin/instances/${e.instance.id}`} className="text-ceda-orange hover:underline">
-                      {e.instance.referenceCode} · {e.instance.innovator.organizationName}
+                  {e.entry ? (
+                    <Link href={`/dashboard/admin/instances/${e.entry.id}`} className="text-ceda-orange hover:underline">
+                      {e.entry.referenceCode} · {e.entry.innovator.organizationName}
                     </Link>
                   ) : (
                     <span className="text-muted-foreground">—</span>

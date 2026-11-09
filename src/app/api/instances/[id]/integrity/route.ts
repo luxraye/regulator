@@ -10,7 +10,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   const { user, error } = await requireUser();
   if (error) return error;
 
-  const instance = await prisma.instance.findUnique({ where: { id: params.id }, select: { id: true, innovatorId: true } });
+  const instance = await prisma.entry.findUnique({ where: { id: params.id }, select: { id: true, innovatorId: true } });
   if (!instance || !(await canReadInstance(user, instance))) return notFound();
 
   const report = await checkIntegrity(params.id);

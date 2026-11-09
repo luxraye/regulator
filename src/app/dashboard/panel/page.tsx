@@ -17,7 +17,7 @@ export default async function PanelPage({ searchParams }: { searchParams: { call
   const calls = await prisma.template.findMany({ select: { id: true, code: true, name: true }, orderBy: { code: "asc" } });
   const call = calls.find((c) => c.code === searchParams.call);
 
-  const ideas = await prisma.instance.findMany({
+  const ideas = await prisma.entry.findMany({
     where: { status: { in: ["SHORTLISTED", "APPROVED", "AWARDED"] }, ...(call ? { templateId: call.id } : {}) },
     include: {
       template: true,
@@ -74,7 +74,7 @@ export default async function PanelPage({ searchParams }: { searchParams: { call
 }
 
 type Row = {
-  i: { id: string; title: string; referenceCode: string; status: string; awardAmount: number | null; template: { code: string }; innovator: { organizationName: string | null; district: string | null } };
+  i: { id: string; title: string; referenceCode: string; status: string; awardAmount: number | null; template?: { code: string } | null; innovator: { organizationName: string | null; district: string | null } };
   s: ReturnType<typeof summarise>;
   funding: number;
   jobs: number;
@@ -107,7 +107,7 @@ function Ranked({ title, rows, empty }: { title: string; rows: Row[]; empty?: st
                   <td className="px-4 py-3">
                     <Link href={`/dashboard/panel/${r.i.id}`} className="font-medium text-ceda-ink hover:text-ceda-orange hover:underline">{r.i.title}</Link>
                     <p className="text-xs text-muted-foreground">
-                      <span className="font-mono">{r.i.referenceCode}</span> · {r.i.template.code} · {r.i.innovator.organizationName} · {r.i.innovator.district}
+                      <span className="font-mono">{r.i.referenceCode}</span> · {r.i.template?.code ?? "—"} · {r.i.innovator.organizationName} · {r.i.innovator.district}
                     </p>
                   </td>
                   <td className="px-4 py-3 text-right">

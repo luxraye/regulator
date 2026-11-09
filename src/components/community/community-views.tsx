@@ -19,7 +19,7 @@ export async function CommunityForumView({
     getSessionUser(),
     prisma.forumThread.findMany({
       orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
-      include: { author: { select: { name: true, organizationName: true, role: true, instances: { where: { status: "AWARDED", showcase: true }, select: { id: true }, take: 1 } } }, _count: { select: { replies: true } } },
+      include: { author: { select: { name: true, organizationName: true, role: true, entries: { where: { status: "AWARDED", showcase: true }, select: { id: true }, take: 1 } } }, _count: { select: { replies: true } } },
     }),
     prisma.notice.findMany({ where: { pinned: true }, orderBy: { createdAt: "desc" }, take: 3 }),
     prisma.user.count({ where: { role: "INNOVATOR" } }),
@@ -35,7 +35,7 @@ export async function CommunityForumView({
     author: t.author.name,
     authorOrg: t.author.organizationName,
     authorIsStaff: t.author.role !== "INNOVATOR",
-    authorFunded: t.author.instances.length > 0,
+    authorFunded: t.author.entries.length > 0,
     initials: initials(t.author.name),
     replies: t._count.replies,
     lastActivity: timeAgo(t.updatedAt),
@@ -238,8 +238,8 @@ export async function ThreadDetailView({
     prisma.forumThread.findUnique({
       where: { id },
       include: {
-        author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } },
-        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } } } },
+        author: { select: { name: true, organizationName: true, role: true, entries: FUNDED } },
+        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true, entries: FUNDED } } } },
       },
     }),
   ]);
@@ -262,7 +262,7 @@ export async function ThreadDetailView({
           <div className="mb-5 flex items-center gap-3">
             <Avatar name={thread.author.name} staff={thread.author.role !== "INNOVATOR"} />
             <div className="text-sm">
-              <p className="font-medium text-ceda-ink">{who(thread.author)}<FundedBadge show={thread.author.instances.length > 0} /></p>
+              <p className="font-medium text-ceda-ink">{who(thread.author)}<FundedBadge show={thread.author.entries.length > 0} /></p>
               <p className="text-muted-foreground">{timeAgo(thread.createdAt)}</p>
             </div>
           </div>
@@ -283,7 +283,7 @@ export async function ThreadDetailView({
                     <p className="font-medium text-ceda-ink">
                       {who(r.author)}
                       {staff && <span className="ml-2 rounded bg-ceda-orange/10 px-1.5 py-0.5 text-[11px] font-semibold text-ceda-orange">Staff</span>}
-                      <FundedBadge show={r.author.instances.length > 0} />
+                      <FundedBadge show={r.author.entries.length > 0} />
                     </p>
                     <p className="text-muted-foreground">{timeAgo(r.createdAt)}</p>
                   </div>

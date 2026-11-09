@@ -3,7 +3,7 @@ import { certificateCode } from "@/lib/certificate";
 
 /** Awards the founders agreed to show publicly. Only the title and headline numbers, never the application. */
 export async function fundedShowcase(take?: number) {
-  const rows = await prisma.instance.findMany({
+  const rows = await prisma.entry.findMany({
     where: { status: "AWARDED", showcase: true },
     orderBy: { reviewedAt: "desc" },
     take,

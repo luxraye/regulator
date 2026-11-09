@@ -16,16 +16,16 @@ export async function POST() {
     const evals = await prisma.evaluation.findMany({
       where: {
         evaluatorId: user.id,
-        instance: { status: { in: ["UNDER_REVIEW", "SHORTLISTED"] } },
+        entry: { status: { in: ["UNDER_REVIEW", "SHORTLISTED"] } },
       },
       orderBy: { assignedAt: "desc" },
-      include: { instance: { select: { id: true, title: true } } },
+      include: { entry: { select: { id: true, title: true } } },
     });
 
     // Prioritize "Pula Pumps" first, plus up to 9 other evaluations so 10 are open to score
     const sorted = [
-      ...evals.filter((e) => e.instance.title.includes("Pula Pumps")),
-      ...evals.filter((e) => !e.instance.title.includes("Pula Pumps")),
+      ...evals.filter((e) => e.entry.title.includes("Pula Pumps")),
+      ...evals.filter((e) => !e.entry.title.includes("Pula Pumps")),
     ].slice(0, 10);
 
     await Promise.all(
@@ -40,8 +40,8 @@ export async function POST() {
               conflictNote: null,
             },
           }),
-          prisma.instance.update({
-            where: { id: ev.instanceId },
+          prisma.entry.update({
+            where: { id: ev.entryId },
             data: { status: "UNDER_REVIEW" },
           }),
         ]),

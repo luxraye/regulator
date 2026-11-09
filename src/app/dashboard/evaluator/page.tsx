@@ -16,10 +16,10 @@ export default async function EvaluatorHome() {
   const evals = await prisma.evaluation.findMany({
     where: { evaluatorId: user.id },
     orderBy: [{ submittedAt: { sort: "desc", nulls: "first" } }, { dueAt: "asc" }],
-    include: { instance: { select: { referenceCode: true, title: true, status: true, template: { select: { name: true, dataType: true } } } } },
+    include: { entry: { select: { referenceCode: true, title: true, status: true, template: { select: { name: true, dataType: true } } } } },
   });
 
-  const todo = evals.filter((e) => !e.submittedAt && e.conflict !== true && e.instance.status === "UNDER_REVIEW");
+  const todo = evals.filter((e) => !e.submittedAt && e.conflict !== true && e.entry.status === "UNDER_REVIEW");
   const done = evals.filter((e) => e.submittedAt);
   const stepped = evals.filter((e) => e.conflict === true);
   const avg = done.length ? Math.round(done.reduce((a, e) => a + (e.total ?? 0), 0) / done.length) : null;
@@ -57,7 +57,7 @@ export default async function EvaluatorHome() {
 }
 
 type Ev = Awaited<ReturnType<typeof prisma.evaluation.findMany>>[number] & {
-  instance: { referenceCode: string; title: string; status: string; template: { name: string; dataType: string } };
+  entry: { referenceCode: string; title: string; status: string; template: { name: string; dataType: string | null } | null };
 };
 
 function Group({ title, items, empty }: { title: string; items: Ev[]; empty?: string }) {
@@ -83,9 +83,9 @@ function Group({ title, items, empty }: { title: string; items: Ev[]; empty?: st
               <li key={e.id}>
                 <Link href={`/dashboard/evaluator/${e.id}`} className="group flex items-center justify-between gap-3 px-5 py-4 hover:bg-ceda-sand/60">
                   <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{e.instance.title}</p>
+                    <p className="truncate text-sm font-medium">{e.entry.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      <span className="font-mono">{e.instance.referenceCode}</span> · {sectorName(e.instance.template.dataType)}
+                      <span className="font-mono">{e.entry.referenceCode}</span> · {sectorName(e.entry.template?.dataType ?? "")}
                       {!e.submittedAt && e.conflict !== true && (
                         <span className={cn(" ml-1", due.overdue ? "text-red-600" : due.soon ? "text-amber-700" : "")}> · due {formatDate(e.dueAt)} ({due.text})</span>
                       )}

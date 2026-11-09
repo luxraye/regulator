@@ -13,14 +13,14 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
-  const instance = await prisma.instance.findUnique({
+  const instance = await prisma.entry.findUnique({
     where: { id: params.id },
     include: { template: true, fields: true, files: { select: { fileKey: true, fileName: true, serverHash: true } } },
   });
   if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This idea has already been submitted");
   // First submissions must arrive while the call is open; a resubmission after feedback may come later.
-  if (instance.status === "DRAFT" && instance.template.closesAt < new Date()) {
+  if (instance.status === "DRAFT" && instance.template && instance.template.closesAt < new Date()) {
     return badRequest("This call closed before the idea was submitted");
   }
 
@@ -43,7 +43,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     instanceId: instance.id,
     referenceCode: instance.referenceCode,
     title: instance.title,
-    templateCode: instance.template.code,
+    templateCode: instance.template?.code ?? "",
     innovatorId: instance.innovatorId,
     innovatorOrg: user.organizationName ?? null,
     submittedAt: submittedAt.toISOString(),
@@ -54,7 +54,7 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   });
 
   // Only move forward if nobody changed the status meanwhile (e.g. a double click).
-  const updated = await prisma.instance.updateMany({
+  const updated = await prisma.entry.updateMany({
     where: { id: instance.id, status: instance.status },
     data: {
       status: "SUBMITTED",
@@ -70,13 +70,14 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   if (updated.count === 0) return badRequest("This idea was already submitted");
 
   await audit(user.id, submissionNumber > 1 ? "IDEA_RESUBMITTED" : "IDEA_SUBMITTED", {
-    instanceId: instance.id,
+    entryId: instance.id,
+    instanceId: instance.instanceId,
     metadata: { fileCount: fileHashes.length, fieldCount: instance.fields.length, dataHash, submissionNumber },
   });
   await notifyRoles(
     ["ADMIN", "SUPERADMIN"],
     submissionNumber > 1 ? "Idea resubmitted after feedback" : "New idea submitted",
-    `${instance.referenceCode} "${instance.title}" was submitted to ${instance.template.name}.`,
+    `${instance.referenceCode} "${instance.title}" was submitted to ${instance.template?.name ?? "CEDA Innovation Call"}.`,
     `/dashboard/admin/instances/${instance.id}`
   );
 

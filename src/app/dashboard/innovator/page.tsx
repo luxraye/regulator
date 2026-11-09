@@ -17,7 +17,7 @@ export default async function InnovatorDashboard() {
   const now = new Date();
 
   const [ideas, profile, calls] = await Promise.all([
-    prisma.instance.findMany({
+    prisma.entry.findMany({
       where: { innovatorId: user.id },
       select: { id: true, title: true, referenceCode: true, status: true, reviewNotes: true, awardAmount: true, template: { select: { name: true, id: true } } },
       orderBy: { createdAt: "desc" },
@@ -39,7 +39,7 @@ export default async function InnovatorDashboard() {
   const count = (...s: string[]) => ideas.filter((i) => s.includes(i.status)).length;
   const awarded = ideas.filter((i) => i.status === "AWARDED").reduce((a, i) => a + (i.awardAmount ?? 0), 0);
   const needsYou = ideas.filter((i) => ["DRAFT", "FLAGGED"].includes(i.status));
-  const appliedCallIds = new Set(ideas.map((i) => i.template.id));
+  const appliedCallIds = new Set(ideas.map((i) => i.template?.id).filter(Boolean));
   const freshCalls = calls.filter((c) => !appliedCallIds.has(c.id));
 
   return (
@@ -98,7 +98,7 @@ export default async function InnovatorDashboard() {
                       <div className="mb-3 flex items-start justify-between gap-3">
                         <div className="min-w-0">
                           <p className="truncate text-sm font-medium">{i.title}</p>
-                          <p className="text-xs text-muted-foreground"><span className="font-mono">{i.referenceCode}</span> · {i.template.name}</p>
+                          <p className="text-xs text-muted-foreground"><span className="font-mono">{i.referenceCode}</span> · {i.template?.name ?? "CEDA Innovation Call"}</p>
                         </div>
                         <StatusBadge status={i.status} />
                       </div>

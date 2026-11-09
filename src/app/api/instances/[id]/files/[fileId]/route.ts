@@ -12,18 +12,18 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string;
   const { user, error } = await requireUser();
   if (error) return error;
 
-  const file = await prisma.instanceFile.findUnique({
+  const file = await prisma.entryFile.findUnique({
     where: { id: params.fileId },
-    include: { instance: { select: { id: true, innovatorId: true } } },
+    include: { entry: { select: { id: true, innovatorId: true, instanceId: true } } },
   });
-  if (!file || file.instanceId !== params.id) return notFound();
-  if (!(await canReadInstance(user, file.instance))) return notFound();
-  const isStaff = user.id !== file.instance.innovatorId;
+  if (!file || file.entryId !== params.id) return notFound();
+  if (!(await canReadInstance(user, file.entry))) return notFound();
+  const isStaff = user.id !== file.entry.innovatorId;
 
   const content = Buffer.from(file.content);
   const intact = verifyHash(content, file.serverHash);
   if (isStaff) {
-    await audit(user.id, "FILE_DOWNLOADED", { instanceId: file.instanceId, metadata: { fileKey: file.fileKey, intact } });
+    await audit(user.id, "FILE_DOWNLOADED", { entryId: file.entryId, instanceId: file.entry.instanceId, metadata: { fileKey: file.fileKey, intact } });
   }
 
   return new NextResponse(content, {

@@ -13,7 +13,7 @@ export default async function MyIdeasPage() {
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const ideas = await prisma.instance.findMany({
+  const ideas = await prisma.entry.findMany({
     where: { innovatorId: user.id },
     select: {
       id: true, title: true, referenceCode: true, status: true, submittedAt: true, createdAt: true, awardAmount: true,
@@ -50,7 +50,7 @@ export default async function MyIdeasPage() {
                     <p className="font-mono text-[11px] text-muted-foreground">{i.referenceCode}</p>
                     <p className="font-semibold text-ceda-ink group-hover:text-ceda-orange">{i.title}</p>
                     <p className="text-xs text-muted-foreground">
-                      {i.template.name} · {i.submittedAt ? `submitted ${formatDate(i.submittedAt)}` : `started ${formatDate(i.createdAt)}, call closes ${formatDate(i.template.closesAt)}`}
+                      {i.template?.name ?? "CEDA Innovation"} · {i.submittedAt ? `submitted ${formatDate(i.submittedAt)}` : `started ${formatDate(i.createdAt)}, call closes ${i.template?.closesAt ? formatDate(i.template.closesAt) : "soon"}`}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">

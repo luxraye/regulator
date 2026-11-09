@@ -10,7 +10,7 @@ export async function GET(req: NextRequest) {
   const ref = req.nextUrl.searchParams.get("ref")?.trim().toUpperCase();
   if (!ref) return badRequest("Reference code is required");
 
-  const inst = await prisma.instance.findUnique({
+  const inst = await prisma.entry.findUnique({
     where: { referenceCode: ref },
     select: { referenceCode: true, status: true, submittedAt: true, reviewedAt: true, template: { select: { name: true } } },
   });
@@ -19,7 +19,7 @@ export async function GET(req: NextRequest) {
   const stageIndex = JOURNEY.findIndex((s) => (s.statuses as readonly string[]).includes(inst.status));
   return NextResponse.json({
     referenceCode: inst.referenceCode,
-    call: inst.template.name,
+    call: inst.template?.name ?? "CEDA Innovation Call",
     status: instanceStatusMeta[inst.status].label,
     stage: JOURNEY[stageIndex]?.label,
     stageIndex,

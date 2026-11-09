@@ -20,12 +20,12 @@ export default async function CallDetailPage({ params }: { params: { code: strin
   return (
     <div>
       <section className="relative h-64 sm:h-80">
-        <Image src={typeLabels[call.dataType]?.photo ?? "/images/hero.jpg"} alt="" fill priority sizes="100vw" className="object-cover" />
+        <Image src={(call.dataType && typeLabels[call.dataType]?.photo) ?? "/images/hero.jpg"} alt="" fill priority sizes="100vw" className="object-cover" />
         <div className="absolute inset-0 bg-gradient-to-t from-ceda-ink via-ceda-ink/50 to-transparent" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-5xl px-4 pb-8 text-white sm:px-6">
           <p className="font-mono text-xs text-white/70">{call.code}</p>
           <h1 className="text-3xl font-bold sm:text-4xl">{call.name}</h1>
-          <p className="mt-1 text-white/80">{sectorName(call.dataType)} · {stageName(call.scale)} stage</p>
+          <p className="mt-1 text-white/80">{sectorName(call.dataType ?? "")} · {stageName(call.scale ?? "")} stage</p>
         </div>
       </section>
 

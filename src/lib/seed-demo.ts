@@ -3,13 +3,16 @@
  * Everything here is fictional. Running the seed wipes the demo database and rebuilds it,
  * with dates relative to today so deadlines and timelines always look current.
  */
-import { PrismaClient, Role, Scale, DataType, InstanceStatus, CallStatus, Prisma } from "@prisma/client";
+import { PrismaClient, Role, Scale, DataType, EntryStatus, CallStatus, Prisma } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { signSubmission } from "./jwt-sign";
 import { canonicalFields, type InstanceSchema } from "./instance-schema";
 import { sha256 } from "./hash";
 import { weightedTotal } from "./scoring";
+
+type InstanceStatus = EntryStatus;
+const InstanceStatus = EntryStatus;
 
 export const DEMO_PASSWORD = "CedaDemo2026!";
 
@@ -280,6 +283,7 @@ export async function seedDemoData(prisma: PrismaClient) {
   const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)];
   const between = (a: number, b: number) => Math.round(a + rand() * (b - a));
 
+  await prisma.checkResult.deleteMany();
   await prisma.forumReply.deleteMany();
   await prisma.forumThread.deleteMany();
   await prisma.notice.deleteMany();
@@ -287,11 +291,45 @@ export async function seedDemoData(prisma: PrismaClient) {
   await prisma.auditLog.deleteMany();
   await prisma.message.deleteMany();
   await prisma.evaluation.deleteMany();
-  await prisma.instanceFile.deleteMany();
-  await prisma.instanceField.deleteMany();
-  await prisma.instance.deleteMany();
+  await prisma.entryFile.deleteMany();
+  await prisma.entryField.deleteMany();
+  await prisma.entry.deleteMany();
+  await prisma.templateMatrixTag.deleteMany();
   await prisma.template.deleteMany();
+  await prisma.matrixDimensionValue.deleteMany();
+  await prisma.matrixDimension.deleteMany();
+  await prisma.teamMember.deleteMany();
+  await prisma.team.deleteMany();
+  await prisma.instanceRole.deleteMany();
+  await prisma.instanceVersion.deleteMany();
+  await prisma.instance.deleteMany();
+  await prisma.blueprint.deleteMany();
+  await prisma.apiKey.deleteMany();
   await prisma.user.deleteMany();
+  await prisma.partner.deleteMany();
+
+  const defaultPartner = await prisma.partner.create({
+    data: {
+      slug: "ceda",
+      name: "Citizen Entrepreneurial Development Agency",
+      primaryColor: "#3a2a24",
+      secondaryColor: "#d94914",
+      status: "ACTIVE",
+    },
+  });
+
+  const defaultInstance = await prisma.instance.create({
+    data: {
+      slug: "ceda-ideas-2026",
+      name: "CEDA Youth Innovation Ideas Call 2026",
+      partnerId: defaultPartner.id,
+      status: "LIVE",
+      rulesHash: "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
+      definition: {
+        meta: { name: "CEDA Youth Innovation Ideas Call 2026", slug: "ceda-ideas-2026" },
+      },
+    },
+  });
 
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const users: Record<string, { id: string; name: string; organizationName: string | null; role: Role }> = {};
@@ -410,6 +448,7 @@ export async function seedDemoData(prisma: PrismaClient) {
     calls[c.code] = { id, code: c.code, name: c.name, schema, closesAt: c.closes };
     return {
       id,
+      instanceId: defaultInstance.id,
       code: c.code,
       name: c.name,
       description: c.description,
@@ -526,7 +565,7 @@ export async function seedDemoData(prisma: PrismaClient) {
   const allAuditLogs: Prisma.AuditLogCreateManyInput[] = [];
   const allMessages: Prisma.MessageCreateManyInput[] = [];
   const allEvaluations: Prisma.EvaluationCreateManyInput[] = [];
-  const instanceCreates: Prisma.InstanceUncheckedCreateInput[] = [];
+  const instanceCreates: Prisma.EntryCreateInput[] = [];
 
   for (const story of allStories) {
     const call = calls[story.call];
@@ -575,8 +614,9 @@ export async function seedDemoData(prisma: PrismaClient) {
       id,
       referenceCode,
       title: story.title,
-      templateId: call.id,
-      innovatorId: innovator.id,
+      instance: { connect: { id: defaultInstance.id } },
+      template: { connect: { id: call.id } },
+      innovator: { connect: { id: innovator.id } },
       status: story.status,
       deadline: call.closesAt,
       createdAt,
@@ -586,21 +626,21 @@ export async function seedDemoData(prisma: PrismaClient) {
       dataHash,
       submissionCount: submittedAt ? (story.resubmitted ? 2 : 1) : 0,
       reviewNotes: story.decision?.notes,
-      reviewedById: decisionBy?.id,
+      reviewedBy: decisionBy ? { connect: { id: decisionBy.id } } : undefined,
       reviewedAt: story.decision ? ago(story.decision.daysAgo) : undefined,
       awardAmount: story.decision?.award,
       fields: { create: fieldRows },
       files: { create: fileRows },
     });
 
-    allAuditLogs.push({ actorId: innovator.id, action: "IDEA_STARTED", instanceId: id, createdAt, metadata: { callCode: call.code, referenceCode } });
+    allAuditLogs.push({ actorId: innovator.id, action: "IDEA_STARTED", entryId: id, instanceId: defaultInstance.id, createdAt, metadata: { callCode: call.code, referenceCode } });
     if (submittedAt && story.resubmitted) {
       const first = new Date(submittedAt.getTime() - 5 * DAY);
-      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: first, metadata: { submissionNumber: 1 } });
-      allAuditLogs.push({ actorId: users.tebogo.id, action: "IDEA_FLAGGED", instanceId: id, createdAt: new Date(first.getTime() + 2 * DAY), metadata: { notes: "Please add a budget breakdown." } });
-      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_RESUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash, submissionNumber: 2 } });
+      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", entryId: id, instanceId: defaultInstance.id, createdAt: first, metadata: { submissionNumber: 1 } });
+      allAuditLogs.push({ actorId: users.tebogo.id, action: "IDEA_FLAGGED", entryId: id, instanceId: defaultInstance.id, createdAt: new Date(first.getTime() + 2 * DAY), metadata: { notes: "Please add a budget breakdown." } });
+      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_RESUBMITTED", entryId: id, instanceId: defaultInstance.id, createdAt: submittedAt, metadata: { dataHash, submissionNumber: 2 } });
     } else if (submittedAt) {
-      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", instanceId: id, createdAt: submittedAt, metadata: { dataHash } });
+      allAuditLogs.push({ actorId: innovator.id, action: "IDEA_SUBMITTED", entryId: id, instanceId: defaultInstance.id, createdAt: submittedAt, metadata: { dataHash } });
     }
 
     let lastScore: Date | null = null;
@@ -612,7 +652,7 @@ export async function seedDemoData(prisma: PrismaClient) {
       const total = scores ? weightedTotal(CRITERIA, scores) : null;
       const submittedEval = e.pending ? null : new Date(Math.min(assignedAt.getTime() + (2 + i) * DAY, now - (3 - i) * 3600_000));
       allEvaluations.push({
-        instanceId: id,
+        entryId: id,
         evaluatorId: evaluator.id,
         assignedById: users.tebogo.id,
         assignedAt,
@@ -624,27 +664,27 @@ export async function seedDemoData(prisma: PrismaClient) {
         privateNote: e.privateNote,
         submittedAt: submittedEval,
       });
-      if (i === 0) allAuditLogs.push({ actorId: users.tebogo.id, action: "EVALUATORS_ASSIGNED", instanceId: id, createdAt: assignedAt, metadata: { evaluators: story.evaluations!.map((x) => users[x.evaluator].name) } });
-      if (submittedEval) allAuditLogs.push({ actorId: evaluator.id, action: "EVALUATION_SUBMITTED", instanceId: id, createdAt: submittedEval, metadata: { total } });
+      if (i === 0) allAuditLogs.push({ actorId: users.tebogo.id, action: "EVALUATORS_ASSIGNED", entryId: id, instanceId: defaultInstance.id, createdAt: assignedAt, metadata: { evaluators: story.evaluations!.map((x) => users[x.evaluator].name) } });
+      if (submittedEval) allAuditLogs.push({ actorId: evaluator.id, action: "EVALUATION_SUBMITTED", entryId: id, instanceId: defaultInstance.id, createdAt: submittedEval, metadata: { total } });
       if (submittedEval && (!lastScore || submittedEval > lastScore)) lastScore = submittedEval;
     }
 
     const pastReview = ["SHORTLISTED", "APPROVED", "AWARDED", "REJECTED"].includes(story.status);
     if (pastReview && lastScore) {
-      allAuditLogs.push({ actorId: users.tebogo.id, action: "IDEA_SHORTLISTED", instanceId: id, createdAt: lastScore, metadata: { reason: "all evaluations in" } });
+      allAuditLogs.push({ actorId: users.tebogo.id, action: "IDEA_SHORTLISTED", entryId: id, instanceId: defaultInstance.id, createdAt: lastScore, metadata: { reason: "all evaluations in" } });
     }
     if (story.decision) {
-      allAuditLogs.push({ actorId: decisionBy!.id, action: `IDEA_${story.status}`, instanceId: id, createdAt: ago(story.decision.daysAgo), metadata: { notes: story.decision.notes, ...(story.decision.award ? { awardAmount: story.decision.award } : {}) } });
+      allAuditLogs.push({ actorId: decisionBy!.id, action: `IDEA_${story.status}`, entryId: id, instanceId: defaultInstance.id, createdAt: ago(story.decision.daysAgo), metadata: { notes: story.decision.notes, ...(story.decision.award ? { awardAmount: story.decision.award } : {}) } });
     }
     for (const m of story.messages ?? []) {
-      allMessages.push({ instanceId: id, authorId: users[m.from].id, body: m.body, internal: !!m.internal, createdAt: ago(m.daysAgo) });
+      allMessages.push({ entryId: id, authorId: users[m.from].id, body: m.body, internal: !!m.internal, createdAt: ago(m.daysAgo) });
     }
     created[`${story.innovator}:${story.call}`] = { id, referenceCode };
   }
 
-  // Batch create instances in chunks of 10
+  // Batch create entries in chunks of 10
   for (let i = 0; i < instanceCreates.length; i += 10) {
-    await Promise.all(instanceCreates.slice(i, i + 10).map((data) => prisma.instance.create({ data })));
+    await Promise.all(instanceCreates.slice(i, i + 10).map((data) => prisma.entry.create({ data })));
   }
   if (allEvaluations.length) await prisma.evaluation.createMany({ data: allEvaluations });
   if (allMessages.length) await prisma.message.createMany({ data: allMessages });
@@ -668,8 +708,8 @@ export async function seedDemoData(prisma: PrismaClient) {
     ],
   });
 
-  const awardedIds = (await prisma.instance.findMany({ where: { status: InstanceStatus.AWARDED }, orderBy: { referenceCode: "asc" }, select: { id: true } })).map((i) => i.id);
-  await prisma.instance.updateMany({ where: { id: { in: awardedIds.slice(0, -1) } }, data: { showcase: true } });
+  const awardedIds = (await prisma.entry.findMany({ where: { status: InstanceStatus.AWARDED }, orderBy: { referenceCode: "asc" }, select: { id: true } })).map((i) => i.id);
+  await prisma.entry.updateMany({ where: { id: { in: awardedIds.slice(0, -1) } }, data: { showcase: true } });
 
   // Community discussions & safe-practice notices
   const u = (k: string) => users[k].id;

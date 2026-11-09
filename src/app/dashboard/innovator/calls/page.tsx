@@ -21,7 +21,7 @@ export default async function OpenCallsPage() {
       where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } },
       orderBy: { closesAt: "asc" },
     }),
-    prisma.instance.findMany({ where: { innovatorId: user.id }, select: { id: true, templateId: true, status: true } }),
+    prisma.entry.findMany({ where: { innovatorId: user.id }, select: { id: true, templateId: true, status: true } }),
     prisma.user.findUnique({ where: { id: user.id } }),
   ]);
   const elig = checkEligibility({

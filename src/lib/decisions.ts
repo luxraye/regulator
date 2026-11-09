@@ -1,4 +1,4 @@
-import type { InstanceStatus, Role } from "@prisma/client";
+import type { EntryStatus, Role } from "@prisma/client";
 
 /**
  * Every decision an idea can receive, who may take it, and from which status.
@@ -6,7 +6,7 @@ import type { InstanceStatus, Role } from "@prisma/client";
  */
 export const ACTIONS: Record<
   string,
-  { to: InstanceStatus; from: InstanceStatus[]; roles: Role[]; needsNotes: boolean; verb: string }
+  { to: EntryStatus; from: EntryStatus[]; roles: Role[]; needsNotes: boolean; verb: string }
 > = {
   REQUEST_CHANGES: {
     to: "FLAGGED",
@@ -57,6 +57,6 @@ export const ACTION_LABELS: Record<string, { label: string; tone: string; hint: 
 export function availableActions(role: string, status: string): string[] {
   return ["SEND_TO_PANEL", "APPROVE", "AWARD", "REQUEST_CHANGES", "REJECT"].filter((k) => {
     const a = ACTIONS[k];
-    return a.roles.includes(role as Role) && a.from.includes(status as InstanceStatus);
+    return a.roles.includes(role as Role) && a.from.includes(status as EntryStatus);
   });
 }

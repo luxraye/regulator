@@ -7,9 +7,9 @@ import { HashVerifier, ReceiptInspector } from "./verify-tools";
 
 export default async function VerificationToolsPage() {
   const [totalInstances, submittedCount, flaggedCount, auditCount] = await Promise.all([
-    prisma.instance.count(),
-    prisma.instance.count({ where: { status: "SUBMITTED" } }),
-    prisma.instance.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
+    prisma.entry.count(),
+    prisma.entry.count({ where: { status: "SUBMITTED" } }),
+    prisma.entry.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
     prisma.auditLog.count(),
   ]);
 
