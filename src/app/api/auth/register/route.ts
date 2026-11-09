@@ -3,11 +3,15 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { badRequest } from "@/lib/session";
 import { checkEligibility, isValidOmang } from "@/lib/eligibility";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 export const dynamic = "force-dynamic";
 
 /** Innovator sign-up. Staff accounts are created by a super admin. */
 export async function POST(req: NextRequest) {
+  const limited = checkRateLimit(`register:${getClientIp(req)}`, 10, 60_000);
+  if (limited) return limited;
+
   const body = await req.json().catch(() => null);
   if (!body) return badRequest("Invalid request");
 

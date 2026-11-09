@@ -35,6 +35,12 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (problem) return badRequest(problem);
 
   const buffer = Buffer.from(await file.arrayBuffer());
+  const ext = path.extname(file.name).toLowerCase();
+
+  if (!matchesMagicBytes(ext, buffer)) {
+    return badRequest(`The file contents do not match a valid ${ext} document.`);
+  }
+
   const serverHash = sha256(buffer);
 
   if (serverHash !== clientHash) {
@@ -67,4 +73,42 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   });
 
   return NextResponse.json({ ...saved, hash: serverHash, verified: true });
+}
+
+/**
+ * Inspects the first bytes (magic numbers) of the uploaded buffer so renamed
+ * executables or corrupted files cannot pass as PDFs, images, or Office files.
+ */
+function matchesMagicBytes(ext: string, buf: Buffer): boolean {
+  if (buf.length < 4) return false;
+  switch (ext) {
+    case ".pdf":
+      return buf.subarray(0, 5).toString("ascii") === "%PDF-";
+    case ".png":
+      return (
+        buf.length >= 8 &&
+        buf[0] === 0x89 &&
+        buf[1] === 0x50 &&
+        buf[2] === 0x4e &&
+        buf[3] === 0x47 &&
+        buf[4] === 0x0d &&
+        buf[5] === 0x0a &&
+        buf[6] === 0x1a &&
+        buf[7] === 0x0a
+      );
+    case ".jpg":
+    case ".jpeg":
+      return buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
+    case ".pptx":
+    case ".xlsx":
+      // OOXML (.pptx / .xlsx) are ZIP containers starting with PK\x03\x04
+      return buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04;
+    case ".csv": {
+      // Plain text CSV: ensure no binary null bytes in the first 512 bytes
+      const sample = buf.subarray(0, Math.min(buf.length, 512));
+      return !sample.includes(0x00);
+    }
+    default:
+      return false;
+  }
 }
