@@ -39,6 +39,7 @@ export function DashboardSidebar() {
               isActive(pathname, item.href) ? "bg-ceda-orange text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
             )}
             title={collapsed ? item.label : undefined}
+            aria-current={isActive(pathname, item.href) ? "page" : undefined}
           >
             {item.icon}
             {!collapsed && <span>{item.label}</span>}

@@ -192,7 +192,7 @@ for (const r of ROLES) {
       if (href.startsWith("/dashboard")) {
         await expect(links, `${r.role} link count on ${href}`).toHaveCount(expectedCount);
         // Exactly one sidebar item is highlighted
-        await expect(sidebar.locator("nav a.bg-ceda-blue"), `${r.role} active highlight on ${href}`).toHaveCount(1);
+        await expect(sidebar.locator('nav a[aria-current="page"]'), `${r.role} active highlight on ${href}`).toHaveCount(1);
       }
       await expect(page.locator("h1").first()).toBeVisible();
     }
