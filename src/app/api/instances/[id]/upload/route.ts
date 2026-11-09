@@ -5,20 +5,26 @@ import { requireUser, badRequest, notFound } from "@/lib/session";
 import { isEditable, validateFile } from "@/lib/instance-schema";
 import { schemaOf } from "@/lib/instances";
 import { sha256 } from "@/lib/hash";
+import { runUploadGuards } from "@/lib/guards";
 
 export const dynamic = "force-dynamic";
 
 /**
- * Upload one required file. The browser sends its own SHA-256 (clientHash);
- * the server hashes the bytes it received and refuses the file if they differ.
+ * Upload one required file. Runs pre-flight guards (magic bytes, archive safety,
+ * size caps, malware/EICAR scan, and duplicate checking) and records CheckResults.
  */
 export async function POST(req: NextRequest, { params }: { params: { id: string } }) {
   const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
-  const instance = await prisma.entry.findUnique({ where: { id: params.id }, include: { template: true } });
+  const instance = await prisma.entry.findUnique({
+    where: { id: params.id },
+    include: { template: true },
+  });
   if (!instance || instance.innovatorId !== user.id) return notFound();
-  if (!isEditable(instance.status)) return badRequest("This idea is submitted and locked. It can only be edited if CEDA asks for changes");
+  if (!isEditable(instance.status)) {
+    return badRequest("This idea is submitted and locked. It can only be edited if CEDA asks for changes");
+  }
 
   const form = await req.formData().catch(() => null);
   const file = form?.get("file");
@@ -35,10 +41,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (problem) return badRequest(problem);
 
   const buffer = Buffer.from(await file.arrayBuffer());
-  const ext = path.extname(file.name).toLowerCase();
 
-  if (!matchesMagicBytes(ext, buffer)) {
-    return badRequest(`The file contents do not match a valid ${ext} document.`);
+  // Run comprehensive upload security guards and persist CheckResult records
+  const guardOutcome = await runUploadGuards({
+    entryId: instance.id,
+    instanceId: instance.instanceId,
+    fileKey,
+    fileName: file.name,
+    buffer,
+    maxSizeBytes: requirement.maxSizeMB * 1024 * 1024,
+    pdfPageCountCap: 10,
+  });
+
+  if (!guardOutcome.passed) {
+    const failures = guardOutcome.checks.filter((c) => c.status === "FAIL");
+    return badRequest(failures.map((f) => f.detail).join("; "));
   }
 
   const serverHash = sha256(buffer);
@@ -72,43 +89,5 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     select: { id: true, fileKey: true, fileName: true, fileSize: true, serverHash: true },
   });
 
-  return NextResponse.json({ ...saved, hash: serverHash, verified: true });
-}
-
-/**
- * Inspects the first bytes (magic numbers) of the uploaded buffer so renamed
- * executables or corrupted files cannot pass as PDFs, images, or Office files.
- */
-function matchesMagicBytes(ext: string, buf: Buffer): boolean {
-  if (buf.length < 4) return false;
-  switch (ext) {
-    case ".pdf":
-      return buf.subarray(0, 5).toString("ascii") === "%PDF-";
-    case ".png":
-      return (
-        buf.length >= 8 &&
-        buf[0] === 0x89 &&
-        buf[1] === 0x50 &&
-        buf[2] === 0x4e &&
-        buf[3] === 0x47 &&
-        buf[4] === 0x0d &&
-        buf[5] === 0x0a &&
-        buf[6] === 0x1a &&
-        buf[7] === 0x0a
-      );
-    case ".jpg":
-    case ".jpeg":
-      return buf[0] === 0xff && buf[1] === 0xd8 && buf[2] === 0xff;
-    case ".pptx":
-    case ".xlsx":
-      // OOXML (.pptx / .xlsx) are ZIP containers starting with PK\x03\x04
-      return buf[0] === 0x50 && buf[1] === 0x4b && buf[2] === 0x03 && buf[3] === 0x04;
-    case ".csv": {
-      // Plain text CSV: ensure no binary null bytes in the first 512 bytes
-      const sample = buf.subarray(0, Math.min(buf.length, 512));
-      return !sample.includes(0x00);
-    }
-    default:
-      return false;
-  }
+  return NextResponse.json({ ...saved, hash: serverHash, verified: true, guards: guardOutcome.checks });
 }

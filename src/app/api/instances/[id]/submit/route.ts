@@ -5,20 +5,27 @@ import { isEditable, validateFields } from "@/lib/instance-schema";
 import { dataHashOf, fieldsToRecord, schemaOf } from "@/lib/instances";
 import { signSubmission } from "@/lib/jwt-sign";
 import { audit, notifyRoles } from "@/lib/audit";
+import { runFullPreflight } from "@/lib/guards";
 
 export const dynamic = "force-dynamic";
 
-/** Lock the instance and issue a signed receipt over its data and file hashes. */
+/** Lock the instance and issue a signed receipt over its data, file hashes, and Faithfulness Report. */
 export async function POST(_req: NextRequest, { params }: { params: { id: string } }) {
   const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
   const instance = await prisma.entry.findUnique({
     where: { id: params.id },
-    include: { template: true, fields: true, files: { select: { fileKey: true, fileName: true, serverHash: true } } },
+    include: {
+      template: true,
+      instance: true,
+      fields: true,
+      files: { select: { fileKey: true, fileName: true, serverHash: true } },
+    },
   });
   if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This idea has already been submitted");
+
   // First submissions must arrive while the call is open; a resubmission after feedback may come later.
   if (instance.status === "DRAFT" && instance.template && instance.template.closesAt < new Date()) {
     return badRequest("This call closed before the idea was submitted");
@@ -32,6 +39,17 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
 
   if (Object.keys(fieldErrors).length || missingFiles.length) {
     return badRequest("The submission is incomplete", { fieldErrors, missingFiles });
+  }
+
+  // Run full pre-flight security, compliance, and faithfulness guards
+  const preflightReport = await runFullPreflight({ entryId: instance.id });
+
+  if (preflightReport.hardFailBlocked) {
+    const hardFails = preflightReport.checks.filter((c) => c.status === "FAIL");
+    return badRequest(
+      `Submission blocked by pre-flight checks: ${hardFails.map((f) => f.detail).join("; ")}`,
+      { report: preflightReport, failures: hardFails }
+    );
   }
 
   const submittedAt = new Date();
@@ -51,6 +69,10 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     dataHash,
     fieldCount: instance.fields.length,
     fileHashes,
+    faithfulnessHash: preflightReport.faithfulnessHash,
+    passedChecks: preflightReport.passedCount,
+    warnChecks: preflightReport.warnCount,
+    failChecks: preflightReport.failCount,
   });
 
   // Only move forward if nobody changed the status meanwhile (e.g. a double click).
@@ -72,7 +94,13 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
   await audit(user.id, submissionNumber > 1 ? "IDEA_RESUBMITTED" : "IDEA_SUBMITTED", {
     entryId: instance.id,
     instanceId: instance.instanceId,
-    metadata: { fileCount: fileHashes.length, fieldCount: instance.fields.length, dataHash, submissionNumber },
+    metadata: {
+      fileCount: fileHashes.length,
+      fieldCount: instance.fields.length,
+      dataHash,
+      submissionNumber,
+      faithfulnessHash: preflightReport.faithfulnessHash,
+    },
   });
   await notifyRoles(
     ["ADMIN", "SUPERADMIN"],
@@ -81,5 +109,11 @@ export async function POST(_req: NextRequest, { params }: { params: { id: string
     `/dashboard/admin/instances/${instance.id}`
   );
 
-  return NextResponse.json({ success: true, submissionJwt, dataHash, submittedAt });
+  return NextResponse.json({
+    success: true,
+    submissionJwt,
+    dataHash,
+    submittedAt,
+    faithfulnessReport: preflightReport,
+  });
 }

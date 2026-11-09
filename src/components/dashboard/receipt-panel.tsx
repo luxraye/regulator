@@ -8,6 +8,8 @@ interface IntegrityReport {
   receiptReason: string | null;
   dataMatches: boolean;
   files: { fileKey: string; fileName: string; storedHashMatches: boolean; inReceipt: boolean }[];
+  faithfulnessHash?: string | null;
+  faithfulnessVerified?: boolean;
   ok: boolean;
 }
 
@@ -97,6 +99,12 @@ export function ReceiptPanel({
           <ul className="mt-2 space-y-1 text-xs">
             <Check ok={report.receiptValid} label={report.receiptValid ? "Signature is valid" : `Signature invalid: ${report.receiptReason}`} />
             <Check ok={report.dataMatches} label={report.dataMatches ? "Field data unchanged" : "Field data differs from the receipt"} />
+            {report.faithfulnessHash && (
+              <Check
+                ok={!!report.faithfulnessVerified}
+                label={`Faithfulness Report sealed: ${report.faithfulnessHash.slice(0, 16)}... (all pre-flight guards verified)`}
+              />
+            )}
             {report.files.map((f) => (
               <Check
                 key={f.fileKey}

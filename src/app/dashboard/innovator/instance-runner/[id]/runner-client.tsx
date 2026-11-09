@@ -33,6 +33,7 @@ import { MessageThread } from "@/components/ideas/message-thread";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ReceiptPanel } from "@/components/dashboard/receipt-panel";
 import { FileList, type StoredFile } from "@/components/dashboard/file-list";
+import { PreflightChecklist } from "@/components/dashboard/preflight-checklist";
 
 interface RunnerInstance {
   id: string;
@@ -84,6 +85,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [banner, setBanner] = useState<{ text: string; items?: string[] } | null>(null);
+  const [preflightReport, setPreflightReport] = useState<any | null>(null);
 
   const deadline = relativeDeadline(instance.template.closesAt);
   const labels = useMemo(() => Object.fromEntries(schema.fields.map((f) => [f.key, f.label])), [schema]);
@@ -472,11 +474,15 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                 </div>
               ))}
             </div>
+
+            {/* Participant Pre-Flight Guard Checklist */}
+            <PreflightChecklist entryId={instance.id} onPreflightComplete={setPreflightReport} />
+
             <div className="flex gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
               <Shield size={20} className="shrink-0" />
               <p>
-                Submitting locks your application. You&apos;ll get a signed receipt covering your answers and the SHA-256
-                hash of every document, so neither you nor CEDA can change them afterwards without it showing. This is
+                Submitting locks your application. You&apos;ll get a signed receipt covering your answers, the SHA-256
+                hash of every document, and the sealed Faithfulness Report, so neither you nor CEDA can change them afterwards without it showing. This is
                 your proof of what was submitted, and when.
               </p>
             </div>
@@ -511,14 +517,21 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                 Next <ArrowRight size={16} />
               </button>
             ) : (
-              <button
-                onClick={submit}
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-lg bg-ceda-green px-5 py-2 text-sm font-medium text-white hover:bg-ceda-green/90 disabled:opacity-50"
-              >
-                {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                {submitting ? "Signing…" : instance.status === "FLAGGED" ? "Sign & resubmit" : "Sign & submit"}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  onClick={submit}
+                  disabled={submitting || preflightReport?.hardFailBlocked}
+                  className="flex items-center gap-2 rounded-lg bg-ceda-green px-5 py-2 text-sm font-medium text-white hover:bg-ceda-green/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {submitting ? "Signing…" : instance.status === "FLAGGED" ? "Sign & resubmit" : "Sign & submit"}
+                </button>
+                {preflightReport?.hardFailBlocked && (
+                  <span className="text-[11px] font-semibold text-rose-600">
+                    Fix failed pre-flight items above to enable submit
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>

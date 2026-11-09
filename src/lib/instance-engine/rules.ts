@@ -185,6 +185,8 @@ export function evaluateRuleSuite(rules: RuleExpression[], context: EvaluationCo
   };
 }
 
+export const evaluateRules = evaluateRuleSuite;
+
 /**
  * Extracts dot-notated or direct keys from context.
  */

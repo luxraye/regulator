@@ -1,6 +1,6 @@
 # Status (Antigravity updates this)
 
-- Phase: Phase 4 complete (Instance Studio, Instance Console, Blueprint Catalog, Simulate, Publish & Public Rule Verifier), starting Phase 5 (Pre-emptive security & compliance checks, participant pre-flight)
-- Done: 65%
+- Phase: Phase 5 complete (Pre-emptive security & compliance guards, participant pre-flight, sealed Faithfulness Report), starting Phase 6 (Faithfulness and integration: audit log hash-chaining, reproducible leaderboard, and API v1)
+- Done: 75%
 - Blockers: none
 - Questions for the strategy lead: none

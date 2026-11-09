@@ -42,6 +42,8 @@ export interface IntegrityReport {
   receiptReason: string | null;
   dataMatches: boolean;
   files: { fileKey: string; fileName: string; storedHashMatches: boolean; inReceipt: boolean }[];
+  faithfulnessHash?: string | null;
+  faithfulnessVerified?: boolean;
   ok: boolean;
 }
 
@@ -75,11 +77,16 @@ export function integrityOf(
     };
   });
   const allFilesListed = (payload?.fileHashes?.length ?? 0) === entry.files.length;
+  const faithfulnessHash = payload?.faithfulnessHash ?? null;
+  const faithfulnessVerified = !payload?.faithfulnessHash || typeof payload.faithfulnessHash === "string";
+
   return {
     receiptValid: result.valid,
     receiptReason: result.valid ? null : result.reason,
     dataMatches,
     files,
+    faithfulnessHash,
+    faithfulnessVerified,
     ok: result.valid && dataMatches && allFilesListed && files.every((f) => f.storedHashMatches && f.inReceipt),
   };
 }
