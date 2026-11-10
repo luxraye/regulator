@@ -2,6 +2,11 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 11:35 UTC — ROLLOUT APPROVED for the Human UX / Singularity build (owner said "ship it")
+The owner has approved rolling PR #7 (feat/human-ux: Phase 12 + 12b) out to the live site. This approval stands — do NOT wait for another "approve rollout".
+BUT the rollout gate is CI: the "Smoke test every role" check is currently RED on the latest commit (lint/typecheck/build pass). Do not roll out red.
+Steps: (1) Reproduce the CI smoke failure exactly and fix the APP, not the tests — never skip/weaken/quarantine a test to go green. (2) Once PR #7 CI is fully green, merge feat/human-ux into main. (3) Roll out App Hosting from main (backend ceda-portal, project neon-bw-3x0x). This is a code-only change — the `ceda_instances` production DB is unchanged, so NO prisma migrate/db push/seed against production. (4) Verify / , /instances, /instances/ceda-hackathon-2026, /journey, /judges, /api/health all 200, the Singularity hub renders, and the one-click role logins work. (5) Rollback if anything breaks: roll out the previous App Hosting release (the current live build). Never paste secret values anywhere. Write reports/13-ux-rollout.md and report back.
+
 ## 2026-11-10 09:50 UTC — HEADLINE VISION added to the brief (Fix 5)
 The owner wants a signature "tech brought to life" experience: a **singularity / constellation hub** where an idea sits at the centre and the lifecycle stages orbit as nodes you click to branch into each section (the hub becomes the site index, collapsing the long page into one explorable map), plus a **"Play the journey"** control that animates one demo idea through the whole lifecycle end-to-end and loops (the "closed lifecycle sample timeline"), with restrained carousels/motion elsewhere. Think reach-everything-nothing-cumbersome, but **never at the cost of findability** — keep the plain nav + section list as a fallback, honour reduced-motion, keep Lighthouse ≥ 90. Full spec in **`docs/agent/ux-image-brief.md` → Fix 5 (5a constellation, 5b timeline, 5c motion, 5d non-negotiables)**. Build order: Fix 1 (navbar) + Fix 2 (hero) first for a fast win, then Fix 5a (static constellation + branching) for screenshots before polishing.
 
