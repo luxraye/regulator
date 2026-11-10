@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, FileBox, Megaphone, History, ShieldCheck, ClipboardList, Gavel, BarChart3,
   Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox, MessagesSquare, ShieldAlert, Award,
+  Building2, Key,
 } from "lucide-react";
 
 export interface NavItem {
@@ -58,6 +59,10 @@ const partnerAdmin: NavItem[] = [
   { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
   { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
   { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
+  { href: "/dashboard/partner/settings", label: "Partner space", icon: i(Building2) },
+  { href: "/dashboard/partner/users", label: "Team & roles", icon: i(Users) },
+  { href: "/dashboard/partner/keys", label: "API keys", icon: i(Key) },
+  { href: "/dashboard/partner/audit", label: "Audit trail", icon: i(ScrollText) },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
   { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
   { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },

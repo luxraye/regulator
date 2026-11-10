@@ -29,6 +29,19 @@ export function DashboardSidebar() {
         </button>
       </div>
 
+      {!collapsed && (session?.user as any)?.partner && (
+        <div className="mx-3 mt-3 rounded-lg bg-white/10 px-3 py-2 text-xs border border-white/15">
+          <div className="flex items-center gap-2">
+            <div
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: (session?.user as any)?.partner?.secondaryColor || "#00a3e0" }}
+            />
+            <span className="font-bold truncate text-white">{(session?.user as any)?.partner?.name}</span>
+          </div>
+          <span className="text-[10px] text-white/70 block mt-0.5">Partner Workspace</span>
+        </div>
+      )}
+
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {nav.map((item) => (
           <Link

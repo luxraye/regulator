@@ -49,6 +49,10 @@ export async function GET(req: Request, { params }: RouteParams) {
       return NextResponse.json({ error: "Instance not found" }, { status: 404 });
     }
 
+    if (user.role === "PARTNER_ADMIN" && user.partnerId && instance.partnerId !== user.partnerId) {
+      return NextResponse.json({ error: "Forbidden: You may only access your partner's instances" }, { status: 403 });
+    }
+
     const definition = instance.definition as unknown as InstanceDefinition;
     const compiled = compileInstance(definition);
 
@@ -161,6 +165,10 @@ export async function PUT(req: Request, { params }: RouteParams) {
     const existing = await prisma.instance.findUnique({ where: { id } });
     if (!existing) {
       return NextResponse.json({ error: "Instance not found" }, { status: 404 });
+    }
+
+    if (user.role === "PARTNER_ADMIN" && user.partnerId && existing.partnerId !== user.partnerId) {
+      return NextResponse.json({ error: "Forbidden: You may only update your partner's instances" }, { status: 403 });
     }
 
     if (existing.status === "DRAFT") {

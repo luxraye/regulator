@@ -1,4 +1,5 @@
 import type { InstanceDefinition } from "./types";
+import type { PrismaClient } from "@prisma/client";
 
 /**
  * Flagship CEDA Hackathon 2026 Instance Definition
@@ -382,7 +383,7 @@ export const FLAGSHIP_CEDA_HACKATHON_2026: InstanceDefinition = {
  * it creates the CEDA partner if missing and never throws, so a seeding
  * problem can't take the home page down.
  */
-export async function ensureFlagshipInstance(prismaClient: any) {
+export async function ensureFlagshipInstance(prismaClient: PrismaClient) {
   try {
     const existing = await prismaClient.instance.findUnique({
       where: { slug: "ceda-hackathon-2026" },

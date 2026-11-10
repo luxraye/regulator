@@ -314,6 +314,29 @@ export async function seedDemoData(prisma: PrismaClient) {
       name: "Citizen Entrepreneurial Development Agency",
       primaryColor: "#3a2a24",
       secondaryColor: "#d94914",
+      logoUrl: "/brand/ceda-logo.svg",
+      status: "ACTIVE",
+    },
+  });
+
+  const bdihPartner = await prisma.partner.create({
+    data: {
+      slug: "bdih",
+      name: "Botswana Digital & Innovation Hub",
+      primaryColor: "#004b87",
+      secondaryColor: "#00a3e0",
+      logoUrl: "/brand/bdih-logo.svg",
+      status: "ACTIVE",
+    },
+  });
+
+  const btcPartner = await prisma.partner.create({
+    data: {
+      slug: "btc",
+      name: "Botswana Telecommunications Corporation (BTC Innovation)",
+      primaryColor: "#008542",
+      secondaryColor: "#fdb813",
+      logoUrl: "/brand/btc-logo.svg",
       status: "ACTIVE",
     },
   });
@@ -326,7 +349,77 @@ export async function seedDemoData(prisma: PrismaClient) {
       status: "LIVE",
       rulesHash: "c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4e5f6a1b2c3d4",
       definition: {
-        meta: { name: "CEDA Youth Innovation Ideas Call 2026", slug: "ceda-ideas-2026" },
+        meta: { name: "CEDA Youth Innovation Ideas Call 2026", slug: "ceda-ideas-2026", partnerSlug: "ceda" },
+      },
+    },
+  });
+
+  await prisma.instance.create({
+    data: {
+      slug: "bdih-digital-leap-2026",
+      name: "BDIH Digital Leap Innovation Accelerator 2026",
+      partnerId: bdihPartner.id,
+      status: "LIVE",
+      rulesHash: "d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2",
+      definition: {
+        meta: {
+          name: "BDIH Digital Leap Innovation Accelerator 2026",
+          slug: "bdih-digital-leap-2026",
+          partnerSlug: "bdih",
+          description: "Botswana Digital & Innovation Hub accelerator for scale-ups in AI, GovTech, and climate resilience.",
+          category: "Digital Transformation & GovTech",
+          prizes: [
+            { rank: 1, title: "Grand Scaleup Prize", amountPula: 150000, rewardText: "P150,000 Equity-free Grant + BDIH Incubation" },
+            { rank: 2, title: "Runner Up", amountPula: 75000, rewardText: "P75,000 Tech Pilot Contract" },
+          ],
+        },
+        timeline: [
+          { id: "reg", name: "Application Window", kind: "registration", start: "2026-11-01T08:00:00Z", end: "2026-11-25T23:59:59Z", roles: ["INNOVATOR"], gate: "none" },
+          { id: "eval", name: "Technical Review", kind: "scoring", start: "2026-11-26T08:00:00Z", end: "2026-12-05T17:00:00Z", roles: ["EVALUATOR"], gate: "eligibility_passed" },
+        ],
+        rubric: {
+          blind: false,
+          criteria: [
+            { key: "tech_merit", label: "Technical Innovation & Architecture", weight: 40 },
+            { key: "market_traction", label: "Market Traction & Commercial Feasibility", weight: 35 },
+            { key: "local_employment", label: "Botswana Employment & Skills Transfer", weight: 25 },
+          ],
+        },
+      },
+    },
+  });
+
+  await prisma.instance.create({
+    data: {
+      slug: "btc-5g-iot-challenge-2026",
+      name: "BTC 5G & Commercial IoT Challenge 2026",
+      partnerId: btcPartner.id,
+      status: "LIVE",
+      rulesHash: "e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3a4b5c6d1e2f3",
+      definition: {
+        meta: {
+          name: "BTC 5G & Commercial IoT Challenge 2026",
+          slug: "btc-5g-iot-challenge-2026",
+          partnerSlug: "btc",
+          description: "Leverage BTC's national 5G and fiber network to deploy industrial IoT solutions for smart utilities and connected agriculture.",
+          category: "Telecoms, 5G & Smart Infrastructure",
+          prizes: [
+            { rank: 1, title: "BTC 5G Pioneer Award", amountPula: 100000, rewardText: "P100,000 + Commercial BTC Wholesale Partnership" },
+            { rank: 2, title: "Enterprise Pilot", amountPula: 50000, rewardText: "P50,000 + 1-Year Free BTC 5G Connectivity" },
+          ],
+        },
+        timeline: [
+          { id: "sub", name: "Proposal Intake", kind: "submission", start: "2026-11-05T08:00:00Z", end: "2026-11-30T17:00:00Z", roles: ["INNOVATOR"], gate: "none" },
+          { id: "pitch", name: "Jury Demonstration", kind: "decision", start: "2026-12-01T09:00:00Z", end: "2026-12-03T16:00:00Z", roles: ["ADJUDICATOR"], gate: "eligibility_passed" },
+        ],
+        rubric: {
+          blind: false,
+          criteria: [
+            { key: "telecom_fit", label: "Network Utilization & 5G Alignment", weight: 45 },
+            { key: "scalability", label: "Enterprise Commercial Scalability", weight: 35 },
+            { key: "security", label: "Data Sovereignty & Infrastructure Security", weight: 20 },
+          ],
+        },
       },
     },
   });
@@ -351,6 +444,24 @@ export async function seedDemoData(prisma: PrismaClient) {
   queueUser("masego", { email: "masego.eval@demo.ceda.bw", name: "Masego Lekgowe", role: Role.EVALUATOR, organizationName: "CEDA", expertise: "Finance and manufacturing" });
   queueUser("dineo", { email: "panel@demo.ceda.bw", name: "Mma Dineo Seabo", role: Role.ADJUDICATOR, organizationName: "CEDA", expertise: "Investment committee chair" });
   queueUser("onkemetse", { email: "panel2@demo.ceda.bw", name: "Onkemetse Gabaake", role: Role.ADJUDICATOR, organizationName: "CEDA", expertise: "Venture capital" });
+
+  // Partner Admins
+  queueUser("bdih_admin", {
+    email: "bdih.admin@demo.ceda.bw",
+    name: "Kagiso Moeti",
+    role: Role.PARTNER_ADMIN,
+    partnerId: bdihPartner.id,
+    organizationName: "Botswana Digital & Innovation Hub",
+    expertise: "GovTech & Incubation",
+  });
+  queueUser("btc_admin", {
+    email: "btc.admin@demo.ceda.bw",
+    name: "Naledi Modise",
+    role: Role.PARTNER_ADMIN,
+    partnerId: btcPartner.id,
+    organizationName: "BTC Innovation",
+    expertise: "5G & Commercial Telecommunications",
+  });
 
   const innov = (key: string, email: string, name: string, org: string, district: string, gender: string, age: number) =>
     queueUser(key, {
@@ -559,6 +670,24 @@ export async function seedDemoData(prisma: PrismaClient) {
   }
 
   await prisma.user.createMany({ data: userRows });
+  await prisma.apiKey.createMany({
+    data: [
+      {
+        partnerId: bdihPartner.id,
+        name: "BDIH Portal Sync Key",
+        keyPrefix: "ceda_live_bdih_pro",
+        keyHash: "bdih_mock_hash_for_seed_key_1234567890abcdef",
+        createdById: users["super"].id,
+      },
+      {
+        partnerId: btcPartner.id,
+        name: "BTC IoT Gateway Key",
+        keyPrefix: "ceda_live_btc_gate",
+        keyHash: "btc_mock_hash_for_seed_key_1234567890abcdef",
+        createdById: users["super"].id,
+      },
+    ],
+  });
   await Promise.all(templateCreates.map((data) => prisma.template.create({ data })));
 
   const created: Record<string, { id: string; referenceCode: string }> = {};

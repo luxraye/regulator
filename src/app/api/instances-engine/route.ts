@@ -29,6 +29,9 @@ export async function GET(req: Request) {
     const search = searchParams.get("search");
 
     const where: Prisma.InstanceWhereInput = {};
+    if (user.role === "PARTNER_ADMIN" && user.partnerId) {
+      where.partnerId = user.partnerId;
+    }
     if (status && status !== "ALL") {
       where.status = status as InstanceLifecycleStatus;
     }
@@ -102,19 +105,29 @@ export async function POST(req: Request) {
       definition = JSON.parse(JSON.stringify(FLAGSHIP_CEDA_HACKATHON_2026));
     }
 
-    // Resolve Partner
-    const pSlug = partnerSlug || definition.meta.partnerSlug || "ceda";
-    let partner = await prisma.partner.findUnique({ where: { slug: pSlug } });
+    // Resolve Partner (scoped to user's partner if PARTNER_ADMIN)
+    let partner;
+    if (user.role === "PARTNER_ADMIN" && user.partnerId) {
+      partner = await prisma.partner.findUnique({ where: { id: user.partnerId } });
+      if (partner) {
+        definition.meta.partnerSlug = partner.slug;
+      }
+    }
+
     if (!partner) {
-      partner = await prisma.partner.findFirst();
+      const pSlug = partnerSlug || definition.meta.partnerSlug || "ceda";
+      partner = await prisma.partner.findUnique({ where: { slug: pSlug } });
       if (!partner) {
-        partner = await prisma.partner.create({
-          data: {
-            name: "Citizen Entrepreneurial Development Agency",
-            slug: "ceda",
-            status: "ACTIVE",
-          },
-        });
+        partner = await prisma.partner.findFirst();
+        if (!partner) {
+          partner = await prisma.partner.create({
+            data: {
+              name: "Citizen Entrepreneurial Development Agency",
+              slug: "ceda",
+              status: "ACTIVE",
+            },
+          });
+        }
       }
     }
 

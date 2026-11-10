@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { publishInstance } from "@/lib/instance-engine/service";
 
@@ -19,6 +20,14 @@ export async function POST(req: Request, { params }: RouteParams) {
     }
 
     const { id } = params;
+
+    if (user.role === "PARTNER_ADMIN" && user.partnerId) {
+      const inst = await prisma.instance.findUnique({ where: { id }, select: { partnerId: true } });
+      if (inst && inst.partnerId !== user.partnerId) {
+        return NextResponse.json({ error: "Forbidden: You may only publish your partner's instances" }, { status: 403 });
+      }
+    }
+
     const result = await publishInstance(id, user.id);
 
     if (!result.success) {

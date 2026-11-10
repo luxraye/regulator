@@ -42,9 +42,11 @@ export async function POST(req: Request, { params }: RouteParams) {
 
     const rulesHash = computeRulesHash(clonedDef);
 
+    const targetPartnerId = (user.role === "PARTNER_ADMIN" && user.partnerId) ? user.partnerId : source.partnerId;
+
     const cloned = await prisma.instance.create({
       data: {
-        partnerId: source.partnerId,
+        partnerId: targetPartnerId,
         blueprintId: source.blueprintId,
         name: newName,
         slug: newSlug,
