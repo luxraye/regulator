@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { ClipboardList, Gavel, Lightbulb, Loader2, Settings2, ShieldCheck, Building2, Radio, Headset } from "lucide-react";
+import { ClipboardList, Gavel, Lightbulb, Loader2, Settings2, ShieldCheck, Building2, Radio, Headset, Eye } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 
 /** Demo accounts for hackathon judges. Turn off with NEXT_PUBLIC_SHOW_DEMO_LOGINS=false. */
@@ -17,6 +17,7 @@ const DEMO = [
   { email: "bdih.admin@demo.ceda.bw", role: "Partner Admin (BDIH)", who: "Kagiso Moeti: BDIH Innovation Hub space", icon: <Building2 size={16} /> },
   { email: "btc.admin@demo.ceda.bw", role: "Partner Admin (BTC)", who: "Naledi Modise: BTC Telecoms 5G Challenge", icon: <Radio size={16} /> },
   { email: "consultant@demo.ceda.bw", role: "Consultant", who: "Neo Molefe: live chat queue & applicant advisory", icon: <Headset size={16} /> },
+  { email: "observer@demo.ceda.bw", role: "Committee Observer", who: "Boitumelo Kgosiemang: live audit & statutory oversight", icon: <Eye size={16} /> },
 ];
 const DEMO_PASSWORD = "CedaDemo2026!";
 const SHOW_DEMO = process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS !== "false";

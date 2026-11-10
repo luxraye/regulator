@@ -3,13 +3,15 @@
  * Everything here is fictional. Running the seed wipes the demo database and rebuilds it,
  * with dates relative to today so deadlines and timelines always look current.
  */
-import { PrismaClient, Role, Scale, DataType, EntryStatus, CallStatus, Prisma } from "@prisma/client";
+import { PrismaClient, Role, Scale, DataType, EntryStatus, CallStatus, Prisma, CheckStatus } from "@prisma/client";
 import * as bcrypt from "bcryptjs";
 import crypto from "crypto";
 import { signSubmission } from "./jwt-sign";
 import { canonicalFields, type InstanceSchema } from "./instance-schema";
 import { sha256 } from "./hash";
 import { weightedTotal } from "./scoring";
+import { computeRulesHash, canonicalizeJson } from "./instance-engine/canonical";
+import { FLAGSHIP_CEDA_HACKATHON_2026 } from "./instance-engine/flagship";
 
 type InstanceStatus = EntryStatus;
 const InstanceStatus = EntryStatus;
@@ -283,6 +285,11 @@ export async function seedDemoData(prisma: PrismaClient) {
   const pick = <T,>(xs: readonly T[]) => xs[Math.floor(rand() * xs.length)];
   const between = (a: number, b: number) => Math.round(a + rand() * (b - a));
 
+  await prisma.chatMessage.deleteMany();
+  await prisma.chatSession.deleteMany();
+  await prisma.demoInboxMessage.deleteMany();
+  await prisma.supportTicket.deleteMany();
+  await prisma.subscription.deleteMany();
   await prisma.checkResult.deleteMany();
   await prisma.forumReply.deleteMany();
   await prisma.forumThread.deleteMany();
@@ -424,6 +431,24 @@ export async function seedDemoData(prisma: PrismaClient) {
     },
   });
 
+  const flagshipRulesHash = computeRulesHash(FLAGSHIP_CEDA_HACKATHON_2026);
+  const flagshipCanonJson = JSON.parse(canonicalizeJson(FLAGSHIP_CEDA_HACKATHON_2026));
+  const flagshipTimeline = FLAGSHIP_CEDA_HACKATHON_2026.timeline;
+
+  const flagshipInstance = await prisma.instance.create({
+    data: {
+      partnerId: defaultPartner.id,
+      name: FLAGSHIP_CEDA_HACKATHON_2026.meta.name,
+      slug: "ceda-hackathon-2026",
+      description: FLAGSHIP_CEDA_HACKATHON_2026.meta.description,
+      definition: flagshipCanonJson,
+      rulesHash: flagshipRulesHash,
+      status: "LIVE",
+      opensAt: new Date(flagshipTimeline[0].start),
+      closesAt: new Date(flagshipTimeline[flagshipTimeline.length - 1].end),
+    },
+  });
+
   const passwordHash = await bcrypt.hash(DEMO_PASSWORD, 10);
   const users: Record<string, { id: string; name: string; organizationName: string | null; role: Role }> = {};
   const userRows: Prisma.UserCreateManyInput[] = [];
@@ -488,6 +513,8 @@ export async function seedDemoData(prisma: PrismaClient) {
   innov("lorato", "lorato@demo.ceda.bw", "Lorato Sebina", "Sebina Joinery (Pty) Ltd", "Gaborone", "Female", 33);
   innov("mpho", "mpho@demo.ceda.bw", "Mpho Kebonang", "Morula Gold (Pty) Ltd", "Francistown", "Male", 30);
   innov("thato", "thato@demo.ceda.bw", "Thato Mosweu", "Kgotla Digital (Pty) Ltd", "Kweneng", "Male", 22);
+  innov("neo_inno", "neo.innovator@demo.ceda.bw", "Neo Letswalo", "Kgalagadi NextGen (Pty) Ltd", "Ghanzi", "Female", 28);
+  innov("kutlwano", "kutlwano@demo.ceda.bw", "Kutlwano Ditshupo", "Motloutse Dynamics (Pty) Ltd", "Bobonong", "Male", 25);
 
   const CALLS = [
     {
@@ -689,6 +716,19 @@ export async function seedDemoData(prisma: PrismaClient) {
       },
     ],
   });
+
+  await prisma.instanceVersion.create({
+    data: {
+      instanceId: flagshipInstance.id,
+      version: 1,
+      reason: "Initial publication of official flagship Hackathon 2026 competition definition.",
+      definition: flagshipCanonJson,
+      rulesHash: flagshipRulesHash,
+      diff: { initial: true },
+      createdById: users["super"].id,
+    },
+  });
+
   await Promise.all(templateCreates.map((data) => prisma.template.create({ data })));
 
   const created: Record<string, { id: string; referenceCode: string }> = {};
@@ -819,6 +859,597 @@ export async function seedDemoData(prisma: PrismaClient) {
   if (allEvaluations.length) await prisma.evaluation.createMany({ data: allEvaluations });
   if (allMessages.length) await prisma.message.createMany({ data: allMessages });
   if (allAuditLogs.length) await prisma.auditLog.createMany({ data: allAuditLogs });
+
+  // --- Seed Flagship CEDA Hackathon 2026: 10 Registered Teams ---
+  const flagshipTeamsData = [
+    {
+      code: "CEDA-HACK-001",
+      teamName: "Team Kalahari Tech",
+      leadKey: "naledi",
+      title: "Kalahari Engine — Tamper-Evident Portal",
+      status: EntryStatus.SHORTLISTED,
+      score: 94.5,
+      rank: 1,
+      consensusScore: 94.5,
+      consensusNote: "Exceptional architecture with full HMAC audit chaining, multi-tenant partner isolation, and responsive UI.",
+      members: [
+        { name: "Naledi Molefe", email: "innovator@demo.ceda.bw", phone: "+267 72100001", omang: "100000001", roleInTeam: "Lead Architect", shareholding: 51, isLead: true },
+        { name: "Kagiso Tau", email: "kagiso.tau@kalahari.demo.bw", phone: "+267 72100002", omang: "100000002", roleInTeam: "Fullstack Engineer", shareholding: 25 },
+        { name: "Tshepo Khama", email: "tshepo.khama@kalahari.demo.bw", phone: "+267 72100003", omang: "100000003", roleInTeam: "UI/UX Designer", shareholding: 24 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types (PDF, ZIP)." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "All files within specified size boundaries (<=25MB, <=150MB)." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Zero-decompression bomb safe, 0 Zip-Slip path traversal vectors." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal conforms strictly to 8 of 10 maximum permitted pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No plaintext API keys, AWS credentials, or tokens exposed." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Founders confirmed aged 27, 24, 26 (all within 18–35 statutory youth bracket)." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified against CIPA registry." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "Clear setup guides, local run commands, and environment variables documented." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://kalahari-portal.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/kalahari-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/kalahari-tech/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Firebase App Hosting (us-east4) + Neon Postgres (us-east-1)" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js 15, Prisma ORM, Tailwind CSS, TypeScript, Web Crypto API, Playwright E2E" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Kalahari_Technical_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2450000 },
+        { fileKey: "source_code_archive", fileName: "kalahari-portal-v1.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 18200000 },
+        { fileKey: "user_manual_pdf", fileName: "Kalahari_User_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1850000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 320000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "keabetswe",
+          total: 95.0,
+          scores: { technical: 24, functionality: 19, general: 15, ux_design: 14, presentation: 14, innovation: 9 },
+          feedback: "Superb architecture and immaculate zero-trust file checks. Full compliance with all CEDA branding guidelines.",
+        },
+        {
+          evaluatorKey: "gofaone",
+          total: 94.0,
+          scores: { technical: 24, functionality: 19, general: 14, ux_design: 14, presentation: 14, innovation: 9 },
+          feedback: "Production ready deployment and verifiable leaderboard hashing. Outstanding security implementation.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-002",
+      teamName: "Team Okavango Digital",
+      leadKey: "kabelo",
+      title: "Okavango Innovation Cloud & Adjudication Suite",
+      status: EntryStatus.SHORTLISTED,
+      score: 91.0,
+      rank: 2,
+      consensusScore: 91.0,
+      consensusNote: "Very clean instance engine and collaborative consensus workflow.",
+      members: [
+        { name: "Kabelo Dintwe", email: "kabelo@demo.ceda.bw", phone: "+267 72100010", omang: "100000010", roleInTeam: "Lead Developer", shareholding: 60, isLead: true },
+        { name: "Gaone Sebele", email: "gaone.sebele@okavango.demo.bw", phone: "+267 72100011", omang: "100000011", roleInTeam: "Fullstack Developer", shareholding: 40 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "All files under specified size boundaries." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Zip file safe, decompression ratio 14:1." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 10 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "All members aged 29 and 26." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README instructions complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://okavango-cloud.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/okavango-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/okavango-digital/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "GCP Cloud Run (europe-west1) + Supabase Postgres" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js, Tailwind, Drizzle, Node.js, Docker" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Okavango_Technical_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 3100000 },
+        { fileKey: "source_code_archive", fileName: "okavango-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 14500000 },
+        { fileKey: "user_manual_pdf", fileName: "Okavango_User_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2100000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 280000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "keabetswe",
+          total: 92.0,
+          scores: { technical: 23, functionality: 18, general: 14, ux_design: 14, presentation: 14, innovation: 9 },
+          feedback: "Thorough documentation and intuitive evaluator dashboard.",
+        },
+        {
+          evaluatorKey: "masego",
+          total: 90.0,
+          scores: { technical: 22, functionality: 18, general: 14, ux_design: 14, presentation: 13, innovation: 9 },
+          feedback: "High fidelity CEDA brand design and seamless OTP authentication.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-003",
+      teamName: "Team Tswapong Systems",
+      leadKey: "boitumelo",
+      title: "Tswapong Agile Grant Orchestrator",
+      status: EntryStatus.SHORTLISTED,
+      score: 88.0,
+      rank: 3,
+      consensusScore: 88.0,
+      consensusNote: "Strong pre-flight guards and robust DPA compliance tracking.",
+      members: [
+        { name: "Boitumelo Tau", email: "boitumelo@demo.ceda.bw", phone: "+267 72100020", omang: "100000020", roleInTeam: "Security Engineer & Lead", shareholding: 55, isLead: true },
+        { name: "Mothusi Phiri", email: "mothusi.phiri@tswapong.demo.bw", phone: "+267 72100021", omang: "100000021", roleInTeam: "Backend Architect", shareholding: 45 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 9 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "All members aged 31 and 28." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README instructions complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://tswapong-grants.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/tswapong-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/tswapong-systems/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "AWS App Runner (af-south-1) + Aurora Serverless" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js 14, TypeScript, Prisma, Tailwind, Postgres" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Tswapong_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2900000 },
+        { fileKey: "source_code_archive", fileName: "tswapong-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 16800000 },
+        { fileKey: "user_manual_pdf", fileName: "Tswapong_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1900000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 250000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "gofaone",
+          total: 89.0,
+          scores: { technical: 22, functionality: 18, general: 14, ux_design: 13, presentation: 13, innovation: 9 },
+          feedback: "Solid security controls and great DPA audit logging.",
+        },
+        {
+          evaluatorKey: "masego",
+          total: 87.0,
+          scores: { technical: 22, functionality: 17, general: 13, ux_design: 13, presentation: 13, innovation: 9 },
+          feedback: "Comprehensive multi-stage scoring workflow.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-004",
+      teamName: "Team Chobe Code",
+      leadKey: "onalenna",
+      title: "Chobe Flow — Programmable Instance Runner",
+      status: EntryStatus.SHORTLISTED,
+      score: 85.5,
+      rank: 4,
+      consensusScore: 85.5,
+      consensusNote: "Great programmable blueprints and clean telemetry reporting.",
+      members: [
+        { name: "Onalenna Kgari", email: "onalenna@demo.ceda.bw", phone: "+267 72100030", omang: "100000030", roleInTeam: "Lead Engineer", shareholding: 70, isLead: true },
+        { name: "Phenyo Moroka", email: "phenyo.moroka@chobe.demo.bw", phone: "+267 72100031", omang: "100000031", roleInTeam: "DevOps Specialist", shareholding: 30 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 8 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Members aged 24 and 27." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://chobe-flow.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/chobe-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/chobe-code/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Azure Container Apps (southafricanorth) + Azure SQL" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js, TypeScript, PostgreSQL, Tailwind" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Chobe_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2200000 },
+        { fileKey: "source_code_archive", fileName: "chobe-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 15400000 },
+        { fileKey: "user_manual_pdf", fileName: "Chobe_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1700000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 210000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "keabetswe",
+          total: 86.0,
+          scores: { technical: 21, functionality: 18, general: 13, ux_design: 13, presentation: 13, innovation: 8 },
+          feedback: "Great UI execution and programmable stage definitions.",
+        },
+        {
+          evaluatorKey: "gofaone",
+          total: 85.0,
+          scores: { technical: 21, functionality: 17, general: 13, ux_design: 13, presentation: 13, innovation: 8 },
+          feedback: "Clean integration and clear user manual.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-005",
+      teamName: "Team Makgadikgadi Solutions",
+      leadKey: "tumelo",
+      title: "Makgadikgadi Verifiable Ideas Engine",
+      status: EntryStatus.SHORTLISTED,
+      score: 82.0,
+      rank: 5,
+      consensusScore: 82.0,
+      consensusNote: "Solid 100-point rubric implementation and live consultant chat queue.",
+      members: [
+        { name: "Tumelo Ramotswa", email: "tumelo@demo.ceda.bw", phone: "+267 72100040", omang: "100000040", roleInTeam: "Product Lead", shareholding: 51, isLead: true },
+        { name: "Refilwe Balopi", email: "refilwe.balopi@makgadikgadi.demo.bw", phone: "+267 72100041", omang: "100000041", roleInTeam: "Frontend Engineer", shareholding: 49 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 10 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Members aged 26 and 25." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://makgadikgadi-engine.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/makgadikgadi-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/makgadikgadi/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "DigitalOcean Kubernetes (Frankfurt) + Managed Postgres" },
+        { fieldKey: "tech_stack_summary", fieldValue: "React, Node.js, Express, Postgres, Docker" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Makgadikgadi_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 3500000 },
+        { fileKey: "source_code_archive", fileName: "makgadikgadi-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 19800000 },
+        { fileKey: "user_manual_pdf", fileName: "Makgadikgadi_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2200000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 260000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "masego",
+          total: 83.0,
+          scores: { technical: 20, functionality: 17, general: 13, ux_design: 13, presentation: 12, innovation: 8 },
+          feedback: "Strong core functionality and well-tested evaluation workflow.",
+        },
+        {
+          evaluatorKey: "keabetswe",
+          total: 81.0,
+          scores: { technical: 20, functionality: 16, general: 13, ux_design: 12, presentation: 12, innovation: 8 },
+          feedback: "Good compliance documentation and clear API structures.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-006",
+      teamName: "Team Shashe Cyber",
+      leadKey: "lorato",
+      title: "Shashe Trust Engine & Zero-Trust Submissions",
+      status: EntryStatus.UNDER_REVIEW,
+      score: 78.0,
+      rank: 6,
+      members: [
+        { name: "Lorato Sebina", email: "lorato@demo.ceda.bw", phone: "+267 72100050", omang: "100000050", roleInTeam: "Lead Architect", shareholding: 80, isLead: true },
+        { name: "Katlego Molosiwa", email: "katlego.molosiwa@shashe.demo.bw", phone: "+267 72100051", omang: "100000051", roleInTeam: "Cloud Architect", shareholding: 20 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 7 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Members aged 33 and 29." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://shashe-trust.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/shashe-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/shashe-cyber/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Linode / Akamai Connected Cloud (Johannesburg)" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Vue.js, Express, Postgres, Docker" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Shashe_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 2100000 },
+        { fileKey: "source_code_archive", fileName: "shashe-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 12200000 },
+        { fileKey: "user_manual_pdf", fileName: "Shashe_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1600000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 240000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "gofaone",
+          total: 78.0,
+          scores: { technical: 19, functionality: 16, general: 12, ux_design: 12, presentation: 12, innovation: 7 },
+          feedback: "Solid technical design, though UI could benefit from CEDA token alignment.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-007",
+      teamName: "Team Limpopo Ventures",
+      leadKey: "mpho",
+      title: "Limpopo Portal Core",
+      status: EntryStatus.UNDER_REVIEW,
+      score: 74.0,
+      rank: 7,
+      members: [
+        { name: "Mpho Kebonang", email: "mpho@demo.ceda.bw", phone: "+267 72100060", omang: "100000060", roleInTeam: "Project Lead", shareholding: 65, isLead: true },
+        { name: "Tebatso Modise", email: "tebatso.modise@limpopo.demo.bw", phone: "+267 72100061", omang: "100000061", roleInTeam: "QA Engineer", shareholding: 35 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 6 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Members aged 30 and 27." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.PASS, detail: "README complete." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://limpopo-core.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/limpopo-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/limpopo-ventures/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Hetzner Cloud + Supabase" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js 14, Tailwind, Prisma, Postgres" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Limpopo_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1950000 },
+        { fileKey: "source_code_archive", fileName: "limpopo-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 11500000 },
+        { fileKey: "user_manual_pdf", fileName: "Limpopo_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1400000 },
+        { fileKey: "readme_doc", fileName: "README.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 200000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "masego",
+          total: 74.0,
+          scores: { technical: 18, functionality: 15, general: 12, ux_design: 11, presentation: 11, innovation: 7 },
+          feedback: "Good functional foundation, needs polish on mobile layouts.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-008",
+      teamName: "Team Tsodilo Labs",
+      leadKey: "thato",
+      title: "Tsodilo Innovation Matrix",
+      status: EntryStatus.SUBMITTED,
+      score: 68.0,
+      rank: 8,
+      members: [
+        { name: "Thato Mosweu", email: "thato@demo.ceda.bw", phone: "+267 72100070", omang: "100000070", roleInTeam: "Founder & Fullstack Developer", shareholding: 100, isLead: true },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.PASS, detail: "All uploads match declared MIME types." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "pdf_pages", name: "PDF Page Limit Boundary (<=10 Pages)", category: "submission", status: CheckStatus.PASS, detail: "Proposal is 5 pages." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No exposed secrets." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Founder aged 22." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+        { checkKey: "readme_check", name: "Deployment & Setup Documentation", category: "documentation", status: CheckStatus.WARN, detail: "README.md is missing from submission bundle. Reviewers flagged manual deployment check required." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://tsodilo-matrix.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/tsodilo-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/tsodilo-labs/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Vercel + Neon Postgres" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js, Tailwind, Prisma, Postgres" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Tsodilo_Proposal.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1800000 },
+        { fileKey: "source_code_archive", fileName: "tsodilo-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 9800000 },
+        { fileKey: "user_manual_pdf", fileName: "Tsodilo_Manual.pdf", fileExtension: ".pdf", mimeType: "application/pdf", fileSize: 1200000 },
+      ],
+      evals: [
+        {
+          evaluatorKey: "keabetswe",
+          total: 68.0,
+          scores: { technical: 17, functionality: 14, general: 11, ux_design: 10, presentation: 10, innovation: 6 },
+          feedback: "Functional build but missing README instructions slows down technical screening.",
+        },
+      ],
+    },
+    {
+      code: "CEDA-HACK-009",
+      teamName: "Team Kgalagadi Pioneers",
+      leadKey: "neo_inno",
+      title: "Kgalagadi NextGen Portal",
+      status: EntryStatus.FLAGGED,
+      members: [
+        { name: "Neo Letswalo", email: "neo.innovator@demo.ceda.bw", phone: "+267 72100080", omang: "100000080", roleInTeam: "Lead Developer", shareholding: 75, isLead: true },
+        { name: "Bame Kaelo", email: "bame.kaelo@kgalagadi.demo.bw", phone: "+267 72100081", omang: "100000081", roleInTeam: "Software Engineer", shareholding: 25 },
+      ],
+      checks: [
+        { checkKey: "magic_bytes", name: "Magic-Byte MIME Sniffing", category: "security", status: CheckStatus.FAIL, detail: "Binary executable signature (MZ / PE) detected inside disguised PDF upload 'proposal_pdf'. Submission blocked by pre-flight guard." },
+        { checkKey: "size_caps", name: "Strict File Size Boundary Enforcement", category: "security", status: CheckStatus.PASS, detail: "Files within size limits." },
+        { checkKey: "archive_inspection", name: "Zip-Slip & Compression Ratio Scanner", category: "security", status: CheckStatus.PASS, detail: "Archive verified safe." },
+        { checkKey: "secret_scanning", name: "Malware & Credential Leak Scanner", category: "security", status: CheckStatus.PASS, detail: "No credentials exposed." },
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Members aged 28 and 24." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+      ],
+      fields: [
+        { fieldKey: "live_url", fieldValue: "https://kgalagadi-portal.demo.ceda.bw" },
+        { fieldKey: "video_url", fieldValue: "https://youtu.be/kgalagadi-demo-2026" },
+        { fieldKey: "repo_url", fieldValue: "https://github.com/kgalagadi-pioneers/ceda-portal" },
+        { fieldKey: "cloud_provider", fieldValue: "Render + CockroachDB" },
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js, Prisma, Tailwind" },
+      ],
+      files: [
+        { fileKey: "proposal_pdf", fileName: "Kgalagadi_Proposal_DISGUISED_EXE.pdf", fileExtension: ".pdf", mimeType: "application/x-dosexec", fileSize: 4200000 },
+        { fileKey: "source_code_archive", fileName: "kgalagadi-portal.zip", fileExtension: ".zip", mimeType: "application/zip", fileSize: 13500000 },
+      ],
+    },
+    {
+      code: "CEDA-HACK-010",
+      teamName: "Team Motloutse Dynamics",
+      leadKey: "kutlwano",
+      title: "Motloutse Developer Hub",
+      status: EntryStatus.DRAFT,
+      members: [
+        { name: "Kutlwano Ditshupo", email: "kutlwano@demo.ceda.bw", phone: "+267 72100090", omang: "100000090", roleInTeam: "Founder & Lead", shareholding: 100, isLead: true },
+      ],
+      checks: [
+        { checkKey: "eligibility_age", name: "Citizen Youth Statutory Age (18–35)", category: "eligibility", status: CheckStatus.PASS, detail: "Founder aged 25." },
+        { checkKey: "eligibility_youth_shareholding", name: "Citizen Youth Shareholding (>50%)", category: "eligibility", status: CheckStatus.PASS, detail: "100% citizen youth equity verified." },
+      ],
+      fields: [
+        { fieldKey: "tech_stack_summary", fieldValue: "Next.js 15, TypeScript, Tailwind CSS, Prisma" },
+      ],
+      files: [],
+    },
+  ];
+
+  for (const teamData of flagshipTeamsData) {
+    const lead = users[teamData.leadKey];
+    const team = await prisma.team.create({
+      data: {
+        name: teamData.teamName,
+        leadId: lead.id,
+        members: {
+          create: teamData.members.map((m) => ({
+            name: m.name,
+            email: m.email,
+            phone: m.phone,
+            omang: m.omang,
+            roleInTeam: m.roleInTeam,
+            shareholding: m.shareholding,
+            isLead: !!m.isLead,
+          })),
+        },
+      },
+    });
+
+    const isDraft = teamData.status === EntryStatus.DRAFT;
+    const submittedAt = isDraft ? null : ago(2);
+    const createdAt = isDraft ? ago(1) : ago(4);
+    const deadline = new Date("2026-11-23T15:00:00Z");
+
+    const fileRows = teamData.files.map((f) => {
+      const isExec = f.mimeType === "application/x-dosexec";
+      const dummyPayload = isExec
+        ? Buffer.concat([Buffer.from("MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00"), Buffer.from("PE executable payload for security pre-flight test")])
+        : Buffer.from(`%PDF-1.4\n% Demo submission file: ${f.fileName} for ${teamData.code}\n`);
+      const hash = sha256(dummyPayload);
+      return {
+        fileKey: f.fileKey,
+        fileName: f.fileName,
+        fileExtension: f.fileExtension,
+        mimeType: f.mimeType,
+        fileSize: f.fileSize,
+        clientHash: hash,
+        serverHash: hash,
+        content: dummyPayload,
+        uploadedAt: createdAt,
+      };
+    });
+
+    const entry = await prisma.entry.create({
+      data: {
+        referenceCode: teamData.code,
+        title: teamData.title,
+        instanceId: flagshipInstance.id,
+        innovatorId: lead.id,
+        teamId: team.id,
+        status: teamData.status,
+        deadline,
+        createdAt,
+        submittedAt,
+        encryptionKey: crypto.randomBytes(32).toString("hex"),
+        score: teamData.score,
+        rank: teamData.rank,
+        consensusScore: teamData.consensusScore,
+        consensusNote: teamData.consensusNote,
+        submissionCount: isDraft ? 0 : 1,
+        fields: {
+          create: teamData.fields.map((f) => ({
+            fieldKey: f.fieldKey,
+            fieldValue: f.fieldValue,
+          })),
+        },
+        files: {
+          create: fileRows,
+        },
+      },
+    });
+
+    if (teamData.checks.length) {
+      await prisma.checkResult.createMany({
+        data: teamData.checks.map((c) => ({
+          entryId: entry.id,
+          checkKey: c.checkKey,
+          name: c.name,
+          category: c.category,
+          status: c.status,
+          detail: c.detail,
+          evidenceHash: sha256(Buffer.from(c.detail)),
+        })),
+      });
+    }
+
+    if (teamData.evals && teamData.evals.length) {
+      await prisma.evaluation.createMany({
+        data: teamData.evals.map((e) => ({
+          entryId: entry.id,
+          evaluatorId: users[e.evaluatorKey].id,
+          assignedById: users.tebogo.id,
+          assignedAt: ago(3),
+          dueAt: ahead(4),
+          conflict: false,
+          total: e.total,
+          scores: e.scores,
+          feedback: e.feedback,
+          submittedAt: ago(1),
+        })),
+      });
+    }
+
+    const entryAudits: Prisma.AuditLogCreateManyInput[] = [
+      {
+        actorId: lead.id,
+        action: "TEAM_REGISTERED",
+        entryId: entry.id,
+        instanceId: flagshipInstance.id,
+        createdAt,
+        metadata: { teamName: teamData.teamName, memberCount: teamData.members.length },
+      },
+    ];
+
+    if (!isDraft) {
+      entryAudits.push({
+        actorId: lead.id,
+        action: teamData.status === EntryStatus.FLAGGED ? "PREFLIGHT_BLOCKED" : "PREFLIGHT_PASSED",
+        entryId: entry.id,
+        instanceId: flagshipInstance.id,
+        createdAt: submittedAt!,
+        metadata: { status: teamData.status },
+      });
+      entryAudits.push({
+        actorId: lead.id,
+        action: "ENTRY_SUBMITTED",
+        entryId: entry.id,
+        instanceId: flagshipInstance.id,
+        createdAt: submittedAt!,
+        metadata: { referenceCode: teamData.code, filesCount: fileRows.length },
+      });
+    }
+
+    if (teamData.consensusScore) {
+      entryAudits.push({
+        actorId: users.dineo.id,
+        action: "CONSENSUS_RECORDED",
+        entryId: entry.id,
+        instanceId: flagshipInstance.id,
+        createdAt: ago(1),
+        metadata: { consensusScore: teamData.consensusScore, consensusNote: teamData.consensusNote },
+      });
+    }
+
+    await prisma.auditLog.createMany({ data: entryAudits });
+  }
 
   const n = (user: string, title: string, body: string, link: string, daysAgo: number, read = false) => ({ userId: users[user].id, title, body, link, createdAt: ago(daysAgo), read });
   const nal = created["naledi:CREATE_2026"];

@@ -18,6 +18,7 @@ const navLinks: { href: string; key: TranslationKey }[] = [
   { href: "/funded", key: "nav.funded" },
   { href: "/community", key: "nav.community" },
   { href: "/about", key: "nav.about" },
+  { href: "/judges", key: "nav.judges" },
 ];
 
 export function PublicHeader() {
