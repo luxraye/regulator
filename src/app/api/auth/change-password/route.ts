@@ -1,15 +1,23 @@
 import { NextResponse } from "next/server";
 import { getSessionUser } from "@/lib/session";
 import { prisma } from "@/lib/prisma";
+import { isDemoAccount } from "@/lib/auth-lockout";
 import bcrypt from "bcryptjs";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: Request) {
   try {
-    const userSession = await getSessionUser();
-    if (!userSession?.email) {
+    const sessionUser = await getSessionUser();
+    if (!sessionUser?.email) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+
+    if (isDemoAccount(sessionUser.email)) {
+      return NextResponse.json(
+        { error: "Demo accounts use the shared demo password (CedaDemo2026!) and cannot be changed." },
+        { status: 400 }
+      );
     }
 
     const { currentPassword, newPassword } = await req.json();
@@ -23,7 +31,7 @@ export async function POST(req: Request) {
     }
 
     const user = await prisma.user.findUnique({
-      where: { email: userSession.email },
+      where: { email: sessionUser.email },
     });
 
     if (!user) {

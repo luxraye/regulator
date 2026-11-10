@@ -125,6 +125,26 @@ test.describe("public site", () => {
     expect((await res.json()).database).toBe("up");
   });
 
+  test("demo inbox security: anonymous GET sees no tokens from other sessions, anonymous DELETE returns 401/403, demo accounts cannot reset password", async ({ request }) => {
+    // 1. Anonymous DELETE is forbidden
+    const deleteRes = await request.delete("/api/demo-inbox");
+    expect([401, 403]).toContain(deleteRes.status());
+
+    // 2. Demo accounts cannot be reset
+    const resetRes = await request.post("/api/auth/forgot-password", {
+      data: { email: "super@demo.ceda.bw" },
+    });
+    expect(resetRes.status()).toBe(400);
+    const resetJson = await resetRes.json();
+    expect(resetJson.error).toMatch(/demo accounts use the shared demo password/i);
+
+    // 3. Anonymous GET sees no reset tokens or other session messages
+    const getRes = await request.get("/api/demo-inbox");
+    expect(getRes.ok()).toBeTruthy();
+    const getJson = await getRes.json();
+    expect(getJson.messages).toEqual([]);
+  });
+
   test("security headers, hero photo credit, login judge copy, and how-to-judge guide are present", async ({ page, request }) => {
     const res = await request.get("/");
     const headers = res.headers();

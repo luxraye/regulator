@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { audit } from "@/lib/audit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { checkOtpLockout, recordFailedOtpAttempt, resetOtpLockout, isDemoAccount } from "@/lib/auth-lockout";
 
 export const dynamic = "force-dynamic";
 
@@ -8,8 +10,12 @@ export const dynamic = "force-dynamic";
  * POST /api/auth/otp/verify
  * Validates 6-digit one-time passcode for phone/email verification or passwordless sign-in.
  */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const ipLimited = checkRateLimit(`otp-verify:ip:${ip}`, 5, 15 * 60 * 1000);
+    if (ipLimited) return ipLimited;
+
     const body = await req.json();
     const { destination, code } = body;
 
@@ -19,9 +25,26 @@ export async function POST(req: Request) {
 
     const cleanDest = String(destination).trim().toLowerCase();
     const cleanCode = String(code).trim();
-    const now = new Date();
 
-    const isPhone = destination.startsWith("+") || /^\d+$/.test(destination.replace(/[\s-]/g, ""));
+    // Protect demo accounts
+    if (isDemoAccount(cleanDest)) {
+      return NextResponse.json(
+        { error: "Demo accounts use the shared demo password (CedaDemo2026!) and do not support OTP sign-in." },
+        { status: 400 }
+      );
+    }
+
+    // Check lockout before processing
+    const lockout = checkOtpLockout(cleanDest);
+    if (lockout.locked) {
+      return NextResponse.json({ error: lockout.message }, { status: 429 });
+    }
+
+    const destLimited = checkRateLimit(`otp-verify:dest:${cleanDest}`, 5, 15 * 60 * 1000);
+    if (destLimited) return destLimited;
+
+    const now = new Date();
+    const isPhone = cleanDest.startsWith("+") || /^\d+$/.test(cleanDest.replace(/[\s-]/g, ""));
 
     const user = isPhone
       ? await prisma.user.findFirst({
@@ -40,8 +63,21 @@ export async function POST(req: Request) {
         });
 
     if (!user) {
-      return NextResponse.json({ error: "Invalid or expired verification code" }, { status: 400 });
+      const { locked, attemptsLeft } = recordFailedOtpAttempt(cleanDest);
+      if (locked) {
+        return NextResponse.json(
+          { error: "Too many incorrect attempts. This account is locked from OTP verification for 15 minutes." },
+          { status: 429 }
+        );
+      }
+      return NextResponse.json(
+        { error: `Invalid or expired verification code. ${attemptsLeft} attempt(s) remaining before account lockout.` },
+        { status: 400 }
+      );
     }
+
+    // Success: clear failed attempts
+    resetOtpLockout(cleanDest);
 
     // Mark verified and clear single-use OTP
     const updated = await prisma.user.update({
@@ -63,8 +99,6 @@ export async function POST(req: Request) {
         email: updated.email,
         name: updated.name,
         role: updated.role,
-        phoneVerified: !!updated.phoneVerifiedAt,
-        emailVerified: !!updated.emailVerifiedAt,
       },
     });
   } catch (error) {

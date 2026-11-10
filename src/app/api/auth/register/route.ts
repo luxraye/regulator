@@ -6,6 +6,7 @@ import { badRequest } from "@/lib/session";
 import { checkEligibility, isValidOmang } from "@/lib/eligibility";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { sendEmail, sendSms } from "@/lib/comms/adapter";
+import { getOrCreateInboxSessionId, attachInboxSessionCookie } from "@/lib/comms/session";
 
 export const dynamic = "force-dynamic";
 
@@ -80,14 +81,16 @@ export async function POST(req: NextRequest) {
     },
   });
 
+  const { sessionId } = getOrCreateInboxSessionId(req);
   const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
   const verifyLink = `${baseUrl}/api/auth/verify-email?token=${emailToken}`;
 
-  // Dispatch email verification link (mirrored into /demo-inbox)
+  // Dispatch email verification link (mirrored into scoped /demo-inbox)
   await sendEmail({
     to: email,
     subject: "Verify your email address for CEDA Innovation Portal",
     text: `Dumelang ${name},\n\nWelcome to the CEDA Innovation Management Portal. Please click the link below to verify your email address:\n${verifyLink}\n\nCEDA Innovation Portal`,
+    inboxSessionId: sessionId,
     metadata: {
       purpose: "EMAIL_VERIFICATION",
       token: emailToken,
@@ -95,11 +98,12 @@ export async function POST(req: NextRequest) {
     },
   });
 
-  // Dispatch phone verification OTP if phone provided (mirrored into /demo-inbox)
+  // Dispatch phone verification OTP if phone provided (mirrored into scoped /demo-inbox)
   if (phone) {
     await sendSms({
       to: phone,
       message: `Dumelang ${name}. Your CEDA Innovation Portal phone verification code is: ${phoneCode}.`,
+      inboxSessionId: sessionId,
       metadata: {
         purpose: "PHONE_VERIFICATION",
         code: phoneCode,
@@ -107,9 +111,11 @@ export async function POST(req: NextRequest) {
     });
   }
 
-  return NextResponse.json({
+  const res = NextResponse.json({
     message: "Account created. Verification link sent to email and OTP sent to phone.",
     emailVerified: false,
     phoneVerified: false,
   }, { status: 201 });
+
+  return attachInboxSessionCookie(res, sessionId);
 }

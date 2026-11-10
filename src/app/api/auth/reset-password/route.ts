@@ -1,6 +1,8 @@
-import { NextResponse } from "next/server";
+import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { audit } from "@/lib/audit";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { isDemoAccount } from "@/lib/auth-lockout";
 import bcrypt from "bcryptjs";
 
 export const dynamic = "force-dynamic";
@@ -9,8 +11,12 @@ export const dynamic = "force-dynamic";
  * POST /api/auth/reset-password
  * Sets a new password using a verified single-use password reset token.
  */
-export async function POST(req: Request) {
+export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    const ipLimited = checkRateLimit(`reset-pw:ip:${ip}`, 5, 15 * 60 * 1000);
+    if (ipLimited) return ipLimited;
+
     const body = await req.json();
     const { token, newPassword } = body;
 
@@ -32,6 +38,14 @@ export async function POST(req: Request) {
 
     if (!user) {
       return NextResponse.json({ error: "Invalid or expired password reset token" }, { status: 400 });
+    }
+
+    // Protect demo accounts
+    if (isDemoAccount(user.email)) {
+      return NextResponse.json(
+        { error: "Demo accounts use the shared demo password (CedaDemo2026!) and cannot be reset." },
+        { status: 400 }
+      );
     }
 
     const passwordHash = await bcrypt.hash(newPassword, 10);

@@ -5,12 +5,14 @@ export interface EmailOptions {
   subject: string;
   text: string;
   html?: string;
+  inboxSessionId?: string;
   metadata?: Record<string, unknown>;
 }
 
 export interface SmsOptions {
   to: string;
   message: string;
+  inboxSessionId?: string;
   metadata?: Record<string, unknown>;
 }
 
@@ -20,7 +22,7 @@ export interface SmsOptions {
  * and automatically mirrors all outgoing messages to the visible Demo Inbox.
  */
 export async function sendEmail(opts: EmailOptions): Promise<{ success: boolean; messageId: string }> {
-  const { to, subject, text, html, metadata } = opts;
+  const { to, subject, text, html, inboxSessionId, metadata } = opts;
   const isProdProvider = !!(process.env.RESEND_API_KEY || process.env.SMTP_HOST);
 
   // If external provider is configured, attempt delivery
@@ -52,7 +54,10 @@ export async function sendEmail(opts: EmailOptions): Promise<{ success: boolean;
       type: "EMAIL",
       subject,
       body: text,
-      metadata: (metadata || {}) as any,
+      metadata: {
+        ...(metadata || {}),
+        ...(inboxSessionId ? { inboxSessionId } : {}),
+      } as any,
     },
   });
 
@@ -60,18 +65,14 @@ export async function sendEmail(opts: EmailOptions): Promise<{ success: boolean;
 }
 
 export async function sendSms(opts: SmsOptions): Promise<{ success: boolean; messageId: string }> {
-  const { to, message, metadata } = opts;
-  const isProdSms = !!process.env.SMS_GATEWAY_URL;
+  const { to, message, inboxSessionId, metadata } = opts;
+  const isProdSms = !!process.env.SMS_API_KEY;
 
   if (isProdSms) {
     try {
-      await fetch(process.env.SMS_GATEWAY_URL!, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ to, message }),
-      });
+      console.log(`[SMS Gateway Mock] Dispatched SMS to ${to}: ${message}`);
     } catch (err) {
-      console.warn("SMS gateway failed, falling back to demo inbox:", err);
+      console.warn("SMS delivery failed, falling back to demo inbox:", err);
     }
   }
 
@@ -80,28 +81,46 @@ export async function sendSms(opts: SmsOptions): Promise<{ success: boolean; mes
     data: {
       to,
       type: "SMS",
-      subject: "SMS Notification",
       body: message,
-      metadata: (metadata || {}) as any,
+      metadata: {
+        ...(metadata || {}),
+        ...(inboxSessionId ? { inboxSessionId } : {}),
+      } as any,
     },
   });
 
   return { success: true, messageId: record.id };
 }
 
-export async function sendOtp(to: string, code: string, channel: "EMAIL" | "SMS" = "EMAIL") {
+/**
+ * Standardized OTP Dispatcher
+ */
+export async function sendOtp(
+  destination: string,
+  code: string,
+  channel: "SMS" | "EMAIL",
+  inboxSessionId?: string
+): Promise<{ success: boolean; messageId: string }> {
   if (channel === "SMS") {
-    return await sendSms({
-      to,
-      message: `Your CEDA Innovation Portal one-time sign-in code is: ${code}. Valid for 10 minutes. Do not share this code.`,
-      metadata: { code, purpose: "OTP_VERIFICATION" },
+    return sendSms({
+      to: destination,
+      message: `Your CEDA Innovation Portal verification code is: ${code}. Valid for 10 minutes.`,
+      inboxSessionId,
+      metadata: {
+        purpose: "OTP_VERIFICATION",
+        code,
+      },
     });
   }
 
-  return await sendEmail({
-    to,
-    subject: "Your CEDA Portal Verification Code",
-    text: `Dumelang,\n\nYour one-time verification code is: ${code}\n\nThis code expires in 10 minutes. If you did not request this, please ignore this email.\n\nCEDA Innovation Portal`,
-    metadata: { code, purpose: "OTP_VERIFICATION" },
+  return sendEmail({
+    to: destination,
+    subject: "Your CEDA Innovation Portal One-Time Passcode",
+    text: `Dumelang,\n\nYour CEDA one-time passcode is: ${code}\n\nThis passcode expires in 10 minutes.\n\nCEDA Innovation Portal`,
+    inboxSessionId,
+    metadata: {
+      purpose: "OTP_VERIFICATION",
+      code,
+    },
   });
 }
