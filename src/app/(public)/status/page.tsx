@@ -3,6 +3,8 @@
 import { useState, useEffect } from "react";
 import { CheckCircle2, AlertCircle, RefreshCw, Server, Database, DollarSign } from "lucide-react";
 import Link from "next/link";
+import { InfoTip } from "@/components/ui/info-tip";
+import { ForTechnicalJudges } from "@/components/ui/for-technical-judges";
 
 interface HealthData {
   status: string;
@@ -153,14 +155,26 @@ export default function StatusPage() {
 
           <div className="flex items-center gap-6 text-right sm:border-l sm:border-neutral-200 dark:sm:border-neutral-700 sm:pl-6">
             <div>
-              <p className="text-[10px] uppercase font-bold text-neutral-500">DB Latency</p>
+              <div className="flex items-center justify-end gap-1">
+                <p className="text-[10px] uppercase font-bold text-neutral-500">DB Latency</p>
+                <InfoTip
+                  plain="Round-trip response time from the web application server to the database."
+                  technical="Probed via SELECT 1 query over pooled connection string."
+                />
+              </div>
               <p className="text-lg font-black font-mono text-ceda-blue dark:text-ceda-gold">
                 {health?.latencyMs ?? 0} ms
               </p>
             </div>
             <div>
-              <p className="text-[10px] uppercase font-bold text-neutral-500">90-Day Uptime</p>
-              <p className="text-lg font-black font-mono text-emerald-600 dark:text-emerald-400">
+              <div className="flex items-center justify-end gap-1">
+                <p className="text-[10px] uppercase font-bold text-neutral-500">90-Day Uptime</p>
+                <InfoTip
+                  plain="Service availability percentage over the past 90 continuous days."
+                  technical="Synthetic probes every 60s from Google Cloud Monitoring."
+                />
+              </div>
+              <p className="text-lg font-black font-mono text-ceda-emerald dark:text-emerald-400">
                 {health?.uptimePercent ?? 99.98}%
               </p>
             </div>
@@ -343,6 +357,21 @@ export default function StatusPage() {
           </table>
         </div>
       </div>
+
+      {/* For technical judges: infrastructure & SLA details */}
+      <ForTechnicalJudges title="For technical judges: Infrastructure architecture & operational SLAs">
+        <div className="space-y-3 font-mono text-xs text-slate-800 leading-relaxed">
+          <p>
+            <strong>Hosting Platform:</strong> Google Cloud Firebase App Hosting backed by Cloud Run in <code>us-east4</code>. Runtime autoscaling configured to min 1 (warm instance during hackathon evaluation) and max 2 instances with 80 concurrency.
+          </p>
+          <p>
+            <strong>Database Cluster:</strong> Neon Serverless PostgreSQL running PostgreSQL 16 on AWS us-east-1 with automated continuous WAL archiving, PITR recovery, and pooled connection multiplexing.
+          </p>
+          <p>
+            <strong>Cost Model:</strong> Total hosting budget is capped at $54.00 USD (P734.40 BWP) per month, demonstrating extreme cost efficiency for national statutory scale.
+          </p>
+        </div>
+      </ForTechnicalJudges>
 
       {/* Support & Fault Reporting Banner */}
       <div className="flex flex-col sm:flex-row items-center justify-between p-5 rounded-2xl bg-gradient-to-r from-ceda-blue/10 to-ceda-gold/10 border border-ceda-blue/20 gap-4">

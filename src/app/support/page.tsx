@@ -16,6 +16,7 @@ import {
 } from "lucide-react";
 import { formatDate } from "@/lib/utils";
 import { REGULATORY_AUTHORITIES } from "@/lib/regulators";
+import { InfoTip } from "@/components/ui/info-tip";
 
 interface TicketData {
   referenceCode: string;
@@ -126,9 +127,15 @@ export default function SupportPage() {
 
       {/* SLA Turnaround Matrix */}
       <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2 border-b border-border pb-3">
-          <Clock size={20} className="text-ceda-orange" />
-          <h2 className="text-lg font-bold text-ceda-ink">Service Level Turnaround Commitments</h2>
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Clock size={20} className="text-ceda-orange" />
+            <h2 className="text-lg font-bold text-ceda-ink">Service Level Turnaround Commitments</h2>
+            <InfoTip
+              plain="Guaranteed turnaround times for technical and submission support tickets based on severity."
+              technical="Enforced by ticket escalation engine with audit timestamps."
+            />
+          </div>
         </div>
 
         <div className="grid grid-cols-1 gap-4 md:grid-cols-3">

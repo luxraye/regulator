@@ -42,6 +42,21 @@ export function DashboardSidebar() {
         </div>
       )}
 
+      {!collapsed && (
+        <div className="mx-3 mt-2">
+          <Link
+            href="/journey"
+            className="flex items-center justify-between rounded-lg bg-gradient-to-r from-ceda-orange/25 to-amber-500/25 px-3 py-2 text-xs font-semibold text-amber-200 border border-amber-500/30 hover:bg-amber-500/35 transition group shadow-sm"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-xs">✨</span>
+              <span>Living Lifecycle (16 Steps)</span>
+            </div>
+            <span className="text-[10px] text-amber-300 font-mono group-hover:translate-x-0.5 transition-transform">→</span>
+          </Link>
+        </div>
+      )}
+
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {nav.map((item) => (
           <Link

@@ -19,6 +19,8 @@ import {
 } from "lucide-react";
 import { PublicRuleVerifier } from "./verifier-client";
 import { DemoDataBanner } from "@/components/ui/demo-data-banner";
+import { InfoTip } from "@/components/ui/info-tip";
+import { ForTechnicalJudges } from "@/components/ui/for-technical-judges";
 
 interface PageProps {
   params: { slug: string };
@@ -148,6 +150,21 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
         version={instance.versions[0]?.version ?? 1}
       />
 
+      {/* For technical judges: verification deep dive */}
+      <ForTechnicalJudges title="For technical judges: Cryptographic rules seal & verification proof">
+        <div className="space-y-3 font-mono text-xs text-slate-800 leading-relaxed">
+          <p>
+            <strong>Algorithm:</strong> SHA-256 over canonicalized RFC-8785 JSON representation of the competition definition (timeline, rubric, forms, security guards).
+          </p>
+          <p>
+            <strong>Rules Hash:</strong> <code className="bg-slate-100 px-1.5 py-0.5 rounded text-ceda-copper break-all">{instance.rulesHash || "Pending seal"}</code>
+          </p>
+          <p>
+            <strong>Immutability Guarantee:</strong> Any modification to dates, rubric weightings, or admission gates after publication triggers an audit version increment and invalidates previous cryptographic fingerprints.
+          </p>
+        </div>
+      </ForTechnicalJudges>
+
       {/* Prize Structure */}
       {prizes.length > 0 && (
         <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
@@ -155,6 +172,10 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <Award size={20} className="text-ceda-orange" />
               <h2 className="text-lg font-bold text-ceda-ink">Prize Pool & Grants</h2>
+              <InfoTip
+                plain="Grants and capital awarded to verified citizen innovation finalists."
+                technical="definition.meta.prizes[]"
+              />
             </div>
             {totalPrizePool > 0 && (
               <span className="rounded-full bg-ceda-sand px-3 py-1 text-xs font-bold text-ceda-copper">
@@ -184,9 +205,15 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
 
       {/* Stage Timeline */}
       <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
-        <div className="flex items-center gap-2 border-b border-border pb-3">
-          <Calendar size={20} className="text-ceda-orange" />
-          <h2 className="text-lg font-bold text-ceda-ink">Stage Timeline & Progression Gates</h2>
+        <div className="flex items-center justify-between border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Calendar size={20} className="text-ceda-orange" />
+            <h2 className="text-lg font-bold text-ceda-ink">Stage Timeline & Progression Gates</h2>
+            <InfoTip
+              plain="Sequential challenge milestones. Each gate ensures only compliant proposals advance."
+              technical="Compiled state machine with ISO timestamps and progression gates."
+            />
+          </div>
         </div>
 
         <div className="space-y-3">
@@ -223,6 +250,10 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
           <div className="flex items-center gap-2">
             <CheckCircle2 size={20} className="text-ceda-orange" />
             <h2 className="text-lg font-bold text-ceda-ink">Scoring Rubric (100% Weighting)</h2>
+            <InfoTip
+              plain="Evaluators grade proposals on these exact weights totaling 100%."
+              technical="Compiled rubric with disagreement threshold checking (default 20 points)."
+            />
           </div>
           <span className="text-xs font-semibold text-ceda-slate">
             Blind Peer Review: {definition.rubric?.blind ? "Enabled" : "Standard"}
@@ -231,12 +262,19 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
 
         <div className="grid grid-cols-1 gap-3 sm:grid-cols-2">
           {(definition.rubric?.criteria ?? []).map((crit) => (
-            <div key={crit.key} className="rounded-xl border border-border bg-slate-50 p-4 space-y-1">
+            <div key={crit.key} className="rounded-xl border border-border bg-slate-50 p-4 space-y-2">
               <div className="flex items-center justify-between">
                 <h3 className="font-bold text-sm text-ceda-ink">{crit.label}</h3>
                 <span className="rounded-full bg-ceda-orange px-2 py-0.5 text-xs font-bold text-white">
                   {crit.weight}%
                 </span>
+              </div>
+              {/* Visual weight bar */}
+              <div className="w-full bg-slate-200 h-1.5 rounded-full overflow-hidden">
+                <div
+                  className="bg-ceda-orange h-full rounded-full transition-all"
+                  style={{ width: `${crit.weight}%` }}
+                />
               </div>
               {crit.guide && <p className="text-xs text-ceda-slate leading-relaxed">{crit.guide}</p>}
             </div>
@@ -251,6 +289,10 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
             <div className="flex items-center gap-2">
               <Trophy size={20} className="text-ceda-orange" />
               <h2 className="text-lg font-bold text-ceda-ink">Live Competition Standings & Leaderboard</h2>
+              <InfoTip
+                plain="Standings are computed deterministically from evaluator score sheets without manual changes."
+                technical="Deterministic ranking algorithm with SHA-256 integrity fingerprint."
+              />
             </div>
             <Link
               href={`/api/instances-public/${instance.slug}/leaderboard`}

@@ -22,6 +22,8 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { DemoDataBanner } from "@/components/ui/demo-data-banner";
+import { InfoTip } from "@/components/ui/info-tip";
+import { ForTechnicalJudges } from "@/components/ui/for-technical-judges";
 
 const DEMO_PASSWORD = "CedaDemo2026!";
 
@@ -31,6 +33,7 @@ interface TourStep {
   tagline: string;
   icon: any;
   whatToLookFor: string[];
+  technicalDetails?: string[];
   suggestedAction: {
     label: string;
     href: string;
@@ -53,6 +56,11 @@ const TOUR_STEPS: TourStep[] = [
       "Strict data isolation: Partner Admins only manage their own Instances, evaluators, API keys, and audit logs.",
       "Public partner directories (/partners/bdih, /partners/btc) showcasing published challenges with custom theme injection.",
     ],
+    technicalDetails: [
+      "Tenant separation enforced via PostgreSQL foreign key relations on Partner.id.",
+      "Theme tokens dynamically injected at runtime via CSS custom properties on server component render.",
+      "Partner-scoped API key issuance with SHA-256 token hashing and bearer authentication middleware.",
+    ],
     suggestedAction: {
       label: "View BDIH Partner Space →",
       href: "/partners/bdih",
@@ -65,13 +73,18 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     minute: "Minute 2",
-    title: "Programmable Instance Engine & Cryptographic RulesHash",
-    tagline: "Inspect the 11-section Studio Builder and SHA-256 canonical definition fingerprinting.",
+    title: "Competition Studio & Rules Seal",
+    tagline: "Inspect the Studio Builder and cryptographic definition fingerprinting.",
     icon: Layers,
     whatToLookFor: [
-      "Every competition is defined as a machine-executable JSON specification (metadata, stages, rubric weights, eligibility ASTs).",
-      "Deep key-order invariant canonicalization generates a tamper-evident SHA-256 rulesHash.",
-      "The Studio (/dashboard/instances) compiles specifications into active stages, applicant intake forms, and security pre-flight gates.",
+      "Every competition is defined as an executable specification (metadata, stages, rubric weights, eligibility rules).",
+      "Deep key-order invariant canonicalization generates a tamper-evident SHA-256 rules seal.",
+      "The Studio compiles specifications into active stages, applicant intake forms, and security pre-flight gates.",
+    ],
+    technicalDetails: [
+      "Specification canonicalization uses recursive key sorting in UTF-8 byte order (RFC 8785).",
+      "RulesHash: SHA-256 hex digest over canonical JSON, sealed upon publishing.",
+      "Validator checks 100% rubric sum, chronological stage ordering, and team size boundaries.",
     ],
     suggestedAction: {
       label: "Open Instance Studio →",
@@ -85,13 +98,18 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     minute: "Minute 3",
-    title: "Pre-Emptive Security Guards & Sealed Reports",
+    title: "Submission Safety Checks & Sealed Reports",
     tagline: "Experience client & server-side zero-trust submission validation before files touch the database.",
     icon: ShieldCheck,
     whatToLookFor: [
-      "Magic-byte MIME sniffing detects and blocks executable files masquerading as PDFs.",
-      "Zip-Slip archive scanner prevents path traversal attacks and decompression bombs.",
-      "Integrated malware signature and credential scanner masks exposed keys in sealed SHA-256 pre-flight reports.",
+      "MIME sniffing detects and blocks executable files masquerading as PDFs.",
+      "Archive file checks prevent path traversal attacks and decompression bombs.",
+      "Integrated malware signature and credential scanner masks exposed keys in sealed pre-flight reports.",
+    ],
+    technicalDetails: [
+      "Zero-trust file inspection checks magic bytes (e.g., %PDF vs MZ DOS header).",
+      "Archive extraction validates canonical normalized relative paths to prevent directory traversal.",
+      "Pre-flight results generate a deterministic JSON report with sha256 checksums.",
     ],
     suggestedAction: {
       label: "Read Infrastructure & Security Status →",
@@ -105,13 +123,18 @@ const TOUR_STEPS: TourStep[] = [
   },
   {
     minute: "Minute 4",
-    title: "Deterministic Leaderboard & Collaborative Evaluation",
-    tagline: "Reproducible 100-point rubric rankings with blind peer reviews and agreed consensus.",
+    title: "Fair Ranking Anyone Can Re-Check",
+    tagline: "100-point rubric rankings with blind peer reviews and agreed consensus.",
     icon: Award,
     whatToLookFor: [
       "Blind scoring: applicant personal identifiers and Omang numbers are cryptographically concealed from evaluators.",
       "Collaborative consensus: once individual blind scores are logged, evaluators discuss in-thread and commit agreed consensus notes.",
-      "Deterministic leaderboard: tie-breaking breaks down by criteria weights and generates a public SHA-256 leaderboardHash.",
+      "Fair ranking: tie-breaking breaks down by criteria weights and generates a public verification fingerprint.",
+    ],
+    technicalDetails: [
+      "Blinded review removes User.omang and User.name before serializing scorecard to reviewer.",
+      "Leaderboard calculation computes criterion-weighted means with deterministic tie-breaking.",
+      "Disagreement threshold: flags entries where max(scores) - min(scores) >= 20 pts.",
     ],
     suggestedAction: {
       label: "Explore Flagship Challenge Leaderboard →",
@@ -126,13 +149,18 @@ const TOUR_STEPS: TourStep[] = [
   {
     minute: "Minute 5",
     title: "Statutory Governance, Live Chat & Scoped Communications",
-    tagline: "Hash-chained audit trails, 15s committee telemetry, consultant live chat, and judge demo inbox.",
+    tagline: "Audit trails, 15s committee telemetry, consultant live chat, and judge demo inbox.",
     icon: Compass,
     whatToLookFor: [
       "Cryptographic audit log verification (/api/audit/verify) ensures historical logs cannot be secretly altered or backdated.",
       "Committee Observer Console (/dashboard/observer) provides read-only statutory oversight with 15-second polling.",
       "Live CEDA Consultant chat respects Botswana working hours (09:00-16:00 CAT) and national holidays.",
       "Judge Demo Inbox (/demo-inbox) captures OTP passcodes and reset links safely scoped to your browser session.",
+    ],
+    technicalDetails: [
+      "Audit logs record action, actorId, timestamp, and optional cryptographic payload hash.",
+      "Observer console queries live telemetry with 15-second polling interval.",
+      "Session-scoped demo inbox stores ephemeral OTPs in session memory with automatic purge.",
     ],
     suggestedAction: {
       label: "Open Committee Observer Console →",
@@ -186,9 +214,14 @@ export default function JudgesTourPage() {
     <div className="max-w-6xl mx-auto py-10 px-4 space-y-10">
       {/* Hero Header */}
       <div className="text-center space-y-3 border-b border-border pb-8">
-        <span className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-ceda-copper/10 text-ceda-copper">
-          <Compass size={14} /> Official Hackathon Evaluation Guide
-        </span>
+        <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wider bg-ceda-copper/10 text-ceda-copper">
+          <Compass size={14} />
+          <span>Official Evaluation Guide</span>
+          <InfoTip
+            plain="Step-by-step walkthrough demonstrating each core feature with 1-click persona logins."
+            technical="Structured evaluation sequence for technical judges across multi-tenancy, canonical hashing, security, rubric scoring, and audit trails."
+          />
+        </div>
         <h1 className="text-3xl md:text-5xl font-black text-ceda-ink tracking-tight">
           5-Minute Guided Tour for Judges
         </h1>
@@ -276,6 +309,20 @@ export default function JudgesTourPage() {
             ))}
           </ul>
         </div>
+
+        {/* For technical judges: architecture & specifications */}
+        {current.technicalDetails && current.technicalDetails.length > 0 && (
+          <ForTechnicalJudges title={`For technical judges: ${current.minute} technical details`}>
+            <ul className="space-y-1.5 text-xs text-slate-800 font-mono">
+              {current.technicalDetails.map((td, idx) => (
+                <li key={idx} className="flex items-start gap-2">
+                  <span className="text-ceda-copper font-bold">•</span>
+                  <span>{td}</span>
+                </li>
+              ))}
+            </ul>
+          </ForTechnicalJudges>
+        )}
 
         {/* Recommended Testing Role */}
         <div className="p-4 rounded-xl bg-ceda-sand/70 border border-border/80 flex flex-col sm:flex-row sm:items-center justify-between gap-4">
