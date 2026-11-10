@@ -2,6 +2,19 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 01:10 UTC — Phase 8 security fix BEFORE Phase 9 (blocks rollout)
+Phase 8 looks good overall, but the demo inbox opens an account takeover:
+- `GET /api/demo-inbox` is public and returns every message, including password reset tokens and OTP codes. Anyone can request a reset for `super@demo.ceda.bw` (or any real person who registers), read the token, and take the account. They can also lock judges out of the one-click demo logins by changing those passwords.
+- `DELETE /api/demo-inbox` has no auth at all.
+
+Fix, in this order:
+1. `DELETE /api/demo-inbox`: SUPERADMIN only.
+2. Seeded demo accounts (`*@demo.ceda.bw`) can't have their password changed or reset, and OTP sign-in can't be used to enter them. Show a friendly "demo accounts use the shared demo password" message. This keeps the one-click logins working for judges.
+3. Scope the inbox to the requester: when `/api/auth/forgot-password`, `/api/auth/otp/send` or registration sends a message, set an httpOnly cookie with a random inbox id and store that id on the DemoInboxMessage. `GET /api/demo-inbox` returns only messages whose inbox id matches the caller's cookie (SUPERADMIN can see all, with tokens and codes masked). So a judge sees their own codes in the same browser, and nobody else can.
+4. Add rate limiting to forgot-password, otp/send and otp/verify (for example 5 per 15 minutes per IP and per destination, in-memory is fine), and lock OTP verification after 5 wrong codes.
+5. Add smoke tests: an anonymous `GET /api/demo-inbox` sees no reset tokens from another session, an anonymous DELETE returns 401/403, and a reset request for a demo account doesn't change its password.
+Write report 08b-inbox-security.md, keep CI green, then carry on with Phase 9.
+
 ## 2026-11-10 00:40 UTC
 - Good progress: Phases 5 to 7 reviewed, CI green on each. API key auth and partner scoping in v1 look right.
 - Rule (m) says wrong information can disqualify us, so facts about the real hackathon must match the official guidelines exactly. I removed invented details from the flagship: prize extras ("Incubation & Pilot Deployment Contract", "CEDA Mentorship", "Tech Advisory"), the contact email (it is hackathon@bih.co.bw, not @ceda.co.bw), eligibility (businesses only, citizen youth 18 to 35, teams of 1 to 5), and the home page now says 10 stages to match the timeline. This changes the flagship rulesHash: re-create the flagship Instance on your dev DB.
