@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { getSessionUser } from "@/lib/session";
 import { compileInstance } from "@/lib/instance-engine/compiler";
+import { computeLeaderboard } from "@/lib/instance-engine/leaderboard";
 import { formatDate, cn } from "@/lib/utils";
 import type { InstanceDefinition } from "@/lib/instance-engine/types";
 import {
@@ -16,6 +17,7 @@ import {
   ExternalLink,
   History,
   Lock,
+  Trophy,
 } from "lucide-react";
 
 interface ConsolePageProps {
@@ -105,6 +107,7 @@ export default async function InstanceConsolePage({ params }: ConsolePageProps) 
 
   const consensusRequired = varianceFlags.length > 0;
   const currentStage = compiled.currentStage;
+  const leaderboard = await computeLeaderboard(instance.id);
 
   return (
     <div className="space-y-6">
@@ -311,6 +314,91 @@ export default async function InstanceConsolePage({ params }: ConsolePageProps) 
           </div>
         </div>
       )}
+
+      {/* Reproducible Leaderboard & Live Rankings */}
+      <div className="rounded-xl border border-border bg-white p-5 shadow-sm space-y-4">
+        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 border-b border-border pb-3">
+          <div className="flex items-center gap-2">
+            <Trophy size={18} className="text-ceda-orange" />
+            <h2 className="text-base font-bold text-ceda-ink">
+              Reproducible Evaluation Leaderboard & Scoring Proof
+            </h2>
+          </div>
+          <Link
+            href={`/api/instances-engine/${instance.id}/leaderboard`}
+            target="_blank"
+            className="inline-flex items-center gap-1 rounded-lg border border-border bg-slate-50 px-2.5 py-1 text-xs font-semibold text-ceda-copper hover:bg-slate-100 transition"
+          >
+            Export Signed JSON <ExternalLink size={12} />
+          </Link>
+        </div>
+
+        {leaderboard && leaderboard.entries.length > 0 ? (
+          <div className="space-y-3">
+            <div className="flex flex-wrap items-center justify-between gap-2 rounded-lg bg-slate-50 p-3 text-xs border border-border">
+              <div className="flex items-center gap-2">
+                <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
+                <span className="text-ceda-slate">
+                  Leaderboard SHA-256 Fingerprint:{" "}
+                  <code className="font-mono font-bold text-ceda-ink">{leaderboard.leaderboardHash}</code>
+                </span>
+              </div>
+              <span className="text-[11px] text-ceda-slate">
+                Computed from {leaderboard.evaluatedEntriesCount} scored entries • Zero manual bias
+              </span>
+            </div>
+
+            <div className="overflow-x-auto">
+              <table className="w-full text-left text-xs">
+                <thead className="bg-slate-50 text-ceda-slate border-b border-border">
+                  <tr>
+                    <th className="px-3 py-2 font-semibold">Rank</th>
+                    <th className="px-3 py-2 font-semibold">Proposal Title</th>
+                    <th className="px-3 py-2 font-semibold">Reference Code</th>
+                    <th className="px-3 py-2 font-semibold">Organization</th>
+                    <th className="px-3 py-2 font-semibold text-right">Mean Score</th>
+                    <th className="px-3 py-2 font-semibold text-right">Reviewers</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-border">
+                  {leaderboard.entries.map((item) => (
+                    <tr key={item.entryId} className="hover:bg-slate-50/60 transition">
+                      <td className="px-3 py-2.5 font-bold">
+                        {item.rank === 1 ? (
+                          <span className="text-amber-600">🥇 1</span>
+                        ) : item.rank === 2 ? (
+                          <span className="text-slate-600">🥈 2</span>
+                        ) : item.rank === 3 ? (
+                          <span className="text-orange-600">🥉 3</span>
+                        ) : (
+                          `#${item.rank}`
+                        )}
+                      </td>
+                      <td className="px-3 py-2.5 font-semibold text-ceda-ink">
+                        {item.title}
+                      </td>
+                      <td className="px-3 py-2.5 font-mono text-ceda-copper font-medium">
+                        {item.referenceCode}
+                      </td>
+                      <td className="px-3 py-2.5 text-ceda-slate">{item.organizationName}</td>
+                      <td className="px-3 py-2.5 text-right">
+                        <span className="rounded bg-ceda-sand px-2 py-0.5 font-bold text-ceda-copper">
+                          {item.meanScore} pts
+                        </span>
+                      </td>
+                      <td className="px-3 py-2.5 text-right text-ceda-slate">{item.reviewerCount}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        ) : (
+          <p className="text-xs text-ceda-slate text-center py-6">
+            No completed evaluator submissions yet. The leaderboard will automatically compute and seal its cryptographic fingerprint once scoring begins.
+          </p>
+        )}
+      </div>
 
       {/* Two Column Layout: Version History & Audit Trail */}
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-2">

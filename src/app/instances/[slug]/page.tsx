@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { compileInstance } from "@/lib/instance-engine/compiler";
 import { ensureFlagshipInstance } from "@/lib/instance-engine/flagship";
+import { computeLeaderboard } from "@/lib/instance-engine/leaderboard";
 import { formatDate } from "@/lib/utils";
 import type { InstanceDefinition } from "@/lib/instance-engine/types";
 import {
@@ -12,6 +13,9 @@ import {
   CheckCircle2,
   HelpCircle,
   ArrowRight,
+  Trophy,
+  ShieldCheck,
+  ExternalLink,
 } from "lucide-react";
 import { PublicRuleVerifier } from "./verifier-client";
 
@@ -58,6 +62,7 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
   const currentStage = compiled.currentStage;
   const prizes = definition.meta?.prizes || [];
   const totalPrizePool = prizes.reduce((sum, p) => sum + (p.amountPula || 0), 0);
+  const leaderboard = await computeLeaderboard(instance.id);
 
   return (
     <div className="mx-auto max-w-5xl px-4 py-10 sm:px-6 lg:px-8 space-y-10">
@@ -235,6 +240,91 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
           ))}
         </div>
       </div>
+
+      {/* Reproducible Leaderboard & Standings */}
+      {leaderboard && leaderboard.entries.length > 0 && (
+        <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
+            <div className="flex items-center gap-2">
+              <Trophy size={20} className="text-ceda-orange" />
+              <h2 className="text-lg font-bold text-ceda-ink">Live Competition Standings & Leaderboard</h2>
+            </div>
+            <Link
+              href={`/api/instances-public/${instance.slug}/leaderboard`}
+              target="_blank"
+              className="inline-flex items-center gap-1.5 text-xs font-semibold text-ceda-copper hover:underline"
+            >
+              <span>Raw JSON & Proof</span>
+              <ExternalLink size={12} />
+            </Link>
+          </div>
+
+          <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 text-xs border border-border">
+            <div className="flex items-center gap-2">
+              <ShieldCheck size={16} className="text-emerald-600 shrink-0" />
+              <span className="text-ceda-slate">
+                Reproducible Fingerprint:{" "}
+                <code className="font-mono font-bold text-ceda-ink">{leaderboard.leaderboardHash.slice(0, 16)}...</code>
+              </span>
+            </div>
+            <span className="text-[11px] text-ceda-slate">
+              {leaderboard.evaluatedEntriesCount} evaluated proposals • Mathematically verified
+            </span>
+          </div>
+
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-xs">
+              <thead className="bg-slate-50 text-ceda-slate border-b border-border">
+                <tr>
+                  <th className="px-4 py-2.5 font-semibold">Rank</th>
+                  <th className="px-4 py-2.5 font-semibold">Project & Organization</th>
+                  <th className="px-4 py-2.5 font-semibold">Dossier Code</th>
+                  <th className="px-4 py-2.5 font-semibold text-right">Mean Score</th>
+                  <th className="px-4 py-2.5 font-semibold text-right">Reviewers</th>
+                </tr>
+              </thead>
+              <tbody className="divide-y divide-border">
+                {leaderboard.entries.map((entry) => (
+                  <tr key={entry.entryId} className="hover:bg-slate-50/60 transition">
+                    <td className="px-4 py-3 font-bold">
+                      {entry.rank === 1 ? (
+                        <span className="inline-flex items-center justify-center rounded-full bg-amber-100 text-amber-800 w-6 h-6 text-xs">
+                          🥇
+                        </span>
+                      ) : entry.rank === 2 ? (
+                        <span className="inline-flex items-center justify-center rounded-full bg-slate-200 text-slate-800 w-6 h-6 text-xs">
+                          🥈
+                        </span>
+                      ) : entry.rank === 3 ? (
+                        <span className="inline-flex items-center justify-center rounded-full bg-orange-100 text-orange-800 w-6 h-6 text-xs">
+                          🥉
+                        </span>
+                      ) : (
+                        <span className="text-ceda-slate">#{entry.rank}</span>
+                      )}
+                    </td>
+                    <td className="px-4 py-3">
+                      <div className="font-bold text-ceda-ink text-sm">{entry.title}</div>
+                      <div className="text-xs text-ceda-slate">{entry.organizationName}</div>
+                    </td>
+                    <td className="px-4 py-3 font-mono text-ceda-copper font-medium">
+                      {entry.referenceCode}
+                    </td>
+                    <td className="px-4 py-3 text-right">
+                      <span className="rounded-lg bg-ceda-sand px-2.5 py-1 font-bold text-ceda-copper">
+                        {entry.meanScore} pts
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-right text-ceda-slate">
+                      {entry.reviewerCount}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </div>
+      )}
 
       {/* Frequently Asked Questions */}
       {definition.channels?.faqs && definition.channels.faqs.length > 0 && (
