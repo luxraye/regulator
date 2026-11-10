@@ -25,6 +25,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { InfoTip } from "@/components/ui/info-tip";
 import { validateInstanceDefinition } from "@/lib/instance-engine/validator";
 import { computeRulesHash } from "@/lib/instance-engine/canonical";
 import { BLUEPRINT_CATALOG } from "@/lib/instance-engine/blueprints";
@@ -40,7 +41,14 @@ interface StudioBuilderProps {
   version?: number;
 }
 
-const SECTIONS = [
+const BASIC_SECTIONS = [
+  { id: "meta", label: "1. Basics & Prizes", icon: FileText, tip: "Challenge name, description, sector, and prize structure." },
+  { id: "timeline", label: "2. Dates & Stages", icon: Calendar, tip: "When entry opens, closes, and when judging takes place." },
+  { id: "eligibility", label: "3. Who Can Enter", icon: Shield, tip: "Citizen requirements, youth shareholding, and team size." },
+  { id: "rubric", label: "4. How It's Judged", icon: Award, tip: "Scoring criteria summing to 100%, and review rules." },
+];
+
+const ADVANCED_SECTIONS = [
   { id: "meta", label: "1. Metadata", icon: FileText },
   { id: "timeline", label: "2. Timeline & Stages", icon: Calendar },
   { id: "eligibility", label: "3. Eligibility Rules", icon: Shield },
@@ -68,6 +76,7 @@ export function StudioBuilder({
   );
 
   const [activeSection, setActiveSection] = useState<string>("meta");
+  const [studioMode, setStudioMode] = useState<"basic" | "advanced">("basic");
   const [viewMode, setViewMode] = useState<"visual" | "json">("visual");
   const [jsonText, setJsonText] = useState<string>(() => JSON.stringify(definition, null, 2));
   const [jsonError, setJsonError] = useState<string | null>(null);
@@ -349,12 +358,49 @@ export function StudioBuilder({
             {isExisting ? `Instance Studio: ${definition.meta?.name || "Edit Instance"}` : "Instance Studio: New Competition"}
           </h1>
           <p className="text-xs text-ceda-slate">
-            Configure all 11 programmable sections. Bi-directionally synchronized with executable JSON.
+            {studioMode === "basic"
+              ? "Simple 4-step setup for challenge administrators. Switch to Advanced mode anytime for JSON code and security guards."
+              : "Advanced 11-section engine with JSON synchronization, custom forms, security guards, and automated stage gates."}
           </p>
         </div>
 
         {/* Action Controls */}
         <div className="flex flex-wrap items-center gap-2">
+          {/* Mode Switcher: Simple vs Advanced */}
+          <div className="flex rounded-lg border border-border bg-slate-100 p-0.5">
+            <button
+              type="button"
+              onClick={() => {
+                setStudioMode("basic");
+                if (!["meta", "timeline", "eligibility", "rubric"].includes(activeSection)) {
+                  setActiveSection("meta");
+                }
+              }}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
+                studioMode === "basic"
+                  ? "bg-ceda-orange text-white shadow-sm"
+                  : "text-ceda-slate hover:text-ceda-ink"
+              )}
+            >
+              <Sparkles size={13} />
+              Simple (4 Steps)
+            </button>
+            <button
+              type="button"
+              onClick={() => setStudioMode("advanced")}
+              className={cn(
+                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-semibold transition",
+                studioMode === "advanced"
+                  ? "bg-ceda-ink text-white shadow-sm"
+                  : "text-ceda-slate hover:text-ceda-ink"
+              )}
+            >
+              <Sliders size={13} />
+              Advanced (11 Steps)
+            </button>
+          </div>
+
           {/* Blueprint selector */}
           <button
             type="button"
@@ -378,31 +424,33 @@ export function StudioBuilder({
             Simulate (Dry Run)
           </button>
 
-          {/* View mode toggle */}
-          <div className="flex rounded-lg border border-border bg-slate-100 p-0.5">
-            <button
-              type="button"
-              onClick={() => setViewMode("visual")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition",
-                viewMode === "visual" ? "bg-white text-ceda-ink shadow-sm" : "text-ceda-slate hover:text-ceda-ink"
-              )}
-            >
-              <Sliders size={13} />
-              Visual
-            </button>
-            <button
-              type="button"
-              onClick={() => setViewMode("json")}
-              className={cn(
-                "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition",
-                viewMode === "json" ? "bg-white text-ceda-ink shadow-sm" : "text-ceda-slate hover:text-ceda-ink"
-              )}
-            >
-              <Code2 size={13} />
-              JSON Code
-            </button>
-          </div>
+          {/* View mode toggle: Only shown or unlocked in Advanced mode */}
+          {studioMode === "advanced" ? (
+            <div className="flex rounded-lg border border-border bg-slate-100 p-0.5">
+              <button
+                type="button"
+                onClick={() => setViewMode("visual")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition",
+                  viewMode === "visual" ? "bg-white text-ceda-ink shadow-sm" : "text-ceda-slate hover:text-ceda-ink"
+                )}
+              >
+                <Sliders size={13} />
+                Visual
+              </button>
+              <button
+                type="button"
+                onClick={() => setViewMode("json")}
+                className={cn(
+                  "flex items-center gap-1.5 rounded-md px-3 py-1.5 text-xs font-medium transition",
+                  viewMode === "json" ? "bg-white text-ceda-ink shadow-sm" : "text-ceda-slate hover:text-ceda-ink"
+                )}
+              >
+                <Code2 size={13} />
+                JSON Code
+              </button>
+            </div>
+          ) : null}
 
           {/* Save Button */}
           <button
@@ -516,15 +564,18 @@ export function StudioBuilder({
           />
         </div>
       ) : (
-        /* Visual 11-Section Builder */
+        /* Visual Multi-Section Builder */
         <div className="grid grid-cols-1 gap-6 md:grid-cols-12">
           {/* Section Navigation Tabs */}
-          <div className="md:col-span-3 space-y-1">
+          <div className="md:col-span-3 space-y-3">
             <div className="rounded-xl border border-border bg-white p-2 shadow-sm space-y-1">
-              <div className="px-3 py-2 text-xs font-bold uppercase tracking-wider text-ceda-slate">
-                11 Sections
+              <div className="flex items-center justify-between px-3 py-2 text-xs font-bold uppercase tracking-wider text-ceda-slate">
+                <span>{studioMode === "basic" ? "4 Core Steps" : "11 Sections"}</span>
+                <span className="text-[10px] text-ceda-copper font-mono">
+                  {studioMode === "basic" ? "Simple Mode" : "Engine Mode"}
+                </span>
               </div>
-              {SECTIONS.map((sec) => {
+              {(studioMode === "basic" ? BASIC_SECTIONS : ADVANCED_SECTIONS).map((sec) => {
                 const Icon = sec.icon;
                 const hasErrors = validation.errors.some((e) => e.section === sec.id);
 
@@ -534,20 +585,20 @@ export function StudioBuilder({
                     type="button"
                     onClick={() => setActiveSection(sec.id)}
                     className={cn(
-                      "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs font-medium transition",
+                      "flex w-full items-center justify-between rounded-lg px-3 py-2.5 text-xs font-medium transition text-left",
                       activeSection === sec.id
                         ? "bg-ceda-orange text-white"
                         : "text-ceda-ink hover:bg-slate-100"
                     )}
                   >
-                    <div className="flex items-center gap-2.5">
+                    <div className="flex items-center gap-2.5 min-w-0">
                       <Icon size={14} className={activeSection === sec.id ? "text-white" : "text-ceda-orange"} />
-                      <span>{sec.label}</span>
+                      <span className="truncate">{sec.label}</span>
                     </div>
                     {hasErrors && (
                       <span
                         className={cn(
-                          "rounded-full px-1.5 py-0.2 text-[10px] font-bold",
+                          "rounded-full px-1.5 py-0.2 text-[10px] font-bold flex-shrink-0",
                           activeSection === sec.id ? "bg-white text-rose-700" : "bg-rose-100 text-rose-700"
                         )}
                         title="This section contains validation errors"
@@ -559,6 +610,26 @@ export function StudioBuilder({
                 );
               })}
             </div>
+
+            {/* In Basic Mode: Quick Switcher Promo to Advanced */}
+            {studioMode === "basic" && (
+              <div className="rounded-xl border border-dashed border-ceda-copper/30 bg-ceda-sand/40 p-3.5 text-xs space-y-2">
+                <div className="flex items-center gap-1.5 font-bold text-ceda-ink">
+                  <Sliders size={13} className="text-ceda-orange" />
+                  <span>Looking for custom forms?</span>
+                </div>
+                <p className="text-[11px] text-ceda-slate leading-relaxed">
+                  Switch to Advanced Engine to configure custom questionnaires, binary file filters, automated progression gates, and raw JSON.
+                </p>
+                <button
+                  type="button"
+                  onClick={() => setStudioMode("advanced")}
+                  className="w-full rounded-lg bg-white border border-border px-2.5 py-1.5 text-[11px] font-bold text-ceda-copper hover:bg-slate-50 transition shadow-sm text-center"
+                >
+                  Unlock Advanced Engine (11 Steps) →
+                </button>
+              </div>
+            )}
 
             {/* Validation Errors Box */}
             {validation.errors.length > 0 && (
@@ -587,13 +658,25 @@ export function StudioBuilder({
             {activeSection === "meta" && (
               <div className="space-y-4">
                 <div className="border-b border-border pb-3">
-                  <h2 className="text-lg font-bold text-ceda-ink">Section 1: Competition Metadata</h2>
-                  <p className="text-xs text-ceda-slate">General titles, partner identity, categories, and prize tiers.</p>
+                  <h2 className="text-lg font-bold text-ceda-ink">
+                    {studioMode === "basic" ? "Step 1: Basics & Prizes" : "Section 1: Competition Metadata"}
+                  </h2>
+                  <p className="text-xs text-ceda-slate">
+                    {studioMode === "basic"
+                      ? "Give your competition a name, category, partner identity, and prize pool."
+                      : "General titles, partner identity, categories, and prize tiers."}
+                  </p>
                 </div>
 
                 <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
                   <div>
-                    <label className="block text-xs font-semibold text-ceda-ink mb-1">Competition Title *</label>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <label className="text-xs font-semibold text-ceda-ink">Competition Title *</label>
+                      <InfoTip
+                        plain="The public name innovators and evaluators will see across the portal."
+                        technical="definition.meta.name. Canonicalized into rules hash."
+                      />
+                    </div>
                     <input
                       type="text"
                       value={definition.meta.name}
@@ -602,7 +685,13 @@ export function StudioBuilder({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-ceda-ink mb-1">Unique URL Slug *</label>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <label className="text-xs font-semibold text-ceda-ink">Unique Web Address Slug *</label>
+                      <InfoTip
+                        plain="The clean URL path for the competition (e.g. /instances/bdih-leap-2026)."
+                        technical="definition.meta.slug. Must be URL-safe lowercase with dashes."
+                      />
+                    </div>
                     <input
                       type="text"
                       value={definition.meta.slug}
@@ -611,7 +700,13 @@ export function StudioBuilder({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-ceda-ink mb-1">Partner Slug</label>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <label className="text-xs font-semibold text-ceda-ink">Host Partner</label>
+                      <InfoTip
+                        plain="The official institution hosting or sponsoring the challenge."
+                        technical="definition.meta.partnerSlug. Mapped to database Partner record."
+                      />
+                    </div>
                     <input
                       type="text"
                       value={definition.meta.partnerSlug}
@@ -620,7 +715,13 @@ export function StudioBuilder({
                     />
                   </div>
                   <div>
-                    <label className="block text-xs font-semibold text-ceda-ink mb-1">Category / Sector</label>
+                    <div className="flex items-center gap-1.5 mb-1">
+                      <label className="text-xs font-semibold text-ceda-ink">Category / Sector</label>
+                      <InfoTip
+                        plain="Priority national development sector (e.g. Agribusiness, HealthTech, AI)."
+                        technical="definition.meta.category. Used for portal filter chips and badges."
+                      />
+                    </div>
                     <input
                       type="text"
                       value={definition.meta.category || ""}
@@ -631,7 +732,13 @@ export function StudioBuilder({
                 </div>
 
                 <div>
-                  <label className="block text-xs font-semibold text-ceda-ink mb-1">Challenge Description *</label>
+                  <div className="flex items-center gap-1.5 mb-1">
+                    <label className="text-xs font-semibold text-ceda-ink">Challenge Description *</label>
+                    <InfoTip
+                      plain="Plain description of what innovators will build and why it matters."
+                      technical="definition.meta.description. Rendered in hero header and meta tags."
+                    />
+                  </div>
                   <textarea
                     rows={3}
                     value={definition.meta.description}
@@ -643,7 +750,13 @@ export function StudioBuilder({
                 {/* Prize Tiers */}
                 <div className="space-y-3 pt-2">
                   <div className="flex items-center justify-between">
-                    <h3 className="text-xs font-bold uppercase tracking-wider text-ceda-ink">Prize Structure</h3>
+                    <div className="flex items-center gap-1.5">
+                      <h3 className="text-xs font-bold uppercase tracking-wider text-ceda-ink">Prize Structure</h3>
+                      <InfoTip
+                        plain="Direct grants or cash prizes in Botswana Pula awarded to top placed teams."
+                        technical="definition.meta.prizes[]. Summed for total prize pool badges."
+                      />
+                    </div>
                     <button
                       type="button"
                       onClick={() => {
@@ -720,8 +833,20 @@ export function StudioBuilder({
               <div className="space-y-4">
                 <div className="border-b border-border pb-3 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-ceda-ink">Section 2: Stage Timeline</h2>
-                    <p className="text-xs text-ceda-slate">Define sequentially ordered competition stages and gates.</p>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-ceda-ink">
+                        {studioMode === "basic" ? "Step 2: Dates & Stages" : "Section 2: Stage Timeline"}
+                      </h2>
+                      <InfoTip
+                        plain="Controls the competition progression lifecycle. When a stage ends, the next opens automatically."
+                        technical="definition.timeline[]. Compiled into time-deterministic state machine."
+                      />
+                    </div>
+                    <p className="text-xs text-ceda-slate">
+                      {studioMode === "basic"
+                        ? "Schedule the start and end dates for applications, review rounds, and announcements."
+                        : "Define sequentially ordered competition stages and progression gates."}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -852,8 +977,20 @@ export function StudioBuilder({
               <div className="space-y-4">
                 <div className="border-b border-border pb-3 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-ceda-ink">Section 3: Eligibility Rules</h2>
-                    <p className="text-xs text-ceda-slate">Deterministic statutory rules evaluated on dossier ingress.</p>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-ceda-ink">
+                        {studioMode === "basic" ? "Step 3: Who Can Enter & Team Policy" : "Section 3: Eligibility Rules"}
+                      </h2>
+                      <InfoTip
+                        plain="Automated checks that verify citizen standing, youth shareholding, or company registration before entry is permitted."
+                        technical="definition.eligibility[]. Evaluated against applicant dossier on pre-flight check."
+                      />
+                    </div>
+                    <p className="text-xs text-ceda-slate">
+                      {studioMode === "basic"
+                        ? "Define statutory citizen eligibility criteria, youth shareholding thresholds, and team composition."
+                        : "Deterministic statutory rules evaluated on dossier ingress."}
+                    </p>
                   </div>
                   <button
                     type="button"
@@ -945,6 +1082,59 @@ export function StudioBuilder({
                     </div>
                   ))}
                 </div>
+
+                {/* Embedded Team Policy in Basic Mode */}
+                {studioMode === "basic" && (
+                  <div className="rounded-xl border border-border bg-slate-50 p-4 space-y-4 pt-4 mt-6">
+                    <div className="flex items-center justify-between border-b border-border pb-2">
+                      <div className="flex items-center gap-2">
+                        <Users size={16} className="text-ceda-orange" />
+                        <h3 className="text-sm font-bold text-ceda-ink">Team Size & Leadership Policy</h3>
+                      </div>
+                      <InfoTip
+                        plain="Specify how many innovators can collaborate together in a team dossier."
+                        technical="definition.team. Enforced at dossier submission time."
+                      />
+                    </div>
+
+                    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
+                      <div>
+                        <label className="block text-xs font-semibold text-ceda-ink mb-1">Minimum Team Size</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={10}
+                          value={definition.team.minSize}
+                          onChange={(e) => updateTeam({ minSize: Number(e.target.value) })}
+                          className="w-full rounded-lg border border-border p-2 text-sm text-ceda-ink bg-white focus:border-ceda-orange focus:outline-none"
+                        />
+                      </div>
+                      <div>
+                        <label className="block text-xs font-semibold text-ceda-ink mb-1">Maximum Team Size</label>
+                        <input
+                          type="number"
+                          min={1}
+                          max={20}
+                          value={definition.team.maxSize}
+                          onChange={(e) => updateTeam({ maxSize: Number(e.target.value) })}
+                          className="w-full rounded-lg border border-border p-2 text-sm text-ceda-ink bg-white focus:border-ceda-orange focus:outline-none"
+                        />
+                      </div>
+                    </div>
+
+                    <div className="space-y-2 pt-1">
+                      <label className="flex items-center gap-2 text-xs font-medium text-ceda-ink">
+                        <input
+                          type="checkbox"
+                          checked={definition.team.requireLeadCitizen}
+                          onChange={(e) => updateTeam({ requireLeadCitizen: e.target.checked })}
+                          className="rounded border-border text-ceda-orange focus:ring-ceda-orange"
+                        />
+                        Require lead applicant to be a verified Botswana Citizen (Omang verified)
+                      </label>
+                    </div>
+                  </div>
+                )}
               </div>
             )}
 
@@ -1200,9 +1390,19 @@ export function StudioBuilder({
               <div className="space-y-4">
                 <div className="border-b border-border pb-3 flex items-center justify-between">
                   <div>
-                    <h2 className="text-lg font-bold text-ceda-ink">Section 8: Scoring Rubric</h2>
+                    <div className="flex items-center gap-2">
+                      <h2 className="text-lg font-bold text-ceda-ink">
+                        {studioMode === "basic" ? "Step 4: How It's Judged (Scoring Rubric)" : "Section 8: Scoring Rubric"}
+                      </h2>
+                      <InfoTip
+                        plain="Each evaluator scores submissions according to these weighted criteria. The total must equal 100%."
+                        technical="definition.rubric.criteria[]. Validated by validateInstanceDefinition before publishing."
+                      />
+                    </div>
                     <p className="text-xs text-ceda-slate">
-                      Evaluation criteria weights. Total weight must sum to exactly 100%.
+                      {studioMode === "basic"
+                        ? "Set scoring criteria and percentage weights. Running total must equal exactly 100%."
+                        : "Evaluation criteria weights. Total weight must sum to exactly 100%."}
                     </p>
                   </div>
                   <div className="flex items-center gap-2">
