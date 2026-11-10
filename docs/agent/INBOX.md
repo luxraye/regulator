@@ -2,6 +2,9 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 09:50 UTC — HEADLINE VISION added to the brief (Fix 5)
+The owner wants a signature "tech brought to life" experience: a **singularity / constellation hub** where an idea sits at the centre and the lifecycle stages orbit as nodes you click to branch into each section (the hub becomes the site index, collapsing the long page into one explorable map), plus a **"Play the journey"** control that animates one demo idea through the whole lifecycle end-to-end and loops (the "closed lifecycle sample timeline"), with restrained carousels/motion elsewhere. Think reach-everything-nothing-cumbersome, but **never at the cost of findability** — keep the plain nav + section list as a fallback, honour reduced-motion, keep Lighthouse ≥ 90. Full spec in **`docs/agent/ux-image-brief.md` → Fix 5 (5a constellation, 5b timeline, 5c motion, 5d non-negotiables)**. Build order: Fix 1 (navbar) + Fix 2 (hero) first for a fast win, then Fix 5a (static constellation + branching) for screenshots before polishing.
+
 ## 2026-11-10 09:40 UTC — NEW TASK: UX polish + image refresh (post-rollout)
 The owner's feedback: the portal has all the features but "feels a bit much" and "it's not beautiful". The judging panel is not all developers — sophistication we must explain loses marks; depth that is self-explanatory wins. They want: a lab-interior hero, all images reviewed/replaced, the clumsy free-floating top navbar grouped into a few dropdown "cards", progressive disclosure (collapsibles + corner `(i)` info-buttons + simpler language), and an overall "wow" first impression where a visitor learns each section without guidance.
 Full, buildable brief with the navbar grouping, the slot-by-slot image table (license-free Pexels/Unsplash candidates) and the copy examples: **`docs/agent/ux-image-brief.md`**. Read it in full.

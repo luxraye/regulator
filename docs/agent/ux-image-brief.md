@@ -75,3 +75,33 @@ Also review the unused files (`city-aerial`, `delta-aerial`, `founder-laptop`, `
 - Keep the "Demo data: fictional teams" banners from Phase 9/10.
 
 Do a first pass, push the PR, and I'll review screenshots and send refinements. Prioritise Fix 1 (navbar) and Fix 2 (hero) first — they're the strongest first-impression wins.
+
+---
+
+## Fix 5 — Signature experience: the "Idea Lifecycle" constellation + motion system (owner's headline vision)
+
+The owner wants the portal to "feel like tech brought to life — Tony Stark going over his screens, everything within reach but nothing cumbersome." A **singularity**: one centre from which sections branch, and each branch lets you branch further. Plus a **closed lifecycle flow of one idea moving through every section, like a sample timeline**. Deliver this as **one signature showpiece**, not by scattering motion everywhere — and never at the cost of findability (the owner was explicit: "without making it hard for any user to locate any section").
+
+### 5a. The constellation hub (the "singularity")
+Build an interactive hub — the centrepiece of the landing page, reused on `/judges`:
+- A central glowing node = **"An idea."** Around it, the lifecycle **stages orbit as nodes** (a constellation / radial map): Apply → Check eligibility → Build → Submit → Pre-flight checks → Blind scoring → Panel & shortlist → Award. Use the real flagship-hackathon stages from the Instance definition.
+- **Branching:** click a node and it blooms into a compact card — what happens here, who acts, and the integrity feature at that step (the seal, the signed receipt, the hash-chained audit) each with its one-line `(i)` plain-language explainer. A "Go to section →" link branches onward to that section's real page. So the hub *is* the site index: the 6,400px / 11-section wall collapses into one explorable map.
+- **Depth, not clutter:** the selected branch pulls forward, the rest gently recede/dim (parallax + scale). Nodes float subtly. This is the "everything within reach, nothing cumbersome" feel.
+- **Findability guardrail:** always keep a plain, visible fallback — the dropdown-card nav (Fix 1) and a simple text list of all sections — so no user is ever forced through the animation to reach a page. The constellation is a layer **over** a conventional, usable structure, never a replacement.
+
+### 5b. "Play the journey" — the sample lifecycle timeline (closed loop)
+A **Play** control on the hub animates one demo idea through the **entire lifecycle end to end**, then loops back to the start:
+- Use a seeded demo entry (e.g. "Smart Solar Chilling"). Animate the real state machine: `DRAFT → SUBMITTED → (pre-flight checks pass, receipt sealed) → UNDER_REVIEW → two blind scorecards land → variance checked → SHORTLISTED → panel consensus → AWARDED → certificate issued`.
+- Each step lights its node, shows a one-line caption of what just happened and which integrity artdefact it produced, and advances along a timeline rail. It's a 20–30s self-running story a judge can watch once and *understand the whole platform* — no guide needed. Pausable, step-through, and it returns to the start (the "closed lifecycle" the owner asked for).
+
+### 5c. Motion & carousels elsewhere (restrained)
+- **Role lens:** a rotating/segmented selector — "See it as an Innovator / Evaluator / Judge / Partner" — that re-skins the hub to that role's path.
+- **Carousels:** the sector matrix and the Funded showcase as smooth, draggable/scrollable carousels rather than long stacks.
+- **Micro-interactions:** hover-lift on cards, smooth accordion expands, subtle on-scroll reveals. Tasteful, fast, consistent.
+
+### 5d. Non-negotiables
+- **Accessibility & performance:** honour `prefers-reduced-motion` (fall back to a static constellation + a step-through timeline with no auto-animation); keep it 60fps and light enough that Lighthouse mobile stays ≥ 90; everything keyboard-navigable; the hub degrades to the plain section list if JS fails.
+- **Brand:** CEDA orange accent, glow/depth cues welcome, **no cursive/script fonts.**
+- **Build order within this fix:** (1) the static constellation layout + branching, (2) the "Play the journey" timeline, (3) the motion polish and carousels. Ship 5a first for screenshots before going further.
+
+This is the owner's headline "wow." Treat Fix 1/Fix 2 as the fast first-impression wins and Fix 5a–5b as the signature moment; get a first pass of the constellation up for review before polishing.
