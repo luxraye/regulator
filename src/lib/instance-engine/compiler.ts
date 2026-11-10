@@ -56,7 +56,8 @@ export function compileInstance(
   const now = asOf.getTime();
   const rulesHash = computeRulesHash(definition);
 
-  const compiledStages: CompiledStage[] = definition.timeline.map((stage) => {
+  const rawTimeline = Array.isArray(definition?.timeline) ? definition.timeline : [];
+  const compiledStages: CompiledStage[] = rawTimeline.map((stage) => {
     const startMs = new Date(stage.start).getTime();
     const endMs = new Date(stage.end).getTime();
     const durationHours = Math.max(0, Math.round(((endMs - startMs) / 3_600_000) * 10) / 10);
@@ -89,42 +90,62 @@ export function compileInstance(
   const activeGate = currentStage ? currentStage.gate : "none";
 
   const formsByStageId: Record<string, FormStageDefinition> = {};
-  for (const form of definition.forms) {
-    formsByStageId[form.stageId] = form;
+  const rawForms = Array.isArray(definition?.forms) ? definition.forms : [];
+  for (const form of rawForms) {
+    if (form?.stageId) {
+      formsByStageId[form.stageId] = form;
+    }
   }
 
   const activeForm = currentStage && formsByStageId[currentStage.id] ? formsByStageId[currentStage.id] : null;
 
-  const totalPrizesPula = definition.meta.prizes.reduce((sum, p) => sum + (p.amountPula || 0), 0);
+  const rawPrizes = Array.isArray(definition?.meta?.prizes) ? definition.meta.prizes : [];
+  const totalPrizesPula = rawPrizes.reduce((sum, p) => sum + (p.amountPula || 0), 0);
 
+  const rawRubric = definition?.rubric || ({} as any);
   const rubric: CompiledRubric = {
-    criteria: definition.rubric.criteria,
-    reviewersPerEntry: definition.rubric.reviewersPerEntry,
-    blind: definition.rubric.blind,
-    disagreementThreshold: definition.rubric.disagreementThreshold,
-    consensusRequired: definition.rubric.consensusRequired,
-    publicVoteWeight: definition.rubric.publicVoteWeight ?? 0,
+    criteria: Array.isArray(rawRubric.criteria) ? rawRubric.criteria : [],
+    reviewersPerEntry: rawRubric.reviewersPerEntry ?? 1,
+    blind: Boolean(rawRubric.blind),
+    disagreementThreshold: rawRubric.disagreementThreshold ?? 20,
+    consensusRequired: Boolean(rawRubric.consensusRequired),
+    publicVoteWeight: rawRubric.publicVoteWeight ?? 0,
     maxScore: 100,
+  };
+
+  const rawGuards = definition?.guards || {
+    maxFileSizeMb: 50,
+    allowedMimeTypes: ["application/pdf", "image/png", "image/jpeg"],
+    blockedMagicBytes: ["4d5a", "7f454c46"],
+    requireScanClean: true,
+    allowedExtensions: [".pdf", ".png", ".jpg", ".docx"],
+  };
+
+  const rawTeam = definition?.team || {
+    minSize: 1,
+    maxSize: 5,
+    requireAllCitizen: false,
+    ageLimit: null,
   };
 
   return {
     rulesHash,
-    name: definition.meta.name,
-    slug: definition.meta.slug,
-    partnerSlug: definition.meta.partnerSlug,
+    name: definition?.meta?.name || "Instance",
+    slug: definition?.meta?.slug || "instance",
+    partnerSlug: definition?.meta?.partnerSlug || "ceda",
     stages: compiledStages,
     currentStage,
     activeGate,
     formsByStageId,
     activeForm,
     rubric,
-    guards: definition.guards,
+    guards: rawGuards,
     summary: {
       totalPrizesPula,
-      stageCount: definition.timeline.length,
-      teamSizeLimit: `${definition.team.minSize}–${definition.team.maxSize} members`,
-      isBlind: definition.rubric.blind,
-      hasPublicVote: (definition.rubric.publicVoteWeight ?? 0) > 0,
+      stageCount: rawTimeline.length,
+      teamSizeLimit: `${rawTeam.minSize ?? 1}–${rawTeam.maxSize ?? 5} members`,
+      isBlind: rubric.blind,
+      hasPublicVote: rubric.publicVoteWeight > 0,
     },
   };
 }
