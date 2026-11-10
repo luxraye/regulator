@@ -1,4 +1,4 @@
-const CACHE_NAME = "ceda-portal-v1";
+const CACHE_NAME = "ceda-portal-v2";
 
 const SHELL_URLS = [
   "/",
@@ -29,18 +29,33 @@ self.addEventListener("activate", (event) => {
 self.addEventListener("fetch", (event) => {
   if (event.request.method !== "GET") return;
 
-  // Network-first for API calls and auth
-  if (event.request.url.includes("/api/") || event.request.url.includes("/auth/")) {
+  // Pass through dynamic, authenticated, and API routes
+  if (
+    event.request.url.includes("/api/") ||
+    event.request.url.includes("/auth/") ||
+    event.request.url.includes("/dashboard")
+  ) {
     return;
   }
 
   event.respondWith(
     fetch(event.request)
       .then((response) => {
-        const clone = response.clone();
-        caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        if (response && response.status === 200 && response.type === "basic") {
+          const clone = response.clone();
+          caches.open(CACHE_NAME).then((cache) => cache.put(event.request, clone));
+        }
         return response;
       })
-      .catch(() => caches.match(event.request))
+      .catch(async () => {
+        const cached = await caches.match(event.request);
+        if (cached) return cached;
+        // Never return undefined to respondWith (prevents 'TypeError: Failed to convert value to Response')
+        return new Response("Offline", {
+          status: 503,
+          statusText: "Service Unavailable",
+          headers: { "Content-Type": "text/plain" },
+        });
+      })
   );
 });

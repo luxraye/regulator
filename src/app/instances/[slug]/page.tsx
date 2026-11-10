@@ -244,7 +244,7 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
         </div>
       </div>
 
-      {/* Reproducible Leaderboard & Standings */}
+      {/* Fair ranking anyone can re-check */}
       {leaderboard && leaderboard.entries.length > 0 && (
         <div className="rounded-2xl border border-border bg-white p-6 shadow-sm space-y-4">
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-border pb-3">
