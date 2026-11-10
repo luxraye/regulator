@@ -383,3 +383,27 @@ test("sign out returns to the home page with no 404 or login loop", async ({ pag
   await expect(page).not.toHaveURL(/\/login/);
   await expect(page.locator("h1").first()).toBeVisible();
 });
+
+test.describe("Phase 12 & 12b Human UX & Singularity Hub", () => {
+  test("public home page renders human hero, photo mosaic, and singularity hub", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("h1").first()).toBeVisible();
+    const infoTips = page.locator("button[aria-label*='More information']");
+    expect(await infoTips.count()).toBeGreaterThan(0);
+    await expect(page.locator("text=CEDA IDEA ENGINE")).toBeVisible();
+  });
+
+  test("/journey renders 16 sequential steps and playback controls", async ({ page }) => {
+    await page.goto("/journey");
+    await expect(page.locator("h1")).toContainText("Idea Lifecycle");
+    for (let step = 1; step <= 16; step++) {
+      await expect(page.locator(`#step-card-${step}`)).toBeVisible();
+    }
+  });
+
+  test("public header navigates between grouped menu cards", async ({ page }) => {
+    await page.goto("/");
+    await expect(page.locator("header")).toBeVisible();
+    await expect(page.getByRole("link", { name: /5-Min Judges' Tour/i })).toBeVisible();
+  });
+});
