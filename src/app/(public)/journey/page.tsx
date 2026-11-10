@@ -418,7 +418,7 @@ export default function LivingIdeaLifecyclePage() {
 
         <div>
           <h1 className="text-3xl font-extrabold tracking-tight text-ceda-ink sm:text-4xl">
-            Follow an Idea&apos;s Complete Journey
+            The Living Idea Lifecycle: Follow an Idea&apos;s Complete Journey
           </h1>
           <p className="mt-2 text-sm text-ceda-slate sm:text-base leading-relaxed max-w-3xl">
             Watch one citizen innovation travel from a 30-second eligibility check all the way to an awarded P150,000 grant, a verified digital certificate, and a tamper-proof activity record.

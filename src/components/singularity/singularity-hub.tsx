@@ -526,8 +526,8 @@ export function SingularityHub({
           <div className="flex h-10 w-10 sm:h-12 sm:w-12 items-center justify-center rounded-full bg-white/20 text-white shadow-inner">
             <Compass className="h-6 w-6 sm:h-7 sm:w-7 animate-pulse text-white" />
           </div>
-          <span className="mt-1 font-extrabold text-[11px] sm:text-xs uppercase tracking-wider text-white">
-            Instances
+          <span className="mt-1 font-extrabold text-[10px] sm:text-xs uppercase tracking-wider text-white">
+            CEDA IDEA ENGINE
           </span>
           <span className="text-[9px] text-white/80 font-medium">Core Map</span>
         </div>

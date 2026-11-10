@@ -29,6 +29,11 @@ export function HumanHero({ stats }: { stats: StatItem[] }) {
         {/* Layered gradients for readability and warm CEDA glow */}
         <div className="absolute inset-0 bg-gradient-to-t from-ceda-ink via-ceda-ink/80 to-transparent" />
         <div className="absolute inset-0 bg-gradient-to-r from-ceda-ink via-ceda-ink/90 to-transparent" />
+
+        {/* Photo attribution for Deo photographer / ThisisEngineering */}
+        <div className="absolute bottom-3 right-3 z-10 text-[11px] text-white/60 bg-black/40 px-2 py-1 rounded backdrop-blur-sm">
+          Photo: Deo photographer / ThisisEngineering (<a href="https://commons.wikimedia.org/wiki/File:Computer_engineer.jpg" target="_blank" rel="noreferrer" className="underline">CC BY-SA 4.0</a>)
+        </div>
       </div>
 
       <div className="relative z-10 mx-auto max-w-7xl px-4 py-16 sm:px-6 lg:px-8 lg:py-24 space-y-12">

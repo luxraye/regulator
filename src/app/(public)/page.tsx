@@ -8,6 +8,7 @@ import { FeaturedFlagshipCard } from "@/components/home/featured-flagship-card";
 import { CompetitionBuilderVisual } from "@/components/home/competition-builder-visual";
 import { WhoItsForTabs } from "@/components/home/who-its-for-tabs";
 import { SectorsAndFundedSection } from "@/components/home/sectors-and-funded";
+import { PhoneFlipCard } from "@/components/home/phone-flip-card";
 
 export const dynamic = "force-dynamic";
 
@@ -95,6 +96,24 @@ export default async function HomePage() {
 
       {/* 6. Who It's For: Innovators, Evaluators, CEDA Team, Partners Tabs */}
       <WhoItsForTabs />
+
+      {/* 6b. Mobile First Access: Phone Simulator & QR Code */}
+      <section className="bg-sand-50 py-16 border-b border-border">
+        <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 text-center space-y-6">
+          <div className="max-w-2xl mx-auto space-y-2">
+            <span className="rounded-full bg-ceda-orange/10 px-3.5 py-1 text-xs font-bold uppercase tracking-wider text-ceda-orange">
+              Mobile First
+            </span>
+            <h2 className="text-3xl font-extrabold text-ceda-ink sm:text-4xl">
+              Apply From Any Phone
+            </h2>
+            <p className="text-xs sm:text-sm text-ceda-ink/70">
+              Flip to reveal the QR code to test on your smartphone, or dial *161# for offline USSD submission.
+            </p>
+          </div>
+          <PhoneFlipCard />
+        </div>
+      </section>
 
       {/* 7. Sectors Mosaic, Recently Funded Carousel & Okavango CTA Band */}
       <SectorsAndFundedSection />
