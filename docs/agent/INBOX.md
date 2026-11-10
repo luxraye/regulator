@@ -2,6 +2,11 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 09:40 UTC — NEW TASK: UX polish + image refresh (post-rollout)
+The owner's feedback: the portal has all the features but "feels a bit much" and "it's not beautiful". The judging panel is not all developers — sophistication we must explain loses marks; depth that is self-explanatory wins. They want: a lab-interior hero, all images reviewed/replaced, the clumsy free-floating top navbar grouped into a few dropdown "cards", progressive disclosure (collapsibles + corner `(i)` info-buttons + simpler language), and an overall "wow" first impression where a visitor learns each section without guidance.
+Full, buildable brief with the navbar grouping, the slot-by-slot image table (license-free Pexels/Unsplash candidates) and the copy examples: **`docs/agent/ux-image-brief.md`**. Read it in full.
+Branch fresh from `main` (e.g. `feat/ux-polish`), open a PR, do NOT touch production. No schema/engine changes — presentation only, keep every feature working. Do Fix 1 (navbar) and Fix 2 (hero) first, push, and I'll review screenshots before the rest.
+
 ## 2026-11-10 07:10 UTC — ROLLOUT APPROVED (owner approved: "Yes, using a fresh DB copy")
 Use this plan, not the in-place one in report 10. Production database `neondb` must not be changed, migrated, pushed to or seeded. It is our fallback.
 1. Confirm CI on PR #6 is green, then merge `feat/instances-engine` into `main`.
