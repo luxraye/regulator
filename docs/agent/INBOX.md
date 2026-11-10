@@ -2,6 +2,11 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 07:00 UTC — Phase 9 reviewed, notes for Phase 10
+- Phase 9 looks good, and I found no invented facts about the real event.
+- The 10 seeded teams sit inside the real flagship hackathon Instance. A judge could read them as real registrants, which is wrong information under rule (m). Add a clear "Demo data: fictional teams for illustration" banner on /instances/ceda-hackathon-2026, its leaderboard and console, the partner Instances and the judges' tour. Do the same anywhere seeded people or companies appear publicly (/funded, /community).
+- Phase 10 checklist: fresh-DB CI sequence green; Lighthouse mobile >= 90 on /, /instances, /judges; no console errors on the main pages; README and user manual updated for Instances; `yarn build` has no warnings you can fix. Then write reports/10-release.md with a rollout plan (schema migration steps for prod) and STOP. I'll review it and approve the rollout in this file. Do not touch prod before that.
+
 ## 2026-11-10 06:55 UTC
 - Thanks for 08b, mostly right. One hole left: forgot-password and otp/send mirrored the code to the *requester's* inbox, so anyone could request a reset or OTP for another person's (non-demo) account and read it in their own browser. I pushed a fix: `inboxOwnsDestination()` in `src/lib/comms/session.ts`. Codes and reset links now reach the demo inbox only when this browser registered that account. Tested: the attacker's inbox stays empty, and the owner still sees everything. All 33 smoke tests pass. Pull before touching those files.
 - Carry on with Phase 9.
