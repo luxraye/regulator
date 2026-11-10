@@ -44,21 +44,48 @@ const ROLES = [
     roleLabel: "Super admin",
     home: "/dashboard/admin",
   },
+  {
+    role: "Partner admin",
+    code: "PARTNER_ADMIN",
+    email: "bdih.admin@demo.ceda.bw",
+    name: "Kagiso Moeti",
+    roleLabel: "Partner admin",
+    home: "/dashboard/partner/settings",
+  },
+  {
+    role: "Consultant",
+    code: "CONSULTANT",
+    email: "consultant@demo.ceda.bw",
+    name: "Neo Molefe",
+    roleLabel: "Consultant",
+    home: "/dashboard/consultant",
+  },
+  {
+    role: "Committee observer",
+    code: "COMMITTEE_OBSERVER",
+    email: "observer@demo.ceda.bw",
+    name: "Boitumelo Kgosiemang",
+    roleLabel: "Committee observer",
+    home: "/dashboard/observer",
+  },
 ];
 
 const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
-  ["/dashboard/instances", ["ADMIN", "SUPERADMIN"]],
+  ["/dashboard/instances", ["ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
   ["/dashboard/superadmin", ["SUPERADMIN"]],
-  ["/dashboard/admin", ["ADMIN", "SUPERADMIN"]],
+  ["/dashboard/admin", ["ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
   ["/dashboard/panel", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/reports", ["ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN", "COMMITTEE_OBSERVER"]],
   ["/dashboard/evaluator", ["EVALUATOR"]],
   ["/dashboard/innovator", ["INNOVATOR"]],
-  ["/dashboard/calls", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
-  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/calls", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN", "CONSULTANT", "COMMITTEE_OBSERVER"]],
+  ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN"]],
+  ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN", "PARTNER_ADMIN", "CONSULTANT", "COMMITTEE_OBSERVER"]],
   ["/dashboard/subscriptions", ["INNOVATOR"]],
   ["/dashboard/profile", ["INNOVATOR"]],
+  ["/dashboard/partner", ["PARTNER_ADMIN"]],
+  ["/dashboard/consultant", ["CONSULTANT"]],
+  ["/dashboard/observer", ["COMMITTEE_OBSERVER"]],
 ];
 
 const PUBLIC_PAGES = [
@@ -78,6 +105,7 @@ const PUBLIC_PAGES = [
   "/status",
   "/faq",
   "/demo-inbox",
+  "/judges",
 ];
 
 /** Fails the test on uncaught page errors, which is what a crashed React tree looks like. */
@@ -143,6 +171,65 @@ test.describe("public site", () => {
     expect(getRes.ok()).toBeTruthy();
     const getJson = await getRes.json();
     expect(getJson.messages).toEqual([]);
+  });
+
+  test("instance engine simulator dry-run diagnostics", async ({ request }) => {
+    const simBad = await request.post("/api/instances-engine/simulate", {
+      data: {
+        definition: {
+          meta: { name: "Test Incomplete", slug: "test-bad" },
+          rubric: { criteria: [{ key: "c1", label: "C1", weight: 50 }] },
+        },
+      },
+    });
+    expect(simBad.ok()).toBeTruthy();
+    const badJson = await simBad.json();
+    expect(badJson.pass).toBe(false);
+    expect(badJson.errors.length).toBeGreaterThan(0);
+
+    const blueprintsRes = await request.get("/api/instances-engine/blueprints");
+    expect(blueprintsRes.ok()).toBeTruthy();
+  });
+
+  test("pre-flight security guard blocks executable disguised as PDF", async () => {
+    const { verifyMagicBytes } = await import("../../src/lib/guards/magic-bytes");
+    const exeBuffer = Buffer.from("MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00This is a test executable");
+    const result = verifyMagicBytes("disguised_file.pdf", exeBuffer);
+    expect(result.valid).toBe(false);
+    expect(result.detectedMime).toBe("application/x-dosexec");
+  });
+
+  test("registration and verification dispatch via demo inbox", async ({ request }) => {
+    const testEmail = `innovator-${Date.now()}@test.ceda.bw`;
+    const regRes = await request.post("/api/auth/register", {
+      data: {
+        name: "Test Founder",
+        email: testEmail,
+        password: "ValidPassword123!",
+        phone: "+26772123456",
+        organizationName: "Test Founder Ventures (Pty) Ltd",
+      },
+    });
+    expect(regRes.ok()).toBeTruthy();
+
+    const inboxRes = await request.get("/api/demo-inbox");
+    expect(inboxRes.ok()).toBeTruthy();
+    const inboxData = await inboxRes.json();
+    const verMsg = inboxData.messages?.find((m: any) => m.to.toLowerCase() === testEmail.toLowerCase());
+    expect(verMsg).toBeDefined();
+    expect(verMsg.body).toContain("Verify Your Email");
+  });
+
+  test("chat out-of-hours evaluation and schedule probe", async ({ request }) => {
+    const statusRes = await request.get("/api/chat/status");
+    expect(statusRes.ok()).toBeTruthy();
+    const statusData = await statusRes.json();
+    expect(statusData).toHaveProperty("isOpen");
+    expect(statusData.operatingHours).toContain("09:00 - 16:00 CAT");
+
+    const { getConsultingHoursStatus } = await import("../../src/lib/chat/hours");
+    const midnight = new Date("2026-11-10T00:00:00+02:00");
+    expect(getConsultingHoursStatus(midnight).open).toBe(false);
   });
 
   test("security headers, hero photo credit, login judge copy, and how-to-judge guide are present", async ({ page, request }) => {

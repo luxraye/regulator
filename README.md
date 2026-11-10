@@ -1,85 +1,100 @@
-# CEDA Innovation Portal
+# CEDA Innovation Management Portal
 
-A single place for young Batswana to submit innovative ideas to CEDA (Citizen Entrepreneurial Development Agency), have them scored fairly by independent evaluators, follow their application through every stage, and get funded or get feedback they can act on.
+A tamper-evident, programmable innovation challenge and venture management portal for the **Citizen Entrepreneurial Development Agency (CEDA)**, built in partnership with the **Botswana Digital & Innovation Hub (BDIH)** and **BTC Innovation**.
 
-Built for the CEDA Innovation Portal hackathon (6–10 November 2026). See [`hackathon.md`](hackathon.md) for the plain-English pitch and a demo script.
+Developed for the **CEDA Innovation Management Portal Hackathon 2026** (6–10 November 2026).
+- **Pitch & Hackathon Submission**: [`hackathon.md`](hackathon.md)
+- **Role-by-Role User Manual**: [`docs/user-manual.md`](docs/user-manual.md)
+- **Judges' 5-Minute Guided Tour**: Accessible at [`/judges`](/judges)
 
-## How it meets the brief (section 3.2)
+---
 
-| Requirement | What the portal does |
-| --- | --- |
-| **(a) Idea submission with mandatory fields** | Each call has its own form (problem, solution, novelty, customers, team, funding, jobs, impact, plus call-specific questions) with validation, draft saving, and required documents (pitch deck, CIPA certificate). Documents are SHA-256 hashed in the browser and on the server; a mismatch is refused. Submitting returns a signed receipt. |
-| **(b) Multi-level evaluation** | Programme admin screens (with automatic eligibility, funding-ceiling, cost-per-job and answer-depth checks), then assigns 1–5 evaluators. Each evaluator declares conflicts of interest before seeing the idea, then scores blind on weighted criteria (1–5, weighted to 100) with feedback and a private note. When all scores are in, the idea moves to the adjudication panel, which sees a ranked shortlist, every scorecard side by side, and a flag where evaluators disagree by more than 20 points. Criteria and weights are customisable per call. |
-| **(c) Real-time tracking and notifications** | Five-stage journey (Submission → Review → Feedback → Approval → Award) on every idea, in-app notifications for each transition, public tracking by reference, and USSD tracking with SMS confirmation for founders without data. |
-| **(d) Role-based access** | Innovator, Evaluator, Adjudicator, Programme admin, Super admin. Enforced by middleware on pages and again in every API route. Evaluators never see Omang, age, gender or contact details. |
-| **(e) Feedback and iteration** | Admins and the panel can request changes with a note; the innovator edits and resubmits (counted and audited). A message thread links innovator and CEDA, with internal notes for staff. After a decision, innovators see anonymous evaluator comments and per-criterion averages. |
-| **(f) Reporting** | Participation (by call, sector, district, gender, age band, women-led and rural share), outcomes (funnel, success rate, total and average award, jobs promised), timelines (days to screening, shortlist, decision), evaluator workload, and CSV export without personal identifiers. |
-| **(g) Scalability and modularity** | Calls are data, not code: a new call is a form schema plus criteria. Sector × stage matrix shows coverage. Stateless Next.js on Vercel with Postgres; files in the database with hashes; every list is indexed and paginated where it grows. |
+## Key Capabilities & Architectural Pillars
 
-**Eligibility (section 4.2):** citizens aged 18–35, applying through a CIPA-registered company more than 50% youth-owned. Checked at sign-up, again when starting an application, and shown on the innovator's dashboard. A public checker needs no account.
+### 1. Programmable Instances Engine
+Competitions and grant calls are machine-executable JSON blueprints:
+- **Canonical Key-Order Invariance & SHA-256 RulesHash**: Every stage, timeline boundary, AST eligibility rule, and rubric weight is canonicalized into a tamper-evident cryptographic fingerprint.
+- **Instance Studio Builder (`/dashboard/instances`)**: 11-section studio builder allowing programme staff to construct, simulate (dry run), compile, and publish challenges.
+- **Dynamic AST Eligibility**: Compound logic engines (`ALL`, `ANY`, `NOT`) enforcing statutory citizen youth criteria (ages 18–35, >50% youth equity, CIPA registration).
 
-**Data Protection Act 2024:** recorded consent, privacy notice, Omang masked on screen, need-to-know access for evaluators, self-service JSON export of all personal data, and audit of every document download.
+### 2. Pre-Emptive Security Pre-Flight Guards
+Zero-trust file inspection before uploads touch permanent database storage:
+- **Magic-Byte Sniffing**: Inspects raw binary byte signatures to block executables (PE/MZ) disguised as PDFs or archives.
+- **Zip-Slip & Bomb Neutralizer**: Protects against directory traversal (`../`) and decompression bombs (100:1 ratio cap).
+- **Automated Secret & Credential Scanning**: Blocks source code archives containing exposed AWS credentials or private keys.
+- **PDF Page Boundary Guard**: Enforces strict page caps (<=10 pages for technical proposals).
 
-## Demo accounts
+### 3. Reproducible Leaderboard & Audit Hash Chaining
+- **Deterministic Rubric Standings**: Automatically ranks ventures using the official 100-point rubric with conflict declarations, disagreement flags (>20 points), and consensus notes, generating a reproducible `leaderboardHash`.
+- **SHA-256 Chained Audit Trail**: State transitions are sequentially chained (`prevHash` -> `hash`) and verifiable whole-ledger via `/api/audit/verify`.
 
-Every account uses the password `CedaDemo2026!`. The login page has one-click buttons for each role (hide them with `NEXT_PUBLIC_SHOW_DEMO_LOGINS=false`).
+### 4. Multi-Tenant Partner Spaces
+- **Autonomous Partner Workspaces**: Dedicated spaces for BDIH (`/partners/bdih`) and BTC Innovation (`/partners/btc`) with dynamic theme token injection, isolated evaluator rosters, and partner-scoped audit trails.
+- **Partner API v1 & Webhooks**: Scoped API keys with HMAC-SHA256 signed event delivery.
 
-| Role | Email | What to look at |
-| --- | --- | --- |
-| Innovator | innovator@demo.ceda.bw | One idea awarded P320,000, one with changes requested and a message thread |
-| Evaluator | evaluator@demo.ceda.bw | An idea waiting for a conflict declaration and scores |
-| Adjudicator | panel@demo.ceda.bw | Ranked shortlist, including one with disagreeing evaluators |
-| Programme admin | admin@demo.ceda.bw | Screening queue, assigning evaluators, calls, reports |
-| Super admin | super@demo.ceda.bw | People and roles, sector matrix, verification tools, audit trail |
+### 5. Operational Governance, Live Chat & P734/mo Economics
+- **CEDA Consultant Live Chat**: In-app advisory queue enforcing 09:00–16:00 CAT weekday operating hours and Botswana public holidays.
+- **Statutory Regulatory Directory**: Verified contacts for all 8 national regulatory authorities (CIPA, BURS, NBFIRA, BOCRA, CCA, IDPC, BOBS, LEA) embedded in `/support`.
+- **Hosting Statement (`/status`)**: Operating on GCP Firebase App Hosting (`us-east4`) and Neon Postgres Serverless (`us-east-1`) at an itemized cost of P734.40 / $54.00 USD per month.
 
-## Tech stack
+---
 
-Next.js 14 (App Router) and TypeScript, PostgreSQL with Prisma 5, Auth.js v5 (JWT sessions), Tailwind CSS, Recharts, Lucide icons. Installable as a PWA; English and Setswana on public pages.
+## Demo Accounts & Instant Personas
 
-## Running it
+Every demo account uses the shared password `CedaDemo2026!`. The login page (`/login`) and Judges' Tour (`/judges`) feature 1-click authentication into all 9 platform roles:
 
+| Role | Email | Purpose & Primary Dashboard |
+| :--- | :--- | :--- |
+| **Innovator** | `innovator@demo.ceda.bw` | Submissions, pre-flight checks, alert subscriptions (`/dashboard/innovator`) |
+| **Evaluator** | `evaluator@demo.ceda.bw` | Conflict declarations, blind 100-point rubric grading (`/dashboard/evaluator`) |
+| **Adjudicator** | `panel@demo.ceda.bw` | Shortlist ratification, disagreement triage, awards (`/dashboard/panel`) |
+| **Programme Admin** | `admin@demo.ceda.bw` | Instance studio builder, challenge publishing, content manager (`/dashboard/admin`) |
+| **Superadmin** | `super@demo.ceda.bw` | Audit trail verification, global permissions, system settings (`/dashboard/superadmin/audit`) |
+| **Partner Admin (BDIH)** | `bdih.admin@demo.ceda.bw` | BDIH branded space, partner challenges, API keys (`/dashboard/partner/settings`) |
+| **Partner Admin (BTC)** | `btc.admin@demo.ceda.bw` | BTC 5G & IoT challenge, partner telemetry (`/dashboard/partner/settings`) |
+| **CEDA Consultant** | `consultant@demo.ceda.bw` | Live chat queue, applicant advisory, chat analytics (`/dashboard/consultant`) |
+| **Committee Observer** | `observer@demo.ceda.bw` | Real-time short-polling telemetry, read-only audit oversight (`/dashboard/observer`) |
+
+---
+
+## Local Setup & Development
+
+### Prerequisites
+- Node.js 18+ (tested on Node 20 and Node 24)
+- Yarn v1 (`npm install -g yarn`)
+- PostgreSQL database (or Neon serverless instance)
+
+### Quickstart
 ```bash
+# 1. Install dependencies
 yarn
-cp .env.example .env          # set DATABASE_URL, DIRECT_URL, AUTH_SECRET, JWT_SECRET
-yarn db:generate
-yarn db:push                  # on an existing BOCRA-era database: npx prisma db push --force-reset (wipes data)
-yarn db:seed                  # demo calls, ideas, evaluations and accounts
+
+# 2. Configure environment
+cp .env.example .env
+# Ensure DATABASE_URL, DIRECT_URL, AUTH_SECRET, and JWT_SECRET are set
+
+# 3. Apply schema & seed demo data
+yarn db:push
+yarn db:seed
+
+# 4. Start development server
 yarn dev
 ```
 
-## Deploying on Vercel
+### Verification & Testing
+```bash
+# Typecheck
+yarn typecheck
 
-1. In the Vercel project, open **Storage**, create a **Neon** Postgres database and connect it to the project. This sets `DATABASE_URL` and `DATABASE_URL_UNPOOLED`.
-2. Add `AUTH_SECRET` and `JWT_SECRET` (any long random strings) under **Settings → Environment Variables**.
-3. Redeploy. The `vercel-build` script syncs the schema, seeds the demo data if the database is empty, then builds. Later deploys never re-seed a database that already has users.
+# Lint
+yarn lint
 
-## Security model
+# Unit Test Suite (53 unit tests)
+npx tsx --test tests/*.test.ts
 
-- **Document integrity:** SHA-256 in the browser before upload and again on the server; mismatches are rejected (HTTP 409). Files are stored in Postgres and re-hashed on every download.
-- **Signed receipts:** on submission, an HS256 JWT binds the reference, title, answers hash and every document hash. Admins can re-verify any idea, or paste a receipt or file into the verification tools.
-- **Locking:** submitted ideas can't be edited unless CEDA requests changes. Decisions use optimistic checks so two people can't decide at once.
-- **Blind, conflict-checked review:** evaluators must declare before the idea is visible; a declared conflict hides it and alerts admins to reassign.
-- **Audit trail:** every start, submission, assignment, declaration, score, decision, download, export and role change.
+# Production Build
+yarn build
 
-## Project structure
-
+# Playwright Smoke Tests
+npx playwright test
 ```
-prisma/schema.prisma          Users, calls (Template), ideas (Instance), files, evaluations, messages, audit, notifications
-prisma/seed.ts                Demo data for every role
-src/lib/                      eligibility, scoring, decisions, reports, analysis (screening checks), labels, integrity
-src/app/(public)/             home, calls, track, eligibility, register, login, about, privacy, USSD demo
-src/app/dashboard/innovator   overview, open calls, my ideas, application runner, activity, my data
-src/app/dashboard/evaluator   assignments, conflict declaration, scorecard
-src/app/dashboard/panel       ranked shortlist and decisions
-src/app/dashboard/admin       overview, ideas & screening, calls and criteria
-src/app/dashboard/reports     participation, outcomes, timelines, CSV export
-src/app/dashboard/superadmin  people & roles, sector matrix, verification, audit trail, settings
-src/app/api/                  every action, each guarded by role
-```
-
-## Known limits
-
-- Uploads are capped at 4 MB per file (Vercel request limit). Larger files would go to object storage.
-- USSD and SMS are simulated in the browser; the same `/api/track` and `/api/calls` endpoints would sit behind a mobile-network gateway.
-- Setswana copy covers the public pages and should be checked by a native speaker.
-- This is a hackathon prototype, not an official CEDA service. Demo data is fictional.

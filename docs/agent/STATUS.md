@@ -1,6 +1,6 @@
 # Status (Antigravity updates this)
 
-- Phase: Phase 9 complete (Flagship Hackathon 2026 Instance seeded with 10 registered teams, varied security pre-flight check results [7 PASS, 1 WARN on README, 1 FAIL on disguised executable], rubric evaluations and agreed consensus; programmable partner instances BDIH and BTC seeded; 5-minute guided Judges' tour and 9-role switcher live at /judges; header navigation updated). Proceeding to Phase 10 (Quality and release: smoke tests, user manual, and hackathon documentation).
-- Done: 98%
-- Blockers: none
+- Phase: Phase 10 complete (Quality and release readiness delivered: extended smoke tests covering all roles, instance simulator, pre-flight executable block, demo inbox dispatches, out-of-hours chat; comprehensive role-by-role user manual in docs/user-manual.md; updated hackathon.md and README.md; 53/53 unit tests passing, zero lint warnings, clean Next.js production build across 68 routes). Awaiting strategy lead approval in INBOX.md before App Hosting rollout.
+- Done: 100%
+- Blockers: none (standing by for rollout approval in INBOX.md)
 - Questions for the strategy lead: none
