@@ -2,7 +2,7 @@
 
 ## 1. Executive Summary & Vision
 
-The **CEDA Innovation Management Portal** is an end-to-end, tamper-evident digital platform built to modernize national innovation funding, venture evaluation, and challenge administration for the Citizen Entrepreneurial Development Agency (CEDA) and its strategic partners (Botswana Digital & Innovation Hub, BTC Innovation).
+The **CEDA Innovation Management Portal** is an end-to-end, tamper-evident digital platform built to modernize national innovation funding, venture evaluation, and challenge administration for the Citizen Entrepreneurial Development Agency (CEDA). Multi-tenant partner spaces allow ecosystem partners to host challenges in their own branded environments, illustrated in this prototype with demo partners (BDIH and BTC). All demo partner data and teams are illustrative.
 
 Built specifically for the **CEDA Innovation Management Portal Hackathon 2026**, the platform transforms ad-hoc application intakes and spreadsheet evaluations into a programmable, mathematically verifiable competition operating system.
 
@@ -92,8 +92,7 @@ Navigate directly to the **Judges' Guided Tour (`/judges`)** or use the 1-click 
 | **Adjudicator** | `panel@demo.ceda.bw` | Deterministic leaderboard, shortlist ratification, award disbursement. |
 | **Programme Admin**| `admin@demo.ceda.bw` | 11-section Studio builder, dry-run simulator, content manager. |
 | **Superadmin** | `super@demo.ceda.bw` | Audit trail hash chaining, whole-ledger verification, system tools. |
-| **Partner Admin (BDIH)**| `bdih.admin@demo.ceda.bw`| BDIH branded space (`/partners/bdih`), API keys, scoped audits. |
-| **Partner Admin (BTC)** | `btc.admin@demo.ceda.bw` | BTC branded space (`/partners/btc`), 5G challenge configuration. |
+| **Partner Admin (Demo)** | `bdih.admin@demo.ceda.bw` / `btc.admin@demo.ceda.bw` | Demo partner spaces (`/partners/bdih`, `/partners/btc`), API keys, scoped audits. |
 | **CEDA Consultant** | `consultant@demo.ceda.bw` | Live chat queue, operating hours enforcement, analytics. |
 | **Committee Observer**| `observer@demo.ceda.bw` | Real-time short-polling telemetry, independent statutory audit. |
 
