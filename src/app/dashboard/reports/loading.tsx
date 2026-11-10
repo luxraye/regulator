@@ -2,7 +2,7 @@ export default function ReportsLoading() {
   return (
     <div className="space-y-6" aria-busy="true" aria-label="Loading programme reports">
       <div>
-        <h1 className="text-2xl font-bold text-ceda-navy">Programme reports</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Programme reports</h1>
         <p className="mt-1 text-sm text-muted-foreground">Loading district, gender and sector participation breakdowns…</p>
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-4">

@@ -6,7 +6,7 @@ import { notify, notifyRoles } from "@/lib/audit";
 export const dynamic = "force-dynamic";
 
 async function load(id: string) {
-  return prisma.instance.findUnique({ where: { id }, select: { id: true, innovatorId: true, referenceCode: true, title: true } });
+  return prisma.entry.findUnique({ where: { id }, select: { id: true, innovatorId: true, referenceCode: true, title: true } });
 }
 
 /** Clarification thread. Innovators see only non-internal messages. Evaluators (blind) see none. */
@@ -19,7 +19,7 @@ export async function GET(_req: NextRequest, { params }: { params: { id: string 
   if (!isOwner && !PANEL_ROLES.includes(user.role)) return notFound();
 
   const messages = await prisma.message.findMany({
-    where: { instanceId: instance.id, ...(isOwner ? { internal: false } : {}) },
+    where: { entryId: instance.id, ...(isOwner ? { internal: false } : {}) },
     orderBy: { createdAt: "asc" },
     include: { author: { select: { name: true, role: true } } },
   });
@@ -49,7 +49,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (text.length < 2) return badRequest("Write a message");
   const internal = !isOwner && !!body?.internal;
 
-  const msg = await prisma.message.create({ data: { instanceId: instance.id, authorId: user.id, body: text, internal } });
+  const msg = await prisma.message.create({ data: { entryId: instance.id, authorId: user.id, body: text, internal } });
 
   if (isOwner) {
     await notifyRoles(["ADMIN"], `Reply on ${instance.referenceCode}`, text.slice(0, 140), `/dashboard/admin/instances/${instance.id}`);

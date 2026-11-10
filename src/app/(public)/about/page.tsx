@@ -8,7 +8,7 @@ export default function AboutPage() {
     <div>
       <section className="relative h-72">
         <Image src="/photos/okavango.webp" alt="" fill priority sizes="100vw" className="object-cover" />
-        <div className="absolute inset-0 bg-ceda-navy/70" />
+        <div className="absolute inset-0 bg-ceda-ink/70" />
         <div className="absolute inset-x-0 bottom-0 mx-auto max-w-4xl px-4 pb-10 text-white sm:px-6">
           <h1 className="text-3xl font-bold sm:text-4xl">About the CEDA Innovation Portal</h1>
           <p className="mt-2 max-w-2xl text-white/80">A single, fair and transparent way for young Batswana to bring ideas to CEDA, and for CEDA to fund the best of them.</p>
@@ -17,7 +17,7 @@ export default function AboutPage() {
 
       <div className="mx-auto max-w-4xl space-y-12 px-4 py-12 sm:px-6">
         <section>
-          <h2 className="mb-3 text-2xl font-semibold text-ceda-navy">Why it exists</h2>
+          <h2 className="mb-3 text-2xl font-semibold text-ceda-ink">Why it exists</h2>
           <p className="leading-relaxed text-muted-foreground">
             The Citizen Entrepreneurial Development Agency (CEDA) funds and mentors citizen-owned businesses. Its innovation challenge invites youth
             to propose ideas that support economic diversification, digital advancement and sustainable development. Until now, ideas arrived by
@@ -27,7 +27,7 @@ export default function AboutPage() {
         </section>
 
         <section id="judging" className="scroll-mt-24">
-          <h2 className="mb-3 text-2xl font-semibold text-ceda-navy">How judging works</h2>
+          <h2 className="mb-3 text-2xl font-semibold text-ceda-ink">How judging works</h2>
           <ol className="list-decimal space-y-2 pl-5 text-muted-foreground">
             <li><span className="text-foreground">Screening.</span> CEDA checks eligibility and completeness. The portal pre-checks age, citizenship, youth shareholding, funding against the call ceiling and cost per job.</li>
             <li><span className="text-foreground">Independent scoring.</span> Each idea goes to two or more evaluators. Each declares any conflict of interest, then scores 1 to 5 on the call&apos;s published, weighted criteria and writes feedback.</li>
@@ -38,7 +38,7 @@ export default function AboutPage() {
         </section>
 
         <section id="integrity" className="scroll-mt-24">
-          <h2 className="mb-3 text-2xl font-semibold text-ceda-navy">Fairness and integrity</h2>
+          <h2 className="mb-3 text-2xl font-semibold text-ceda-ink">Fairness and integrity</h2>
           <ul className="list-disc space-y-2 pl-5 text-muted-foreground">
             <li>Each document is fingerprinted with SHA-256 in your browser and again on the server. If they differ, the upload is refused.</li>
             <li>On submission you get a digitally signed receipt covering your answers and every document fingerprint. If anything changes later, verification fails.</li>
@@ -48,9 +48,9 @@ export default function AboutPage() {
         </section>
 
         <section>
-          <h2 className="mb-3 text-2xl font-semibold text-ceda-navy">Reaching every district</h2>
+          <h2 className="mb-3 text-2xl font-semibold text-ceda-ink">Reaching every district</h2>
           <p className="leading-relaxed text-muted-foreground">
-            The portal installs on a phone, works on slow connections, offers Setswana, and has a <Link href="/ussd-demo" className="text-ceda-blue hover:underline">USSD service</Link> so
+            The portal installs on a phone, works on slow connections, offers Setswana, and has a <Link href="/ussd-demo" className="text-ceda-orange hover:underline">USSD service</Link> so
             founders without data can check eligibility and track applications. Reports break participation down by district, gender and age so CEDA can see who it is not yet reaching.
           </p>
         </section>
@@ -58,30 +58,30 @@ export default function AboutPage() {
         <section id="how-to-judge" className="scroll-mt-24 rounded-2xl border border-border bg-white p-6 shadow-sm sm:p-8">
           <div className="mb-4 flex flex-wrap items-center justify-between gap-2">
             <div>
-              <p className="text-xs font-semibold uppercase tracking-widest text-ceda-blue">Walkthrough guide</p>
-              <h2 className="mt-1 text-2xl font-semibold text-ceda-navy">How to judge this portal</h2>
+              <p className="text-xs font-semibold uppercase tracking-widest text-ceda-orange">Walkthrough guide</p>
+              <h2 className="mt-1 text-2xl font-semibold text-ceda-ink">How to judge this portal</h2>
             </div>
-            <Link href="/login" className="rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90">
+            <Link href="/login" className="rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90">
               Open one-click demo logins →
             </Link>
           </div>
           <p className="mb-6 text-sm leading-relaxed text-muted-foreground">
-            Each demo account on <Link href="/login" className="text-ceda-blue hover:underline">/login</Link> (password <code className="rounded bg-ceda-light px-1.5 py-0.5 font-semibold text-ceda-navy">CedaDemo2026!</code>) is pre-loaded with live applications so you can test all six challenge requirements—<strong>submission</strong>, <strong>multi-level evaluation</strong>, <strong>feedback</strong>, <strong>resubmission</strong>, <strong>approval</strong>, and <strong>recognition</strong>—in about two minutes per role:
+            Each demo account on <Link href="/login" className="text-ceda-orange hover:underline">/login</Link> (password <code className="rounded bg-ceda-sand px-1.5 py-0.5 font-semibold text-ceda-ink">CedaDemo2026!</code>) is pre-loaded with live applications so you can test all six challenge requirements—<strong>submission</strong>, <strong>multi-level evaluation</strong>, <strong>feedback</strong>, <strong>resubmission</strong>, <strong>approval</strong>, and <strong>recognition</strong>—in about two minutes per role:
           </p>
           <div className="space-y-4">
-            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+            <div className="rounded-xl border border-border bg-ceda-sand/60 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-ceda-navy">1. Innovator — Naledi Molefe (<code>innovator@demo.ceda.bw</code>)</h3>
+                <h3 className="font-semibold text-ceda-ink">1. Innovator — Naledi Molefe (<code>innovator@demo.ceda.bw</code>)</h3>
                 <span className="rounded-full bg-blue-100 px-2.5 py-0.5 text-xs font-medium text-blue-800">Submission · Feedback · Resubmission · Recognition</span>
               </div>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Open <strong>Mokoro Stories</strong> (status: <em>Changes requested</em>) to read evaluator scores, programme feedback and message history, upload a supporting document (SHA-256 verified in browser &amp; server), and click <strong>Sign &amp; resubmit</strong> to receive a fresh cryptographic JWT receipt. Then open <strong>Sefofu: recycled-glass tiles made in Maun</strong> (status: <em>Awarded</em>) and click <strong>Award certificate</strong> to inspect the printable award certificate and scan/follow its public <Link href="/verify" className="text-ceda-blue hover:underline">QR verification link</Link>.
+                Open <strong>Mokoro Stories</strong> (status: <em>Changes requested</em>) to read evaluator scores, programme feedback and message history, upload a supporting document (SHA-256 verified in browser &amp; server), and click <strong>Sign &amp; resubmit</strong> to receive a fresh cryptographic JWT receipt. Then open <strong>Sefofu: recycled-glass tiles made in Maun</strong> (status: <em>Awarded</em>) and click <strong>Award certificate</strong> to inspect the printable award certificate and scan/follow its public <Link href="/verify" className="text-ceda-orange hover:underline">QR verification link</Link>.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+            <div className="rounded-xl border border-border bg-ceda-sand/60 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-ceda-navy">2. Evaluator — Dr Keabetswe Ntshole (<code>evaluator@demo.ceda.bw</code>)</h3>
+                <h3 className="font-semibold text-ceda-ink">2. Evaluator — Dr Keabetswe Ntshole (<code>evaluator@demo.ceda.bw</code>)</h3>
                 <span className="rounded-full bg-purple-100 px-2.5 py-0.5 text-xs font-medium text-purple-800">Multi-level evaluation · Blind review · Feedback</span>
               </div>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -89,19 +89,19 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+            <div className="rounded-xl border border-border bg-ceda-sand/60 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-ceda-navy">3. Adjudicator — Mma Dineo Seabo (<code>panel@demo.ceda.bw</code>)</h3>
+                <h3 className="font-semibold text-ceda-ink">3. Adjudicator — Mma Dineo Seabo (<code>panel@demo.ceda.bw</code>)</h3>
                 <span className="rounded-full bg-amber-100 px-2.5 py-0.5 text-xs font-medium text-amber-800">Multi-level evaluation · Approval · Recognition</span>
               </div>
               <p className="mt-1.5 text-sm text-muted-foreground">
-                Review the ranked shortlist by call. Open <strong>Spaza Ledger</strong>, where the portal flags a <strong>score spread warning (&gt;20 pts)</strong> between evaluators so the panel can inspect side-by-side scorecards and private evaluator notes. Record a panel decision—<strong>Award funding</strong> (with Pula amount), <strong>Approve</strong>, <strong>Request changes</strong>, or <strong>Decline</strong>—which immediately notifies the innovator and updates the public <Link href="/funded" className="text-ceda-blue hover:underline">Funded ideas showcase</Link>.
+                Review the ranked shortlist by call. Open <strong>Spaza Ledger</strong>, where the portal flags a <strong>score spread warning (&gt;20 pts)</strong> between evaluators so the panel can inspect side-by-side scorecards and private evaluator notes. Record a panel decision—<strong>Award funding</strong> (with Pula amount), <strong>Approve</strong>, <strong>Request changes</strong>, or <strong>Decline</strong>—which immediately notifies the innovator and updates the public <Link href="/funded" className="text-ceda-orange hover:underline">Funded ideas showcase</Link>.
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+            <div className="rounded-xl border border-border bg-ceda-sand/60 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-ceda-navy">4. Programme Admin — Tebogo Ramasedi (<code>admin@demo.ceda.bw</code>)</h3>
+                <h3 className="font-semibold text-ceda-ink">4. Programme Admin — Tebogo Ramasedi (<code>admin@demo.ceda.bw</code>)</h3>
                 <span className="rounded-full bg-emerald-100 px-2.5 py-0.5 text-xs font-medium text-emerald-800">Screening · Call management · Inclusion reports</span>
               </div>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -109,9 +109,9 @@ export default function AboutPage() {
               </p>
             </div>
 
-            <div className="rounded-xl border border-border bg-ceda-light/60 p-4">
+            <div className="rounded-xl border border-border bg-ceda-sand/60 p-4">
               <div className="flex flex-wrap items-center justify-between gap-2">
-                <h3 className="font-semibold text-ceda-navy">5. Super Admin — Kgosi Mothibi (<code>super@demo.ceda.bw</code>)</h3>
+                <h3 className="font-semibold text-ceda-ink">5. Super Admin — Kgosi Mothibi (<code>super@demo.ceda.bw</code>)</h3>
                 <span className="rounded-full bg-slate-200 px-2.5 py-0.5 text-xs font-medium text-slate-800">Audit trail · Cryptographic verification · Demo reset</span>
               </div>
               <p className="mt-1.5 text-sm text-muted-foreground">
@@ -121,7 +121,7 @@ export default function AboutPage() {
           </div>
         </section>
 
-        <p className="rounded-xl bg-ceda-light p-4 text-sm text-muted-foreground">
+        <p className="rounded-xl bg-ceda-sand p-4 text-sm text-muted-foreground">
           Built for the CEDA Innovation Portal challenge. Demo accounts and applications use illustrative data for evaluation.
         </p>
       </div>

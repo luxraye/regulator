@@ -21,7 +21,7 @@ export default async function OpenCallsPage() {
       where: { status: "OPEN", opensAt: { lte: now }, closesAt: { gte: now } },
       orderBy: { closesAt: "asc" },
     }),
-    prisma.instance.findMany({ where: { innovatorId: user.id }, select: { id: true, templateId: true, status: true } }),
+    prisma.entry.findMany({ where: { innovatorId: user.id }, select: { id: true, templateId: true, status: true } }),
     prisma.user.findUnique({ where: { id: user.id } }),
   ]);
   const elig = checkEligibility({
@@ -34,7 +34,7 @@ export default async function OpenCallsPage() {
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">Open calls</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Open calls</h1>
         <p className="mt-1 text-muted-foreground">
           One application per call. Each call is scored against its own published criteria.
         </p>
@@ -44,7 +44,7 @@ export default async function OpenCallsPage() {
         <div className="mb-6 flex gap-3 rounded-xl border border-amber-200 bg-amber-50 p-4 text-sm">
           <ShieldAlert size={18} className="shrink-0 text-amber-700" />
           <div>
-            <p className="font-medium text-ceda-navy">Your profile doesn&apos;t meet the eligibility rules yet</p>
+            <p className="font-medium text-ceda-ink">Your profile doesn&apos;t meet the eligibility rules yet</p>
             <ul className="mt-1 list-disc pl-5 text-muted-foreground">
               {elig.checks.filter((c) => !c.ok).map((c) => <li key={c.key}>{c.label}: {c.detail}</li>)}
             </ul>
@@ -67,7 +67,7 @@ export default async function OpenCallsPage() {
                   criteria.length > 0 && (
                     <div className="mt-3 flex flex-wrap gap-1">
                       {criteria.map((k) => (
-                        <span key={k.key} className="rounded bg-ceda-light px-1.5 py-0.5 text-[11px] text-muted-foreground">
+                        <span key={k.key} className="rounded bg-ceda-sand px-1.5 py-0.5 text-[11px] text-muted-foreground">
                           {k.label} {k.weight}%
                         </span>
                       ))}
@@ -78,7 +78,7 @@ export default async function OpenCallsPage() {
                   existing ? (
                     <div className="flex items-center justify-between gap-2">
                       <StatusBadge status={existing.status} />
-                      <Link href={`/dashboard/innovator/instance-runner/${existing.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+                      <Link href={`/dashboard/innovator/instance-runner/${existing.id}`} className="inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
                         {existing.status === "DRAFT" ? "Continue" : "View"} <ArrowRight size={14} />
                       </Link>
                     </div>

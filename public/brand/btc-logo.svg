@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 60" fill="none">
+  <rect width="240" height="60" rx="8" fill="#008542"/>
+  <circle cx="35" cy="30" r="18" fill="#FDB813"/>
+  <path d="M28 24H42M28 30H38M28 36H42" stroke="#008542" stroke-width="3" stroke-linecap="round"/>
+  <text x="64" y="32" fill="white" font-family="system-ui, sans-serif" font-weight="800" font-size="20" letter-spacing="1">BTC INNOVATION</text>
+  <text x="64" y="46" fill="#FDB813" font-family="system-ui, sans-serif" font-weight="500" font-size="10" letter-spacing="0.5">CONNECTING YOUR WORLD</text>
+</svg>

@@ -22,16 +22,16 @@ export function FileList({
 }) {
   return (
     <div className="rounded-xl border border-border bg-white p-5">
-      <h3 className="mb-3 font-semibold text-ceda-navy">Files</h3>
+      <h3 className="mb-3 font-semibold text-ceda-ink">Files</h3>
       {files.length === 0 ? (
         <p className="text-sm text-muted-foreground">No files were uploaded.</p>
       ) : (
         <ul className="space-y-2">
           {files.map((f) => (
-            <li key={f.id} className="rounded-lg bg-ceda-light p-3 text-sm">
+            <li key={f.id} className="rounded-lg bg-ceda-sand p-3 text-sm">
               <div className="flex items-center justify-between gap-2">
                 <div className="flex min-w-0 items-center gap-2">
-                  <FileText size={15} className="shrink-0 text-ceda-blue" />
+                  <FileText size={15} className="shrink-0 text-ceda-orange" />
                   <div className="min-w-0">
                     <p className="truncate font-medium">{f.fileName}</p>
                     {labels?.[f.fileKey] && <p className="text-xs text-muted-foreground">{labels[f.fileKey]}</p>}
@@ -39,7 +39,7 @@ export function FileList({
                 </div>
                 <a
                   href={`/api/instances/${instanceId}/files/${f.id}`}
-                  className="flex shrink-0 items-center gap-1 text-xs font-medium text-ceda-blue hover:underline"
+                  className="flex shrink-0 items-center gap-1 text-xs font-medium text-ceda-orange hover:underline"
                 >
                   <Download size={13} /> {formatBytes(f.fileSize)}
                 </a>

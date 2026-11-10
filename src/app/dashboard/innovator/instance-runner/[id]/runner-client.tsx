@@ -33,6 +33,7 @@ import { MessageThread } from "@/components/ideas/message-thread";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { ReceiptPanel } from "@/components/dashboard/receipt-panel";
 import { FileList, type StoredFile } from "@/components/dashboard/file-list";
+import { PreflightChecklist } from "@/components/dashboard/preflight-checklist";
 
 interface RunnerInstance {
   id: string;
@@ -84,6 +85,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
   const [savedAt, setSavedAt] = useState<string | null>(null);
   const [submitting, setSubmitting] = useState(false);
   const [banner, setBanner] = useState<{ text: string; items?: string[] } | null>(null);
+  const [preflightReport, setPreflightReport] = useState<any | null>(null);
 
   const deadline = relativeDeadline(instance.template.closesAt);
   const labels = useMemo(() => Object.fromEntries(schema.fields.map((f) => [f.key, f.label])), [schema]);
@@ -221,14 +223,14 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
     <div className="mb-6">
       <Link
         href="/dashboard/innovator/instances"
-        className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-navy"
+        className="mb-3 inline-flex items-center gap-1 text-sm text-muted-foreground hover:text-ceda-ink"
       >
         <ArrowLeft size={14} /> My ideas
       </Link>
       <div className="flex flex-wrap items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="font-mono text-xs text-muted-foreground">{instance.referenceCode}</p>
-          <h1 className="text-2xl font-bold text-ceda-navy">{editable ? title || "Untitled idea" : instance.title}</h1>
+          <h1 className="text-2xl font-bold text-ceda-ink">{editable ? title || "Untitled idea" : instance.title}</h1>
           <p className="mt-1 text-sm text-muted-foreground">
             {instance.template.name} · Call closes {formatDate(instance.template.closesAt)}
             {instance.status === "DRAFT" && (
@@ -256,7 +258,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
     >
       <AlertTriangle size={18} className={cn("shrink-0", ["APPROVED", "AWARDED"].includes(instance.status) ? "text-green-700" : "text-amber-700")} />
       <div className="text-sm">
-        <p className="font-medium text-ceda-navy">
+        <p className="font-medium text-ceda-ink">
           {instance.status === "FLAGGED" ? "CEDA asked for changes" : "Note from CEDA"}
           {instance.reviewedAt && <span className="font-normal text-muted-foreground"> · {formatDate(instance.reviewedAt)}</span>}
         </p>
@@ -275,7 +277,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
         {header}
         {reviewNote}
         {instance.status === "AWARDED" && (
-          <div className="mb-6 flex items-center gap-4 rounded-xl bg-gradient-to-r from-ceda-navy to-ceda-blue p-5 text-white">
+          <div className="mb-6 flex items-center gap-4 rounded-xl bg-gradient-to-r from-ceda-ink to-ceda-orange p-5 text-white">
             <Trophy size={32} className="shrink-0 text-ceda-amber" />
             <div>
               <p className="text-sm text-white/70">Award confirmed</p>
@@ -324,12 +326,12 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
               <span
                 className={cn(
                   "flex h-8 w-8 items-center justify-center rounded-full text-sm font-medium",
-                  i < step ? "bg-ceda-green text-white" : i === step ? "bg-ceda-blue text-white" : "bg-gray-200 text-gray-500"
+                  i < step ? "bg-ceda-green text-white" : i === step ? "bg-ceda-orange text-white" : "bg-gray-200 text-gray-500"
                 )}
               >
                 {i < step ? <CheckCircle2 size={16} /> : i + 1}
               </span>
-              <span className={cn("text-sm", i <= step ? "font-medium text-ceda-navy" : "text-muted-foreground")}>
+              <span className={cn("text-sm", i <= step ? "font-medium text-ceda-ink" : "text-muted-foreground")}>
                 {label}
               </span>
             </button>
@@ -366,7 +368,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                   setTitle(e.target.value);
                   setDirty(true);
                 }}
-                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue"
+                className="w-full rounded-lg border border-border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-orange"
               />
               <p className="mt-1 text-xs text-muted-foreground">One line evaluators will see first, e.g. &ldquo;Solar cold rooms for Tlokweng vegetable farmers&rdquo;.</p>
             </div>
@@ -410,10 +412,10 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                     </div>
                     <label
                       className={cn(
-                        "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-ceda-blue",
+                        "flex cursor-pointer items-center gap-2 rounded-lg border px-3 py-1.5 text-sm font-medium transition-colors focus-within:ring-2 focus-within:ring-ceda-orange",
                         stored
-                          ? "border-border hover:bg-ceda-light"
-                          : "border-ceda-blue bg-ceda-blue text-white hover:bg-ceda-blue/90",
+                          ? "border-border hover:bg-ceda-sand"
+                          : "border-ceda-orange bg-ceda-orange text-white hover:bg-ceda-orange/90",
                         busy && "pointer-events-none opacity-70"
                       )}
                     >
@@ -460,7 +462,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
         {step === 2 && (
           <div className="space-y-5">
             <DataList schema={schema} values={values} />
-            <div className="rounded-lg bg-ceda-light p-4">
+            <div className="rounded-lg bg-ceda-sand p-4">
               <h4 className="mb-2 text-sm font-medium">Files</h4>
               {schema.required_files.length === 0 && <p className="text-sm text-muted-foreground">None required.</p>}
               {schema.required_files.map((rf) => (
@@ -472,11 +474,15 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
                 </div>
               ))}
             </div>
+
+            {/* Participant Pre-Flight Guard Checklist */}
+            <PreflightChecklist entryId={instance.id} onPreflightComplete={setPreflightReport} />
+
             <div className="flex gap-3 rounded-lg border border-blue-200 bg-blue-50 p-4 text-sm text-blue-900">
               <Shield size={20} className="shrink-0" />
               <p>
-                Submitting locks your application. You&apos;ll get a signed receipt covering your answers and the SHA-256
-                hash of every document, so neither you nor CEDA can change them afterwards without it showing. This is
+                Submitting locks your application. You&apos;ll get a signed receipt covering your answers, the SHA-256
+                hash of every document, and the sealed Faithfulness Report, so neither you nor CEDA can change them afterwards without it showing. This is
                 your proof of what was submitted, and when.
               </p>
             </div>
@@ -487,7 +493,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
           <button
             onClick={() => setStep((s) => Math.max(s - 1, 0))}
             disabled={step === 0}
-            className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground hover:text-ceda-navy disabled:opacity-30"
+            className="flex items-center gap-2 px-2 py-2 text-sm font-medium text-muted-foreground hover:text-ceda-ink disabled:opacity-30"
           >
             <ArrowLeft size={16} /> Back
           </button>
@@ -498,7 +504,7 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
             <button
               onClick={saveDraft}
               disabled={saving || !dirty}
-              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-ceda-light disabled:opacity-40"
+              className="flex items-center gap-2 rounded-lg border border-border px-3 py-2 text-sm font-medium hover:bg-ceda-sand disabled:opacity-40"
             >
               <Save size={15} /> Save draft
             </button>
@@ -506,19 +512,26 @@ export function InstanceRunnerClient({ instance }: { instance: RunnerInstance })
               <button
                 onClick={next}
                 disabled={saving || (step === 1 && busyUploading)}
-                className="flex items-center gap-2 rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white hover:bg-ceda-blue/90 disabled:opacity-50"
+                className="flex items-center gap-2 rounded-lg bg-ceda-orange px-4 py-2 text-sm font-medium text-white hover:bg-ceda-orange/90 disabled:opacity-50"
               >
                 Next <ArrowRight size={16} />
               </button>
             ) : (
-              <button
-                onClick={submit}
-                disabled={submitting}
-                className="flex items-center gap-2 rounded-lg bg-ceda-green px-5 py-2 text-sm font-medium text-white hover:bg-ceda-green/90 disabled:opacity-50"
-              >
-                {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
-                {submitting ? "Signing…" : instance.status === "FLAGGED" ? "Sign & resubmit" : "Sign & submit"}
-              </button>
+              <div className="flex flex-col items-end gap-1">
+                <button
+                  onClick={submit}
+                  disabled={submitting || preflightReport?.hardFailBlocked}
+                  className="flex items-center gap-2 rounded-lg bg-ceda-green px-5 py-2 text-sm font-medium text-white hover:bg-ceda-green/90 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  {submitting ? <Loader2 size={16} className="animate-spin" /> : <Send size={16} />}
+                  {submitting ? "Signing…" : instance.status === "FLAGGED" ? "Sign & resubmit" : "Sign & submit"}
+                </button>
+                {preflightReport?.hardFailBlocked && (
+                  <span className="text-[11px] font-semibold text-rose-600">
+                    Fix failed pre-flight items above to enable submit
+                  </span>
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -543,10 +556,10 @@ function FeedbackPanel({
   return (
     <section className="rounded-xl border border-border bg-white p-5">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="font-semibold text-ceda-navy">Evaluator feedback</h3>
+        <h3 className="font-semibold text-ceda-ink">Evaluator feedback</h3>
         {feedback.average != null && (
           <span className="text-sm text-muted-foreground">
-            Average score <span className="text-lg font-bold text-ceda-navy">{feedback.average}</span>/100
+            Average score <span className="text-lg font-bold text-ceda-ink">{feedback.average}</span>/100
           </span>
         )}
       </div>
@@ -563,7 +576,7 @@ function FeedbackPanel({
                   <span className="font-medium">{v ?? "—"}/5</span>
                 </div>
                 <div className="mt-1 h-1.5 rounded-full bg-gray-100">
-                  <div className="h-1.5 rounded-full bg-ceda-blue" style={{ width: `${((v ?? 0) / 5) * 100}%` }} />
+                  <div className="h-1.5 rounded-full bg-ceda-orange" style={{ width: `${((v ?? 0) / 5) * 100}%` }} />
                 </div>
               </div>
             );
@@ -575,7 +588,7 @@ function FeedbackPanel({
       ) : (
         <ul className="space-y-3">
           {feedback.comments.map((c, i) => (
-            <li key={i} className="rounded-lg bg-ceda-light p-3 text-sm">
+            <li key={i} className="rounded-lg bg-ceda-sand p-3 text-sm">
               <p className="mb-1 text-xs font-medium text-muted-foreground">Evaluator {i + 1}</p>
               <p className="whitespace-pre-wrap">{c}</p>
             </li>
@@ -590,7 +603,7 @@ function FeedbackPanel({
 function DataList({ schema, values }: { schema: InstanceSchema; values: Record<string, string> }) {
   return (
     <div className="rounded-xl border border-border bg-white p-5">
-      <h3 className="mb-3 font-semibold text-ceda-navy">Your application</h3>
+      <h3 className="mb-3 font-semibold text-ceda-ink">Your application</h3>
       <dl className="divide-y divide-border text-sm">
         {schema.fields.map((f) =>
           f.type === "textarea" ? (
@@ -625,7 +638,7 @@ function FieldInput({
 }) {
   const id = `field-${field.key}`;
   const base = cn(
-    "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-blue",
+    "w-full rounded-lg border px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-ceda-orange",
     error ? "border-red-400" : "border-border"
   );
   const range = [

@@ -15,7 +15,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const days = Math.min(Math.max(Number(body?.days) || 7, 1), 60);
   if (evaluatorIds.length === 0) return badRequest("Choose at least one evaluator");
 
-  const instance = await prisma.instance.findUnique({
+  const instance = await prisma.entry.findUnique({
     where: { id: params.id },
     include: { template: true, evaluations: { select: { evaluatorId: true } } },
   });
@@ -36,20 +36,21 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
 
   await prisma.$transaction([
     prisma.evaluation.createMany({
-      data: fresh.map((e) => ({ instanceId: instance.id, evaluatorId: e.id, assignedById: user.id, dueAt })),
+      data: fresh.map((e) => ({ entryId: instance.id, evaluatorId: e.id, assignedById: user.id, dueAt })),
     }),
-    prisma.instance.update({ where: { id: instance.id }, data: { status: "UNDER_REVIEW" } }),
+    prisma.entry.update({ where: { id: instance.id }, data: { status: "UNDER_REVIEW" } }),
   ]);
 
   await audit(user.id, "EVALUATORS_ASSIGNED", {
-    instanceId: instance.id,
+    entryId: instance.id,
+    instanceId: instance.instanceId,
     metadata: { evaluators: fresh.map((e) => e.name), dueAt: dueAt.toISOString() },
   });
   for (const e of fresh) {
     await notify(
       e.id,
       "New idea to evaluate",
-      `${instance.template.name}: "${instance.title}". Due ${dueAt.toLocaleDateString("en-GB")}.`,
+      `${instance.template?.name ?? "CEDA Innovation Call"}: "${instance.title}". Due ${dueAt.toLocaleDateString("en-GB")}.`,
       "/dashboard/evaluator"
     );
   }

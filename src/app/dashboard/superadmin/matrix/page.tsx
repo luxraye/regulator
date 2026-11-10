@@ -8,15 +8,15 @@ export const dynamic = "force-dynamic";
 /** Sector × venture stage: where CEDA has calls, and where ideas are coming from. */
 export default async function MatrixPage() {
   const calls = await prisma.template.findMany({
-    include: { instances: { where: { status: { not: "DRAFT" } }, select: { status: true } } },
+    include: { entries: { where: { status: { not: "DRAFT" } }, select: { status: true } } },
   });
   const cell = (dt: string, sc: string) => calls.filter((c) => c.dataType === dt && c.scale === sc);
-  const max = Math.max(1, ...calls.map((c) => c.instances.length));
+  const max = Math.max(1, ...calls.map((c) => c.entries.length));
 
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">Sector matrix</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Sector matrix</h1>
         <p className="mt-1 text-muted-foreground">
           {DATA_TYPES.length} priority sectors &times; {SCALES.length} venture stages. Each call sits in one cell; shading shows how many ideas it drew.
           Empty cells are gaps in CEDA&apos;s pipeline.
@@ -45,13 +45,13 @@ export default async function MatrixPage() {
                         <span className="text-xs text-muted-foreground/40">·</span>
                       ) : (
                         here.map((c) => {
-                          const n = c.instances.length;
+                          const n = c.entries.length;
                           const shade = n / max;
                           return (
                             <Link
                               key={c.id}
                               href={`/dashboard/admin/instances?filter=all&call=${c.code}`}
-                              className={cn("mb-1 block rounded-lg p-2 transition-shadow hover:shadow", shade > 0.6 ? "bg-ceda-blue text-white" : shade > 0.3 ? "bg-ceda-blue/30" : "bg-ceda-blue/10")}
+                              className={cn("mb-1 block rounded-lg p-2 transition-shadow hover:shadow", shade > 0.6 ? "bg-ceda-orange text-white" : shade > 0.3 ? "bg-ceda-orange/30" : "bg-ceda-orange/10")}
                             >
                               <span className="block font-mono text-xs font-bold">{c.code}</span>
                               <span className="text-[11px] opacity-80">{n} ideas · {c.status.toLowerCase()}</span>

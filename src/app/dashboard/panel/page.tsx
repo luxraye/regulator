@@ -17,7 +17,7 @@ export default async function PanelPage({ searchParams }: { searchParams: { call
   const calls = await prisma.template.findMany({ select: { id: true, code: true, name: true }, orderBy: { code: "asc" } });
   const call = calls.find((c) => c.code === searchParams.call);
 
-  const ideas = await prisma.instance.findMany({
+  const ideas = await prisma.entry.findMany({
     where: { status: { in: ["SHORTLISTED", "APPROVED", "AWARDED"] }, ...(call ? { templateId: call.id } : {}) },
     include: {
       template: true,
@@ -43,7 +43,7 @@ export default async function PanelPage({ searchParams }: { searchParams: { call
   return (
     <div>
       <div className="mb-6">
-        <h1 className="text-2xl font-bold text-ceda-navy">Panel shortlist</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Panel shortlist</h1>
         <p className="mt-1 text-muted-foreground">
           Ideas ranked by mean evaluator score. Rows marked amber need discussion: evaluators were more than 20 points apart.
         </p>
@@ -74,7 +74,7 @@ export default async function PanelPage({ searchParams }: { searchParams: { call
 }
 
 type Row = {
-  i: { id: string; title: string; referenceCode: string; status: string; awardAmount: number | null; template: { code: string }; innovator: { organizationName: string | null; district: string | null } };
+  i: { id: string; title: string; referenceCode: string; status: string; awardAmount: number | null; template?: { code: string } | null; innovator: { organizationName: string | null; district: string | null } };
   s: ReturnType<typeof summarise>;
   funding: number;
   jobs: number;
@@ -83,13 +83,13 @@ type Row = {
 function Ranked({ title, rows, empty }: { title: string; rows: Row[]; empty?: string }) {
   return (
     <section className="overflow-hidden rounded-xl border border-border bg-white">
-      <h2 className="border-b border-border px-5 py-3 font-semibold text-ceda-navy">{title}</h2>
+      <h2 className="border-b border-border px-5 py-3 font-semibold text-ceda-ink">{title}</h2>
       {rows.length === 0 ? (
         <p className="px-5 py-10 text-center text-sm text-muted-foreground">{empty}</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full min-w-[760px] text-sm">
-            <thead className="bg-ceda-light text-left text-xs text-muted-foreground">
+            <thead className="bg-ceda-sand text-left text-xs text-muted-foreground">
               <tr>
                 <th className="px-4 py-2 font-medium">#</th>
                 <th className="px-4 py-2 font-medium">Idea</th>
@@ -102,16 +102,16 @@ function Ranked({ title, rows, empty }: { title: string; rows: Row[]; empty?: st
             </thead>
             <tbody className="divide-y divide-border">
               {rows.map((r, n) => (
-                <tr key={r.i.id} className={cn("hover:bg-ceda-light/60", r.s.disagreement && "bg-amber-50/60")}>
+                <tr key={r.i.id} className={cn("hover:bg-ceda-sand/60", r.s.disagreement && "bg-amber-50/60")}>
                   <td className="px-4 py-3 font-semibold text-muted-foreground">{n + 1}</td>
                   <td className="px-4 py-3">
-                    <Link href={`/dashboard/panel/${r.i.id}`} className="font-medium text-ceda-navy hover:text-ceda-blue hover:underline">{r.i.title}</Link>
+                    <Link href={`/dashboard/panel/${r.i.id}`} className="font-medium text-ceda-ink hover:text-ceda-orange hover:underline">{r.i.title}</Link>
                     <p className="text-xs text-muted-foreground">
-                      <span className="font-mono">{r.i.referenceCode}</span> · {r.i.template.code} · {r.i.innovator.organizationName} · {r.i.innovator.district}
+                      <span className="font-mono">{r.i.referenceCode}</span> · {r.i.template?.code ?? "—"} · {r.i.innovator.organizationName} · {r.i.innovator.district}
                     </p>
                   </td>
                   <td className="px-4 py-3 text-right">
-                    <span className="text-lg font-bold text-ceda-navy">{r.s.mean ?? "—"}</span>
+                    <span className="text-lg font-bold text-ceda-ink">{r.s.mean ?? "—"}</span>
                     <span className="block text-[11px] text-muted-foreground">{r.s.count} scores</span>
                   </td>
                   <td className="px-4 py-3 text-right">
@@ -139,7 +139,7 @@ function Ranked({ title, rows, empty }: { title: string; rows: Row[]; empty?: st
 
 function Chip({ href, active, children }: { href: string; active: boolean; children: React.ReactNode }) {
   return (
-    <Link href={href} className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active ? "border-ceda-navy bg-ceda-navy text-white" : "border-border bg-white hover:bg-ceda-light")}>
+    <Link href={href} className={cn("whitespace-nowrap rounded-full border px-3 py-1 text-xs font-medium", active ? "border-ceda-ink bg-ceda-ink text-white" : "border-border bg-white hover:bg-ceda-sand")}>
       {children}
     </Link>
   );
@@ -147,8 +147,8 @@ function Chip({ href, active, children }: { href: string; active: boolean; child
 
 function Tile({ label, value, accent }: { label: string; value: string; accent?: boolean }) {
   return (
-    <div className={cn("rounded-xl border p-4", accent ? "border-transparent bg-gradient-to-br from-ceda-navy to-ceda-blue text-white" : "border-border bg-white")}>
-      <p className={cn("text-2xl font-bold", accent ? "text-white" : "text-ceda-navy")}>{value}</p>
+    <div className={cn("rounded-xl border p-4", accent ? "border-transparent bg-gradient-to-br from-ceda-ink to-ceda-orange text-white" : "border-border bg-white")}>
+      <p className={cn("text-2xl font-bold", accent ? "text-white" : "text-ceda-ink")}>{value}</p>
       <p className={cn("text-sm", accent ? "text-white/70" : "text-muted-foreground")}>{label}</p>
     </div>
   );

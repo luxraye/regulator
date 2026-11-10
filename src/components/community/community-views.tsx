@@ -7,6 +7,7 @@ import { CommunityHeader } from "@/components/community/community-header";
 import { ThreadList, type ThreadRow } from "@/components/community/thread-list";
 import { FORUM_CATEGORIES, NOTICE_CATEGORIES, forumLabel, initials, lines, noticeCategory, timeAgo } from "@/lib/community";
 import { createThread, replyToThread } from "@/app/(public)/community/actions";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export async function CommunityForumView({
   basePath = "/community",
@@ -19,7 +20,7 @@ export async function CommunityForumView({
     getSessionUser(),
     prisma.forumThread.findMany({
       orderBy: [{ pinned: "desc" }, { updatedAt: "desc" }],
-      include: { author: { select: { name: true, organizationName: true, role: true, instances: { where: { status: "AWARDED", showcase: true }, select: { id: true }, take: 1 } } }, _count: { select: { replies: true } } },
+      include: { author: { select: { name: true, organizationName: true, role: true, entries: { where: { status: "AWARDED", showcase: true }, select: { id: true }, take: 1 } } }, _count: { select: { replies: true } } },
     }),
     prisma.notice.findMany({ where: { pinned: true }, orderBy: { createdAt: "desc" }, take: 3 }),
     prisma.user.count({ where: { role: "INNOVATOR" } }),
@@ -35,14 +36,14 @@ export async function CommunityForumView({
     author: t.author.name,
     authorOrg: t.author.organizationName,
     authorIsStaff: t.author.role !== "INNOVATOR",
-    authorFunded: t.author.instances.length > 0,
+    authorFunded: t.author.entries.length > 0,
     initials: initials(t.author.name),
     replies: t._count.replies,
     lastActivity: timeAgo(t.updatedAt),
   }));
 
   return (
-    <div className={inDashboard ? "overflow-hidden rounded-2xl border border-border bg-white/60" : "bg-ceda-light/60"}>
+    <div className={inDashboard ? "overflow-hidden rounded-2xl border border-border bg-white/60" : "bg-ceda-sand/60"}>
       <CommunityHeader
         active="forum"
         basePath={basePath}
@@ -52,11 +53,12 @@ export async function CommunityForumView({
       />
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
         <div>
+          <DemoDataBanner message="Demo data: fictional community discussions for illustration" className="mb-5" />
           <div className="mb-5 flex items-center justify-between gap-3">
-            <h2 className="text-xl font-semibold text-ceda-navy">Discussions</h2>
+            <h2 className="text-xl font-semibold text-ceda-ink">Discussions</h2>
             <Link
               href={user ? `${basePath}/new` : `/login?callbackUrl=${encodeURIComponent(`${basePath}/new`)}`}
-              className="inline-flex items-center gap-2 rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white hover:bg-ceda-blue/90"
+              className="inline-flex items-center gap-2 rounded-lg bg-ceda-orange px-4 py-2 text-sm font-medium text-white hover:bg-ceda-orange/90"
             >
               <PenSquare className="h-4 w-4" /> Start a discussion
             </Link>
@@ -66,7 +68,7 @@ export async function CommunityForumView({
 
         <aside className="space-y-6">
           <div className="rounded-xl border border-border bg-white p-5">
-            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-ceda-navy">
+            <p className="mb-3 flex items-center gap-2 text-sm font-semibold text-ceda-ink">
               <ShieldAlert className="h-4 w-4 text-ceda-orange" /> From the Safe Practices board
             </p>
             <ul className="space-y-3">
@@ -76,19 +78,19 @@ export async function CommunityForumView({
                     <span className={`mb-1 inline-block rounded px-1.5 py-0.5 text-[11px] font-medium ${noticeCategory(n.category).tone}`}>
                       {noticeCategory(n.category).label}
                     </span>
-                    <span className="block text-sm font-medium text-ceda-navy group-hover:underline">{n.title}</span>
+                    <span className="block text-sm font-medium text-ceda-ink group-hover:underline">{n.title}</span>
                   </Link>
                 </li>
               ))}
             </ul>
-            <Link href={`${basePath}/safe-practices`} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+            <Link href={`${basePath}/safe-practices`} className="mt-4 inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
               See all advice <ArrowRight className="h-3.5 w-3.5" />
             </Link>
           </div>
 
           <div className="rounded-xl border border-border bg-white p-5 text-sm text-muted-foreground">
-            <p className="mb-2 flex items-center gap-2 font-semibold text-ceda-navy">
-              <Users className="h-4 w-4 text-ceda-blue" /> {members} innovators registered
+            <p className="mb-2 flex items-center gap-2 font-semibold text-ceda-ink">
+              <Users className="h-4 w-4 text-ceda-orange" /> {members} innovators registered
             </p>
             <p className="mb-3">House rules: be kind, keep it about building businesses, and never post Omang numbers, bank details or your full technical design.</p>
             <p>CEDA staff read the forum and answer questions about calls, but forum replies are not official decisions.</p>
@@ -131,7 +133,7 @@ export async function SafePracticesView({
             {timeAgo(n.createdAt)}
           </span>
         </div>
-        <h3 className="mb-2 font-semibold text-ceda-navy">{n.title}</h3>
+        <h3 className="mb-2 font-semibold text-ceda-ink">{n.title}</h3>
         <p className="mb-4 text-sm leading-relaxed text-muted-foreground">{n.summary}</p>
         {(dos.length > 0 || donts.length > 0) && (
           <div className="grid gap-3 sm:grid-cols-2">
@@ -160,7 +162,7 @@ export async function SafePracticesView({
   };
 
   return (
-    <div className={inDashboard ? "overflow-hidden rounded-2xl border border-border bg-white/60" : "bg-ceda-light/60"}>
+    <div className={inDashboard ? "overflow-hidden rounded-2xl border border-border bg-white/60" : "bg-ceda-sand/60"}>
       <CommunityHeader
         active="safe"
         basePath={basePath}
@@ -179,7 +181,7 @@ export async function SafePracticesView({
 
         {pinned.length > 0 && (
           <section className="mb-12">
-            <h2 className="mb-4 text-xl font-semibold text-ceda-navy">Read these first</h2>
+            <h2 className="mb-4 text-xl font-semibold text-ceda-ink">Read these first</h2>
             <div className="grid gap-5 lg:grid-cols-2">
               {pinned.map((n) => <Card key={n.id} n={n} />)}
             </div>
@@ -188,7 +190,7 @@ export async function SafePracticesView({
 
         {byCat.map((c) => (
           <section key={c.key} id={`topic-${c.key}`} className="mb-12 scroll-mt-28">
-            <h2 className="mb-4 text-xl font-semibold text-ceda-navy">{c.label}</h2>
+            <h2 className="mb-4 text-xl font-semibold text-ceda-ink">{c.label}</h2>
             <div className="grid gap-5 lg:grid-cols-2">
               {c.items.map((n) => <Card key={n.id} n={n} />)}
             </div>
@@ -197,7 +199,7 @@ export async function SafePracticesView({
 
         <p className="rounded-xl border border-border bg-white p-5 text-sm text-muted-foreground">
           This board is general guidance, not legal advice. For a patent, trademark or contract question, speak to a registered IP agent or a lawyer.
-          Have a question about it? <Link href={basePath} className="font-medium text-ceda-blue hover:underline">Ask in the forum</Link>.
+          Have a question about it? <Link href={basePath} className="font-medium text-ceda-orange hover:underline">Ask in the forum</Link>.
         </p>
       </div>
     </div>
@@ -207,7 +209,7 @@ export async function SafePracticesView({
 function Avatar({ name, staff }: { name: string; staff: boolean }) {
   return (
     <span
-      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${staff ? "bg-ceda-navy text-white" : "bg-ceda-blue/10 text-ceda-blue"}`}
+      className={`flex h-10 w-10 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${staff ? "bg-ceda-ink text-white" : "bg-ceda-orange/10 text-ceda-orange"}`}
       aria-hidden
     >
       {initials(name)}
@@ -238,8 +240,8 @@ export async function ThreadDetailView({
     prisma.forumThread.findUnique({
       where: { id },
       include: {
-        author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } },
-        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true, instances: FUNDED } } } },
+        author: { select: { name: true, organizationName: true, role: true, entries: FUNDED } },
+        replies: { orderBy: { createdAt: "asc" }, include: { author: { select: { name: true, organizationName: true, role: true, entries: FUNDED } } } },
       },
     }),
   ]);
@@ -248,42 +250,42 @@ export async function ThreadDetailView({
     a.role !== "INNOVATOR" ? `${a.name} · CEDA` : a.organizationName ? `${a.name} · ${a.organizationName}` : a.name;
 
   return (
-    <div className="bg-ceda-light/60">
+    <div className="bg-ceda-sand/60">
       <div className="mx-auto max-w-3xl px-4 py-10 sm:px-6">
-        <Link href={basePath} className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+        <Link href={basePath} className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
           <ArrowLeft className="h-4 w-4" /> All discussions
         </Link>
 
         <article className="rounded-xl border border-border bg-white p-5 sm:p-7">
           <p className="mb-2 text-xs">
-            <span className="rounded bg-ceda-light px-1.5 py-0.5 font-medium text-ceda-navy">{forumLabel(thread.category)}</span>
+            <span className="rounded bg-ceda-sand px-1.5 py-0.5 font-medium text-ceda-ink">{forumLabel(thread.category)}</span>
           </p>
-          <h1 className="mb-4 text-2xl font-bold text-ceda-navy">{thread.title}</h1>
+          <h1 className="mb-4 text-2xl font-bold text-ceda-ink">{thread.title}</h1>
           <div className="mb-5 flex items-center gap-3">
             <Avatar name={thread.author.name} staff={thread.author.role !== "INNOVATOR"} />
             <div className="text-sm">
-              <p className="font-medium text-ceda-navy">{who(thread.author)}<FundedBadge show={thread.author.instances.length > 0} /></p>
+              <p className="font-medium text-ceda-ink">{who(thread.author)}<FundedBadge show={thread.author.entries.length > 0} /></p>
               <p className="text-muted-foreground">{timeAgo(thread.createdAt)}</p>
             </div>
           </div>
           <div className="whitespace-pre-line leading-relaxed text-foreground/90">{thread.body}</div>
         </article>
 
-        <h2 id="replies" className="mb-4 mt-10 scroll-mt-24 text-lg font-semibold text-ceda-navy">
+        <h2 id="replies" className="mb-4 mt-10 scroll-mt-24 text-lg font-semibold text-ceda-ink">
           {thread.replies.length} {thread.replies.length === 1 ? "reply" : "replies"}
         </h2>
         <ul className="space-y-4">
           {thread.replies.map((r) => {
             const staff = r.author.role !== "INNOVATOR";
             return (
-              <li key={r.id} className={`rounded-xl border bg-white p-5 ${staff ? "border-ceda-blue/40" : "border-border"}`}>
+              <li key={r.id} className={`rounded-xl border bg-white p-5 ${staff ? "border-ceda-orange/40" : "border-border"}`}>
                 <div className="mb-3 flex items-center gap-3">
                   <Avatar name={r.author.name} staff={staff} />
                   <div className="text-sm">
-                    <p className="font-medium text-ceda-navy">
+                    <p className="font-medium text-ceda-ink">
                       {who(r.author)}
-                      {staff && <span className="ml-2 rounded bg-ceda-blue/10 px-1.5 py-0.5 text-[11px] font-semibold text-ceda-blue">Staff</span>}
-                      <FundedBadge show={r.author.instances.length > 0} />
+                      {staff && <span className="ml-2 rounded bg-ceda-orange/10 px-1.5 py-0.5 text-[11px] font-semibold text-ceda-orange">Staff</span>}
+                      <FundedBadge show={r.author.entries.length > 0} />
                     </p>
                     <p className="text-muted-foreground">{timeAgo(r.createdAt)}</p>
                   </div>
@@ -299,15 +301,15 @@ export async function ThreadDetailView({
             <form action={replyToThread} className="space-y-3">
               <input type="hidden" name="threadId" value={thread.id} />
               <input type="hidden" name="basePath" value={basePath} />
-              <label htmlFor="body" className="block text-sm font-medium text-ceda-navy">
+              <label htmlFor="body" className="block text-sm font-medium text-ceda-ink">
                 Add a reply
               </label>
-              <textarea id="body" name="body" required minLength={2} rows={4} className="w-full rounded-lg border border-border p-3 text-sm focus:border-ceda-blue focus:outline-none" placeholder="Share what you know. Keep personal details out." />
-              <button className="rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white hover:bg-ceda-blue/90">Post reply</button>
+              <textarea id="body" name="body" required minLength={2} rows={4} className="w-full rounded-lg border border-border p-3 text-sm focus:border-ceda-orange focus:outline-none" placeholder="Share what you know. Keep personal details out." />
+              <button className="rounded-lg bg-ceda-orange px-4 py-2 text-sm font-medium text-white hover:bg-ceda-orange/90">Post reply</button>
             </form>
           ) : (
             <p className="text-sm text-muted-foreground">
-              <Link href={`/login?callbackUrl=${encodeURIComponent(`${basePath}/${thread.id}`)}`} className="font-medium text-ceda-blue hover:underline">
+              <Link href={`/login?callbackUrl=${encodeURIComponent(`${basePath}/${thread.id}`)}`} className="font-medium text-ceda-orange hover:underline">
                 Sign in
               </Link>{" "}
               to reply.
@@ -328,15 +330,15 @@ export async function NewThreadView({
 }) {
   const user = await getSessionUser();
   if (!user) redirect(`/login?callbackUrl=${encodeURIComponent(`${basePath}/new`)}`);
-  const input = "w-full rounded-lg border border-border p-3 text-sm focus:border-ceda-blue focus:outline-none";
+  const input = "w-full rounded-lg border border-border p-3 text-sm focus:border-ceda-orange focus:outline-none";
   return (
-    <div className="bg-ceda-light/60">
+    <div className="bg-ceda-sand/60">
       <div className="mx-auto max-w-2xl px-4 py-10 sm:px-6">
-        <Link href={basePath} className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-ceda-blue hover:underline">
+        <Link href={basePath} className="mb-6 inline-flex items-center gap-1 text-sm font-medium text-ceda-orange hover:underline">
           <ArrowLeft className="h-4 w-4" /> All discussions
         </Link>
         <div className="rounded-xl border border-border bg-white p-6 sm:p-8">
-          <h1 className="mb-1 text-2xl font-bold text-ceda-navy">Start a discussion</h1>
+          <h1 className="mb-1 text-2xl font-bold text-ceda-ink">Start a discussion</h1>
           <p className="mb-6 text-sm text-muted-foreground">
             Ask a question or share something useful. Don&apos;t post your full technical design, financials or anyone&apos;s personal details.
           </p>
@@ -359,7 +361,7 @@ export async function NewThreadView({
               <label htmlFor="body" className="mb-1.5 block text-sm font-medium">Message</label>
               <textarea id="body" name="body" required minLength={20} rows={7} className={input} />
             </div>
-            <button className="rounded-lg bg-ceda-blue px-5 py-2.5 text-sm font-medium text-white hover:bg-ceda-blue/90">Post discussion</button>
+            <button className="rounded-lg bg-ceda-orange px-5 py-2.5 text-sm font-medium text-white hover:bg-ceda-orange/90">Post discussion</button>
           </form>
         </div>
       </div>

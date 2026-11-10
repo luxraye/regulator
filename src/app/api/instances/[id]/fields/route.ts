@@ -11,7 +11,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   const { user, error } = await requireUser(["INNOVATOR"]);
   if (error) return error;
 
-  const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
+  const instance = await prisma.entry.findUnique({ where: { id: params.id }, include: { template: true } });
   if (!instance || instance.innovatorId !== user.id) return notFound();
   if (!isEditable(instance.status)) return badRequest("This idea is submitted and locked. It can only be edited if CEDA asks for changes");
 
@@ -35,16 +35,16 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (title !== null && title.length < 4) return badRequest("Title must be at least 4 characters");
 
   await prisma.$transaction([
-    prisma.instanceField.deleteMany({ where: { instanceId: instance.id } }),
-    prisma.instanceField.createMany({
+    prisma.entryField.deleteMany({ where: { entryId: instance.id } }),
+    prisma.entryField.createMany({
       data: Object.entries(values).map(([fieldKey, fieldValue]) => ({
-        instanceId: instance.id,
+        entryId: instance.id,
         fieldKey,
         fieldValue,
         validatedAt: new Date(),
       })),
     }),
-    ...(title ? [prisma.instance.update({ where: { id: instance.id }, data: { title } })] : []),
+    ...(title ? [prisma.entry.update({ where: { id: instance.id }, data: { title } })] : []),
   ]);
 
   return NextResponse.json({ success: true, savedAt: new Date().toISOString() });

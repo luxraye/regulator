@@ -1,6 +1,7 @@
 import {
   LayoutDashboard, FileBox, Megaphone, History, ShieldCheck, ClipboardList, Gavel, BarChart3,
   Layers, Users, Grid3X3, Wrench, ScrollText, Settings, Inbox, MessagesSquare, ShieldAlert, Award,
+  Building2, Key, Headset,
 } from "lucide-react";
 
 export interface NavItem {
@@ -18,6 +19,8 @@ const innovator: NavItem[] = [
   { href: "/dashboard/innovator", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
   { href: "/dashboard/innovator/calls", label: "Open calls", short: "Calls", icon: i(Megaphone), mobile: true },
   { href: "/dashboard/innovator/instances", label: "My ideas", short: "Ideas", icon: i(FileBox), mobile: true },
+  { href: "/dashboard/subscriptions", label: "Alert subscriptions", icon: i(Megaphone) },
+  { href: "/dashboard/profile", label: "Profile & security", icon: i(Settings) },
   { href: "/dashboard/innovator/history", label: "Activity", icon: i(History), mobile: true },
   { href: "/dashboard/innovator/privacy", label: "My data", icon: i(ShieldCheck) },
   { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
@@ -43,14 +46,28 @@ const adjudicator: NavItem[] = [
 ];
 
 const admin: NavItem[] = [
+  { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
   { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
   { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
-  { href: "/dashboard/admin/calls", label: "Calls", icon: i(Layers) },
+  { href: "/dashboard/admin/calls", label: "Calls", icon: i(Megaphone) },
   { href: "/dashboard/panel", label: "Panel shortlist", short: "Panel", icon: i(Gavel), mobile: true },
   { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
   { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
   { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
   { href: "/dashboard/admin/notices", label: "Safe practices board", icon: i(ShieldAlert) },
+];
+
+const partnerAdmin: NavItem[] = [
+  { href: "/dashboard/partner/settings", label: "Partner space", icon: i(Building2), mobile: true },
+  { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
+  { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
+  { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
+  { href: "/dashboard/partner/users", label: "Team & roles", icon: i(Users) },
+  { href: "/dashboard/partner/keys", label: "API keys", icon: i(Key) },
+  { href: "/dashboard/partner/audit", label: "Audit trail", icon: i(ScrollText) },
+  { href: "/dashboard/reports", label: "Reports", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/funded", label: "Funded showcase", icon: i(Award) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
 ];
 
 const superadmin: NavItem[] = [
@@ -62,10 +79,28 @@ const superadmin: NavItem[] = [
   { href: "/dashboard/superadmin/settings", label: "Settings", icon: i(Settings) },
 ];
 
+const consultant: NavItem[] = [
+  { href: "/dashboard/consultant", label: "Consultant console", short: "Queue", icon: i(Headset), mobile: true },
+  { href: "/dashboard/consultant/analytics", label: "Chat analytics", short: "Analytics", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/calls", label: "Calls & rubrics", short: "Calls", icon: i(Megaphone) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
+  { href: "/dashboard/community/safe-practices", label: "Safe practices", icon: i(ShieldAlert) },
+];
+
+const committeeObserver: NavItem[] = [
+  { href: "/dashboard/observer", label: "Live instances", short: "Instances", icon: i(Layers), mobile: true },
+  { href: "/dashboard/reports", label: "Reports & metrics", icon: i(BarChart3), mobile: true },
+  { href: "/dashboard/calls", label: "Calls & rubrics", short: "Calls", icon: i(Megaphone) },
+  { href: "/dashboard/community", label: "Community forum", icon: i(MessagesSquare) },
+];
+
 export function navFor(role?: string): NavItem[] {
   switch (role) {
     case "SUPERADMIN": return superadmin;
     case "ADMIN": return admin;
+    case "PARTNER_ADMIN": return partnerAdmin;
+    case "CONSULTANT": return consultant;
+    case "COMMITTEE_OBSERVER": return committeeObserver;
     case "ADJUDICATOR": return adjudicator;
     case "EVALUATOR": return evaluator;
     case "INNOVATOR": return innovator;
@@ -79,6 +114,9 @@ export const HOME_FOR: Record<string, string> = {
   ADJUDICATOR: "/dashboard/panel",
   ADMIN: "/dashboard/admin",
   SUPERADMIN: "/dashboard/admin",
+  PARTNER_ADMIN: "/dashboard/partner/settings",
+  CONSULTANT: "/dashboard/consultant",
+  COMMITTEE_OBSERVER: "/dashboard/observer",
 };
 
 /** Overview links only light up on an exact match; others also on sub-pages. */

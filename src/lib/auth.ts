@@ -21,7 +21,10 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         if (!credentials?.email || !credentials?.password) return null;
 
         const email = String(credentials.email).trim().toLowerCase();
-        const user = await prisma.user.findUnique({ where: { email } });
+        const user = await prisma.user.findUnique({
+          where: { email },
+          include: { partner: true },
+        });
 
         if (!user) return null;
 
@@ -38,6 +41,17 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
           name: user.name,
           role: user.role,
           organizationName: user.organizationName,
+          partnerId: user.partnerId,
+          partner: user.partner
+            ? {
+                id: user.partner.id,
+                name: user.partner.name,
+                slug: user.partner.slug,
+                logoUrl: user.partner.logoUrl,
+                primaryColor: user.partner.primaryColor,
+                secondaryColor: user.partner.secondaryColor,
+              }
+            : null,
         };
       },
     }),
@@ -47,6 +61,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
       if (user) {
         token.role = (user as any).role;
         token.organizationName = (user as any).organizationName;
+        token.partnerId = (user as any).partnerId;
+        token.partner = (user as any).partner;
       }
       return token;
     },
@@ -55,6 +71,8 @@ export const { handlers, signIn, signOut, auth } = NextAuth({
         (session.user as any).id = token.sub;
         (session.user as any).role = token.role;
         (session.user as any).organizationName = token.organizationName;
+        (session.user as any).partnerId = token.partnerId;
+        (session.user as any).partner = token.partner;
       }
       return session;
     },

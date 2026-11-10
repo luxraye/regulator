@@ -23,14 +23,14 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     return badRequest("Enter the award amount in Pula");
   }
 
-  const instance = await prisma.instance.findUnique({ where: { id: params.id }, include: { template: true } });
+  const instance = await prisma.entry.findUnique({ where: { id: params.id }, include: { template: true } });
   if (!instance) return notFound("Idea not found");
   if (!action.from.includes(instance.status)) {
     return badRequest(`This idea is ${instance.status.toLowerCase().replace("_", " ")}; that decision isn't available now`);
   }
 
   // Only move if nobody else decided in the meantime.
-  const updated = await prisma.instance.updateMany({
+  const updated = await prisma.entry.updateMany({
     where: { id: instance.id, status: instance.status },
     data: {
       status: action.to,
@@ -43,7 +43,8 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
   if (updated.count === 0) return badRequest("Someone else just decided on this idea. Refresh to see it.");
 
   await audit(user.id, `IDEA_${action.to}`, {
-    instanceId: instance.id,
+    entryId: instance.id,
+    instanceId: instance.instanceId,
     metadata: { notes, from: instance.status, ...(awardAmount ? { awardAmount } : {}) },
   });
 
@@ -58,7 +59,7 @@ export async function POST(req: NextRequest, { params }: { params: { id: string 
     await notifyRoles(
       ["ADJUDICATOR"],
       "Idea ready for the panel",
-      `${instance.referenceCode} "${instance.title}" (${instance.template.code}) is ready for adjudication.`,
+      `${instance.referenceCode} "${instance.title}" (${instance.template?.code ?? ""}) is ready for adjudication.`,
       `/dashboard/panel/${instance.id}`
     );
   }

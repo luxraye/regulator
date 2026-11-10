@@ -1,4 +1,4 @@
-import type { InstanceStatus, Role } from "@prisma/client";
+import type { EntryStatus, Role } from "@prisma/client";
 
 /**
  * Every decision an idea can receive, who may take it, and from which status.
@@ -6,7 +6,7 @@ import type { InstanceStatus, Role } from "@prisma/client";
  */
 export const ACTIONS: Record<
   string,
-  { to: InstanceStatus; from: InstanceStatus[]; roles: Role[]; needsNotes: boolean; verb: string }
+  { to: EntryStatus; from: EntryStatus[]; roles: Role[]; needsNotes: boolean; verb: string }
 > = {
   REQUEST_CHANGES: {
     to: "FLAGGED",
@@ -48,7 +48,7 @@ export const ACTIONS: Record<
 export const ACTION_LABELS: Record<string, { label: string; tone: string; hint: string }> = {
   SEND_TO_PANEL: { label: "Send to panel", tone: "bg-purple-600 text-white", hint: "Skip waiting for remaining evaluators and pass the idea to adjudication." },
   APPROVE: { label: "Approve", tone: "bg-ceda-green text-white", hint: "Approve in principle; the award amount can be confirmed later." },
-  AWARD: { label: "Award funding", tone: "bg-ceda-amber text-ceda-navy", hint: "Confirm the award and amount. The innovator is notified straight away." },
+  AWARD: { label: "Award funding", tone: "bg-ceda-amber text-ceda-ink", hint: "Confirm the award and amount. The innovator is notified straight away." },
   REQUEST_CHANGES: { label: "Request changes", tone: "bg-ceda-orange text-white", hint: "Send it back to the innovator with what to fix. They can resubmit." },
   REJECT: { label: "Not selected", tone: "bg-red-600 text-white", hint: "Close the application with a reason the innovator can learn from." },
 };
@@ -57,6 +57,6 @@ export const ACTION_LABELS: Record<string, { label: string; tone: string; hint: 
 export function availableActions(role: string, status: string): string[] {
   return ["SEND_TO_PANEL", "APPROVE", "AWARD", "REQUEST_CHANGES", "REJECT"].filter((k) => {
     const a = ACTIONS[k];
-    return a.roles.includes(role as Role) && a.from.includes(status as InstanceStatus);
+    return a.roles.includes(role as Role) && a.from.includes(status as EntryStatus);
   });
 }

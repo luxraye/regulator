@@ -12,6 +12,10 @@ export interface SubmissionReceipt {
   dataHash: string;
   fieldCount: number;
   fileHashes: { fileKey: string; fileName: string; hash: string }[];
+  faithfulnessHash?: string;
+  passedChecks?: number;
+  warnChecks?: number;
+  failChecks?: number;
 }
 
 const ISSUER = "ceda-innovation-portal";

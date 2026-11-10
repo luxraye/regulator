@@ -16,11 +16,11 @@ export default async function DashboardLayout({ children }: { children: React.Re
       <div className="sticky top-0 hidden h-screen md:block print:hidden">
         <DashboardSidebar />
       </div>
-      <div className="flex min-w-0 flex-1 flex-col bg-ceda-light">
+      <div className="flex min-w-0 flex-1 flex-col bg-ceda-sand">
         <header className="sticky top-0 z-30 flex print:hidden h-14 items-center justify-between border-b border-border bg-white/90 px-4 backdrop-blur sm:px-6 lg:px-8">
           <Link href="/" className="flex items-center gap-2 md:hidden">
             <LogoMark className="h-5 w-5" />
-            <span className="text-sm font-bold text-ceda-navy">CEDA Innovation</span>
+            <span className="text-sm font-bold text-ceda-ink">CEDA Innovation</span>
           </Link>
           <p className="hidden text-sm text-muted-foreground md:block">
             {user?.organizationName && user.role === "INNOVATOR" ? user.organizationName : roleLabels[user?.role ?? ""]}

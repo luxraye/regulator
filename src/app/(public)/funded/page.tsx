@@ -5,6 +5,7 @@ import { formatPula } from "@/lib/utils";
 import { fundedShowcase } from "@/lib/funded";
 import { BlueBackdrop } from "@/components/home/blue-backdrop";
 import { FundedCard } from "@/components/funded/funded-card";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export const metadata = { title: "Funded innovators · CEDA Innovation Portal" };
 export const dynamic = "force-dynamic";
@@ -12,21 +13,22 @@ export const dynamic = "force-dynamic";
 export default async function FundedPage() {
   const [items, all] = await Promise.all([
     fundedShowcase(),
-    prisma.instance.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
+    prisma.entry.aggregate({ where: { status: "AWARDED" }, _sum: { awardAmount: true }, _count: true }),
   ]);
+  const totalCount = all._count ?? 0;
   const jobs = items.reduce((n, f) => n + (f.jobs ?? 0), 0);
   const districts = new Set(items.map((f) => f.innovator.district).filter(Boolean)).size;
-  const hidden = all._count - items.length;
+  const hidden = totalCount - items.length;
 
   const stats = [
-    { icon: Award, label: "Ideas funded", value: String(all._count) },
-    { icon: ShieldCheck, label: "Awarded in total", value: formatPula(all._sum.awardAmount ?? 0) },
+    { icon: Award, label: "Ideas funded", value: String(totalCount) },
+    { icon: ShieldCheck, label: "Awarded in total", value: formatPula(all._sum?.awardAmount ?? 0) },
     { icon: Briefcase, label: "Jobs planned (listed)", value: String(jobs) },
     { icon: MapPin, label: "Districts (listed)", value: String(districts) },
   ];
 
   return (
-    <div className="bg-ceda-light/60">
+    <div className="bg-ceda-sand/60">
       <section className="relative overflow-hidden text-white">
         <BlueBackdrop />
         <div className="relative mx-auto max-w-6xl px-4 py-14 sm:px-6 lg:px-8">
@@ -48,12 +50,13 @@ export default async function FundedPage() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <DemoDataBanner message="Demo data: fictional teams and awards for illustration" className="mb-6" />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((f) => <FundedCard key={f.referenceCode} f={f} />)}
         </div>
         <p className="mt-8 rounded-xl border border-border bg-white p-5 text-sm text-muted-foreground">
           Founders choose whether their award is listed here{hidden > 0 ? `, and ${hidden} chose not to be` : ""}. We show the idea&apos;s title and headline numbers only, never the application, so nobody&apos;s plans or IP are exposed.
-          {" "}Have an idea of your own? <Link href="/calls" className="font-medium text-ceda-blue hover:underline">See the open calls</Link>.
+          {" "}Have an idea of your own? <Link href="/calls" className="font-medium text-ceda-orange hover:underline">See the open calls</Link>.
         </p>
       </div>
     </div>

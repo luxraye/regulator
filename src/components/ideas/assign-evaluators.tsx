@@ -39,14 +39,14 @@ export function AssignEvaluators({ instanceId, evaluators, suggested }: { instan
 
   return (
     <section className="rounded-xl border border-border bg-white p-5">
-      <h3 className="mb-1 flex items-center gap-2 font-semibold text-ceda-navy"><UserPlus size={17} /> Assign evaluators</h3>
+      <h3 className="mb-1 flex items-center gap-2 font-semibold text-ceda-ink"><UserPlus size={17} /> Assign evaluators</h3>
       <p className="mb-3 text-xs text-muted-foreground">
         This call asks for {suggested} independent scores. {already} assigned so far. Each evaluator declares conflicts before seeing the idea.
       </p>
       <ul className="space-y-1.5">
         {evaluators.map((e) => (
           <li key={e.id}>
-            <label className={cn("flex items-center gap-3 rounded-lg border px-3 py-2 text-sm", e.assigned ? "border-border bg-ceda-light opacity-60" : picked.includes(e.id) ? "border-ceda-blue bg-blue-50" : "border-border")}>
+            <label className={cn("flex items-center gap-3 rounded-lg border px-3 py-2 text-sm", e.assigned ? "border-border bg-ceda-sand opacity-60" : picked.includes(e.id) ? "border-ceda-orange bg-blue-50" : "border-border")}>
               <input
                 type="checkbox"
                 disabled={e.assigned}
@@ -69,7 +69,7 @@ export function AssignEvaluators({ instanceId, evaluators, suggested }: { instan
             {[3, 5, 7, 10, 14].map((d) => <option key={d} value={d}>{d} days</option>)}
           </select>
         </label>
-        <button onClick={assign} disabled={busy || picked.length === 0} className="inline-flex items-center gap-2 rounded-lg bg-ceda-blue px-4 py-2 text-sm font-medium text-white disabled:opacity-40">
+        <button onClick={assign} disabled={busy || picked.length === 0} className="inline-flex items-center gap-2 rounded-lg bg-ceda-orange px-4 py-2 text-sm font-medium text-white disabled:opacity-40">
           {busy && <Loader2 size={15} className="animate-spin" />} Assign {picked.length || ""}
         </button>
       </div>

@@ -2,7 +2,7 @@ export default function AdminLoading() {
   return (
     <div className="space-y-6" aria-busy="true" aria-label="Loading programme overview">
       <div>
-        <h1 className="text-2xl font-bold text-ceda-navy">Programme overview</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Programme overview</h1>
         <p className="mt-1 text-sm text-muted-foreground">Loading live screening and evaluation metrics…</p>
       </div>
       <div className="grid grid-cols-2 gap-4 lg:grid-cols-5">

@@ -9,7 +9,7 @@ const PASSED_SCREENING = ["UNDER_REVIEW", "SHORTLISTED", "APPROVED", "AWARDED"];
 
 /** One flat row per submitted idea: the basis for every report and the CSV export. */
 export async function ideaRows(callCode?: string) {
-  const ideas = await prisma.instance.findMany({
+  const ideas = await prisma.entry.findMany({
     where: { status: { not: "DRAFT" }, ...(callCode ? { template: { code: callCode } } : {}) },
     include: {
       template: true,
@@ -23,7 +23,7 @@ export async function ideaRows(callCode?: string) {
 
   return ideas.map((i) => {
     const v = fieldsToRecord(i.fields);
-    const s = summarise(schemaOf(i.template).criteria, i.evaluations);
+    const s = i.template ? summarise(schemaOf(i.template).criteria, i.evaluations) : { mean: null, count: 0, disagreement: false };
     const sub = i.submittedAt?.getTime() ?? null;
     const at = (a: string) => i.audits.find((x) => x.action === a)?.createdAt.getTime() ?? null;
     const days = (t: number | null) => (sub && t ? Math.max(0, Math.round(((t - sub) / DAY) * 10) / 10) : null);
@@ -32,9 +32,9 @@ export async function ideaRows(callCode?: string) {
     return {
       reference: i.referenceCode,
       title: i.title,
-      call: i.template.code,
-      sector: sectorName(i.template.dataType),
-      stage: stageName(i.template.scale),
+      call: i.template?.code ?? "",
+      sector: i.template ? sectorName(i.template.dataType) : "General Innovation",
+      stage: i.template ? stageName(i.template.scale) : "All stages",
       company: i.innovator.organizationName ?? "",
       district: i.innovator.district ?? "Unknown",
       gender: i.innovator.gender ?? "Not stated",
@@ -67,7 +67,7 @@ export function countBy<T>(rows: T[], key: (r: T) => string) {
   return Array.from(m, ([name, value]) => ({ name, value })).sort((a, b) => b.value - a.value);
 }
 
-export const mean = (xs: (number | null)[]) => {
+export const mean = (xs: (number | null | undefined)[]) => {
   const n = xs.filter((x): x is number => typeof x === "number");
   return n.length ? Math.round((n.reduce((a, b) => a + b, 0) / n.length) * 10) / 10 : null;
 };

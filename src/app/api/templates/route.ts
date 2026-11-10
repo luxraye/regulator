@@ -27,7 +27,7 @@ export async function GET() {
       closesAt: true,
       fundingSummary: true,
       reviewersPerIdea: true,
-      _count: { select: { instances: true } },
+      _count: { select: { entries: true } },
     },
   });
   return NextResponse.json(templates);
@@ -83,7 +83,7 @@ export async function PATCH(req: NextRequest) {
   if (id && Array.isArray(criteria)) {
     const call = await prisma.template.findUnique({ where: { id } });
     if (!call) return badRequest("Call not found");
-    const scored = await prisma.evaluation.count({ where: { instance: { templateId: id }, submittedAt: { not: null } } });
+    const scored = await prisma.evaluation.count({ where: { entry: { templateId: id }, submittedAt: { not: null } } });
     if (scored) return badRequest("Scores have already been submitted on this call, so its criteria are locked");
     const parsed = parseSchema({ ...(call.schema as object), criteria });
     if (parsed.error) return badRequest(parsed.error);

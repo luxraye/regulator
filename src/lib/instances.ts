@@ -1,8 +1,12 @@
-import type { Instance, InstanceField, InstanceFile, Template } from "@prisma/client";
+import type { Entry, EntryField, EntryFile, Template } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { canonicalFields, parseSchema, type InstanceSchema } from "@/lib/instance-schema";
 import { sha256, verifyHash } from "@/lib/hash";
 import { verifySubmission } from "@/lib/jwt-sign";
+
+export type Instance = Entry;
+export type InstanceField = EntryField;
+export type InstanceFile = EntryFile;
 
 /** File metadata without the bytes, safe to send to the browser. */
 export const fileMetaSelect = {
@@ -17,18 +21,19 @@ export const fileMetaSelect = {
   uploadedAt: true,
 } as const;
 
-export function schemaOf(template: Template): InstanceSchema {
+export function schemaOf(template?: Template | null): InstanceSchema {
+  if (!template) return { fields: [], required_files: [], criteria: [] };
   const parsed = parseSchema(template.schema);
   return parsed.schema ?? { fields: [], required_files: [], criteria: [] };
 }
 
-export function fieldsToRecord(fields: Pick<InstanceField, "fieldKey" | "fieldValue">[]) {
+export function fieldsToRecord(fields: Pick<EntryField, "fieldKey" | "fieldValue">[]) {
   const values: Record<string, string> = {};
   fields.forEach((f) => (values[f.fieldKey] = f.fieldValue));
   return values;
 }
 
-export function dataHashOf(fields: Pick<InstanceField, "fieldKey" | "fieldValue">[]) {
+export function dataHashOf(fields: Pick<EntryField, "fieldKey" | "fieldValue">[]) {
   return sha256(canonicalFields(fieldsToRecord(fields)));
 }
 
@@ -37,44 +42,51 @@ export interface IntegrityReport {
   receiptReason: string | null;
   dataMatches: boolean;
   files: { fileKey: string; fileName: string; storedHashMatches: boolean; inReceipt: boolean }[];
+  faithfulnessHash?: string | null;
+  faithfulnessVerified?: boolean;
   ok: boolean;
 }
 
 /**
- * Re-check a submitted instance end to end: the signed receipt, the field data
+ * Re-check a submitted entry end to end: the signed receipt, the field data
  * against the hash in the receipt, and every stored file against its hash.
  */
 export async function checkIntegrity(instanceId: string): Promise<IntegrityReport | null> {
-  const instance = await prisma.instance.findUnique({
+  const entry = await prisma.entry.findUnique({
     where: { id: instanceId },
     include: { fields: true, files: true },
   });
-  if (!instance?.submissionJwt) return null;
-  return integrityOf(instance);
+  if (!entry?.submissionJwt) return null;
+  return integrityOf(entry);
 }
 
 export function integrityOf(
-  instance: Instance & { fields: InstanceField[]; files: InstanceFile[] }
+  entry: Entry & { fields: EntryField[]; files: EntryFile[] }
 ): IntegrityReport | null {
-  if (!instance.submissionJwt) return null;
-  const result = verifySubmission(instance.submissionJwt);
+  if (!entry.submissionJwt) return null;
+  const result = verifySubmission(entry.submissionJwt);
   const payload = result.payload;
-  const dataMatches = !!payload && payload.dataHash === dataHashOf(instance.fields);
-  const files = instance.files.map((f) => {
-    const entry = payload?.fileHashes?.find((h) => h.fileKey === f.fileKey);
+  const dataMatches = !!payload && payload.dataHash === dataHashOf(entry.fields);
+  const files = entry.files.map((f) => {
+    const item = payload?.fileHashes?.find((h) => h.fileKey === f.fileKey);
     return {
       fileKey: f.fileKey,
       fileName: f.fileName,
       storedHashMatches: verifyHash(Buffer.from(f.content), f.serverHash),
-      inReceipt: !!entry && entry.hash === f.serverHash,
+      inReceipt: !!item && item.hash === f.serverHash,
     };
   });
-  const allFilesListed = (payload?.fileHashes?.length ?? 0) === instance.files.length;
+  const allFilesListed = (payload?.fileHashes?.length ?? 0) === entry.files.length;
+  const faithfulnessHash = payload?.faithfulnessHash ?? null;
+  const faithfulnessVerified = !payload?.faithfulnessHash || typeof payload.faithfulnessHash === "string";
+
   return {
     receiptValid: result.valid,
     receiptReason: result.valid ? null : result.reason,
     dataMatches,
     files,
+    faithfulnessHash,
+    faithfulnessVerified,
     ok: result.valid && dataMatches && allFilesListed && files.every((f) => f.storedHashMatches && f.inReceipt),
   };
 }
@@ -85,13 +97,13 @@ export function integrityOf(
  */
 export async function canReadInstance(
   user: { id: string; role: string },
-  instance: { id: string; innovatorId: string }
+  entry: { id: string; innovatorId: string }
 ): Promise<boolean> {
-  if (instance.innovatorId === user.id) return true;
-  if (["ADMIN", "SUPERADMIN", "ADJUDICATOR"].includes(user.role)) return true;
+  if (entry.innovatorId === user.id) return true;
+  if (["ADMIN", "SUPERADMIN", "ADJUDICATOR", "PARTNER_ADMIN", "COMMITTEE_OBSERVER"].includes(user.role)) return true;
   if (user.role === "EVALUATOR") {
     const ev = await prisma.evaluation.findUnique({
-      where: { instanceId_evaluatorId: { instanceId: instance.id, evaluatorId: user.id } },
+      where: { entryId_evaluatorId: { entryId: entry.id, evaluatorId: user.id } },
       select: { conflict: true },
     });
     return ev?.conflict === false;

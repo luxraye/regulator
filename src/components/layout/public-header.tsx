@@ -18,6 +18,7 @@ const navLinks: { href: string; key: TranslationKey }[] = [
   { href: "/funded", key: "nav.funded" },
   { href: "/community", key: "nav.community" },
   { href: "/about", key: "nav.about" },
+  { href: "/judges", key: "nav.judges" },
 ];
 
 export function PublicHeader() {
@@ -47,7 +48,7 @@ export function PublicHeader() {
   return (
     <header
       className={cn(
-        "fold-bottom sticky top-0 z-50 bg-ceda-navy/95 text-white backdrop-blur transition-transform duration-300 ease-in-out",
+        "sticky top-0 z-50 bg-ceda-ink/95 text-white backdrop-blur transition-transform duration-300 ease-in-out border-b border-white/10",
         hidden && !mobileOpen ? "-translate-y-full" : "translate-y-0"
       )}
     >
@@ -87,7 +88,7 @@ export function PublicHeader() {
                 {session.user.name}
               </span>
             )}
-            <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-blue px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-blue/80">
+            <Link href={dashboardHref} className="ml-2 rounded-md bg-ceda-orange px-4 py-2 text-sm font-medium transition-colors hover:bg-ceda-orange/90">
               {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>
@@ -110,7 +111,7 @@ export function PublicHeader() {
             {session?.user?.name && (
               <p className="px-3 pt-2 text-xs text-white/70">Signed in as {session.user.name}</p>
             )}
-            <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-blue px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
+            <Link href={dashboardHref} className="mt-2 block rounded-md bg-ceda-orange px-3 py-2 text-sm font-medium" onClick={() => setMobileOpen(false)}>
               {session ? "Back to my dashboard" : t("nav.signin")}
             </Link>
           </nav>

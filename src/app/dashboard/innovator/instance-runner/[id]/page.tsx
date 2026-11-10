@@ -14,7 +14,7 @@ export default async function InstanceRunnerPage({ params }: { params: { id: str
   const user = await getSessionUser();
   if (!user) redirect("/login");
 
-  const instance = await prisma.instance.findUnique({
+  const instance = await prisma.entry.findUnique({
     where: { id: params.id },
     select: {
       id: true,
@@ -52,11 +52,11 @@ export default async function InstanceRunnerPage({ params }: { params: { id: str
         JSON.stringify({
           ...rest,
           template: {
-            name: template.name,
-            code: template.code,
-            description: template.description,
-            closesAt: template.closesAt,
-            fundingSummary: template.fundingSummary,
+            name: template?.name ?? "CEDA Innovation",
+            code: template?.code ?? "",
+            description: template?.description ?? null,
+            closesAt: template?.closesAt ?? new Date(),
+            fundingSummary: template?.fundingSummary ?? null,
             schema,
           },
           feedback: showFeedback

@@ -11,7 +11,7 @@ export const scaleLabels: Record<string, string> = {
   SCALE_6: "6 · Scale-up & export",
 };
 
-export const stageName = (scale: string) => scaleLabels[scale]?.split(" · ")[1] ?? scale;
+export const stageName = (scale: string | null | undefined) => (scale ? scaleLabels[scale]?.split(" · ")[1] ?? scale : "All stages");
 
 /** Sector: the columns of the classification matrix. */
 export const typeLabels: Record<string, { short: string; full: string; photo: string }> = {
@@ -23,18 +23,20 @@ export const typeLabels: Record<string, { short: string; full: string; photo: st
   TYPE_F: { short: "F", full: "Health, Education & Social", photo: "/photos/founder-macbook.webp" },
 };
 
-export const sectorName = (dataType: string) => typeLabels[dataType]?.full ?? dataType;
+export const sectorName = (dataType: string | null | undefined) => (dataType ? typeLabels[dataType]?.full ?? dataType : "General Innovation");
 
-export const instanceStatusMeta: Record<string, { label: string; className: string }> = {
+export const entryStatusMeta: Record<string, { label: string; className: string }> = {
   DRAFT: { label: "Draft", className: "bg-gray-100 text-gray-600" },
-  SUBMITTED: { label: "Screening", className: "bg-indigo-100 text-indigo-700" },
-  UNDER_REVIEW: { label: "Under evaluation", className: "bg-blue-100 text-blue-700" },
+  SUBMITTED: { label: "Screening", className: "bg-stone-100 text-stone-700" },
+  UNDER_REVIEW: { label: "Under evaluation", className: "bg-amber-100 text-amber-800" },
   SHORTLISTED: { label: "With panel", className: "bg-purple-100 text-purple-700" },
   FLAGGED: { label: "Changes requested", className: "bg-orange-100 text-orange-700" },
   APPROVED: { label: "Approved", className: "bg-green-100 text-green-700" },
-  AWARDED: { label: "Awarded", className: "bg-amber-100 text-amber-800" },
+  AWARDED: { label: "Awarded", className: "bg-amber-200 text-amber-900" },
   REJECTED: { label: "Not selected", className: "bg-red-100 text-red-700" },
 };
+
+export const instanceStatusMeta = entryStatusMeta;
 
 export const roleLabels: Record<string, string> = {
   INNOVATOR: "Innovator",
@@ -42,6 +44,9 @@ export const roleLabels: Record<string, string> = {
   ADJUDICATOR: "Adjudicator",
   ADMIN: "Programme admin",
   SUPERADMIN: "Super admin",
+  PARTNER_ADMIN: "Partner admin",
+  COMMITTEE_OBSERVER: "Committee observer",
+  CONSULTANT: "Consultant",
 };
 
 /** The five stages the brief names, and which statuses sit in each. */
@@ -74,6 +79,29 @@ export const BOTSWANA_DISTRICTS = [
   "Chobe",
 ];
 
+export const DOCUMENT_TYPE_LABELS: Record<string, string> = {
+  PITCH_DECK: "Pitch deck (presentation)",
+  BUSINESS_PLAN: "Business plan / Executive summary",
+  FINANCIAL_PROJECTIONS: "Financial projections / Budget",
+  PROTOTYPE_DEMO: "Prototype demo / Walkthrough video",
+  COMPANY_REGISTRATION: "CIPA company registration certificate",
+  OMANG_COPIES: "Certified Omang copies (all founders)",
+  SHAREHOLDER_CERT: "Shareholder certificate / Register of members",
+  OTHER: "Supporting document",
+};
+
+export const QUESTION_TYPE_LABELS: Record<string, string> = {
+  TEXT: "Short text",
+  TEXTAREA: "Long text",
+  NUMBER: "Number",
+  CURRENCY: "Pula amount (BWP)",
+  SELECT: "Single choice",
+  MULTI_SELECT: "Multiple choice",
+  FILE: "File upload",
+  BOOLEAN: "Yes / No",
+  DATE: "Date",
+};
+
 /** Plain-language names for audit actions, as an innovator would read them. */
 export const auditActionLabels: Record<string, string> = {
   IDEA_STARTED: "Application started",
@@ -95,5 +123,9 @@ export const auditActionLabels: Record<string, string> = {
   REPORT_EXPORTED: "Report exported",
   USER_CREATED: "Staff account created",
   USER_ROLE_CHANGED: "Role changed",
+  INSTANCE_CREATED: "Instance created",
+  INSTANCE_PUBLISHED: "Instance sealed and published",
+  INSTANCE_VERSION_BUMP: "Instance version updated",
 };
+
 export const actionLabel = (a: string) => auditActionLabels[a] ?? a.toLowerCase().replace(/_/g, " ");

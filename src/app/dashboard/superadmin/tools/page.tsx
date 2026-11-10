@@ -7,9 +7,9 @@ import { HashVerifier, ReceiptInspector } from "./verify-tools";
 
 export default async function VerificationToolsPage() {
   const [totalInstances, submittedCount, flaggedCount, auditCount] = await Promise.all([
-    prisma.instance.count(),
-    prisma.instance.count({ where: { status: "SUBMITTED" } }),
-    prisma.instance.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
+    prisma.entry.count(),
+    prisma.entry.count({ where: { status: "SUBMITTED" } }),
+    prisma.entry.count({ where: { status: { in: ["FLAGGED", "REJECTED"] } } }),
     prisma.auditLog.count(),
   ]);
 
@@ -24,7 +24,7 @@ export default async function VerificationToolsPage() {
   return (
     <div>
       <div className="mb-8">
-        <h1 className="text-2xl font-bold text-ceda-navy">Verification</h1>
+        <h1 className="text-2xl font-bold text-ceda-ink">Verification</h1>
         <p className="text-muted-foreground mt-1">
           Prove a pitch deck or certificate is the one the innovator submitted, check a receipt is genuine,
           and cross-check applicants against national registries before money moves.
@@ -34,7 +34,7 @@ export default async function VerificationToolsPage() {
       {/* Quick stats */}
       <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
         <div className="bg-white rounded-xl border border-border p-4 text-center">
-          <p className="text-2xl font-bold text-ceda-navy">{totalInstances}</p>
+          <p className="text-2xl font-bold text-ceda-ink">{totalInstances}</p>
           <p className="text-xs text-muted-foreground">Ideas</p>
         </div>
         <div className="bg-white rounded-xl border border-border p-4 text-center">
@@ -57,13 +57,13 @@ export default async function VerificationToolsPage() {
       </div>
 
       <div className="mb-10 flex flex-wrap gap-3 text-sm">
-        <Link href="/dashboard/admin/instances?filter=screening" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-light">Screening queue →</Link>
-        <Link href="/dashboard/superadmin/audit" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-light">Audit trail →</Link>
-        <Link href="/dashboard/admin/instances?filter=changes" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-light">Changes requested ({flaggedCount}) →</Link>
+        <Link href="/dashboard/admin/instances?filter=screening" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-sand">Screening queue →</Link>
+        <Link href="/dashboard/superadmin/audit" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-sand">Audit trail →</Link>
+        <Link href="/dashboard/admin/instances?filter=changes" className="rounded-lg border border-border bg-white px-4 py-2 font-medium hover:bg-ceda-sand">Changes requested ({flaggedCount}) →</Link>
       </div>
 
       {/* External links */}
-      <h2 className="text-lg font-semibold text-ceda-navy mb-4">External checks</h2>
+      <h2 className="text-lg font-semibold text-ceda-ink mb-4">External checks</h2>
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {externalLinks.map((link) => (
           <a
@@ -71,11 +71,11 @@ export default async function VerificationToolsPage() {
             href={link.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="group bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-ceda-blue/30 transition-all"
+            className="group bg-white rounded-xl border border-border p-5 hover:shadow-md hover:border-ceda-orange/30 transition-all"
           >
             <div className="flex items-center gap-2 mb-2">
-              <div className="text-ceda-blue">{link.icon}</div>
-              <h3 className="font-semibold text-ceda-navy text-sm">{link.title}</h3>
+              <div className="text-ceda-orange">{link.icon}</div>
+              <h3 className="font-semibold text-ceda-ink text-sm">{link.title}</h3>
               <ExternalLink size={12} className="text-muted-foreground ml-auto opacity-0 group-hover:opacity-100 transition-opacity" />
             </div>
             <p className="text-xs text-muted-foreground leading-relaxed">{link.description}</p>

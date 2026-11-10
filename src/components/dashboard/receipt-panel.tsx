@@ -8,6 +8,8 @@ interface IntegrityReport {
   receiptReason: string | null;
   dataMatches: boolean;
   files: { fileKey: string; fileName: string; storedHashMatches: boolean; inReceipt: boolean }[];
+  faithfulnessHash?: string | null;
+  faithfulnessVerified?: boolean;
   ok: boolean;
 }
 
@@ -50,7 +52,7 @@ export function ReceiptPanel({
     <div className="rounded-xl border border-border bg-white p-5">
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h3 className="font-semibold text-ceda-navy">Signed submission receipt</h3>
+          <h3 className="font-semibold text-ceda-ink">Signed submission receipt</h3>
           <p className="text-xs text-muted-foreground">
             Binds the submitted data and every file hash to this submission. Any later change breaks it.
           </p>
@@ -58,7 +60,7 @@ export function ReceiptPanel({
         <div className="flex gap-2">
           <button
             onClick={copy}
-            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-ceda-light"
+            className="flex items-center gap-1.5 rounded-lg border border-border px-3 py-1.5 text-xs font-medium hover:bg-ceda-sand"
           >
             {copied ? <CheckCircle2 size={14} className="text-ceda-green" /> : <Copy size={14} />}
             {copied ? "Copied" : "Copy receipt"}
@@ -66,7 +68,7 @@ export function ReceiptPanel({
           <button
             onClick={verify}
             disabled={checking}
-            className="flex items-center gap-1.5 rounded-lg bg-ceda-navy px-3 py-1.5 text-xs font-medium text-white hover:bg-ceda-navy/90 disabled:opacity-60"
+            className="flex items-center gap-1.5 rounded-lg bg-ceda-ink px-3 py-1.5 text-xs font-medium text-white hover:bg-ceda-ink/90 disabled:opacity-60"
           >
             {checking ? <Loader2 size={14} className="animate-spin" /> : <ShieldCheck size={14} />}
             Verify integrity
@@ -76,10 +78,10 @@ export function ReceiptPanel({
 
       {dataHash && (
         <p className="mt-3 break-all font-mono text-[11px] text-muted-foreground">
-          Data hash: <span className="text-ceda-navy">{dataHash}</span>
+          Data hash: <span className="text-ceda-ink">{dataHash}</span>
         </p>
       )}
-      <p className="mt-1 break-all rounded-lg bg-ceda-light p-2 font-mono text-[11px] leading-relaxed text-muted-foreground max-h-[3.6rem] overflow-hidden">
+      <p className="mt-1 break-all rounded-lg bg-ceda-sand p-2 font-mono text-[11px] leading-relaxed text-muted-foreground max-h-[3.6rem] overflow-hidden">
         {submissionJwt}
       </p>
 
@@ -97,6 +99,12 @@ export function ReceiptPanel({
           <ul className="mt-2 space-y-1 text-xs">
             <Check ok={report.receiptValid} label={report.receiptValid ? "Signature is valid" : `Signature invalid: ${report.receiptReason}`} />
             <Check ok={report.dataMatches} label={report.dataMatches ? "Field data unchanged" : "Field data differs from the receipt"} />
+            {report.faithfulnessHash && (
+              <Check
+                ok={!!report.faithfulnessVerified}
+                label={`Faithfulness Report sealed: ${report.faithfulnessHash.slice(0, 16)}... (all pre-flight guards verified)`}
+              />
+            )}
             {report.files.map((f) => (
               <Check
                 key={f.fileKey}

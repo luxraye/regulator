@@ -16,7 +16,7 @@ export default function DashboardError({
         <div className="mx-auto mb-4 flex h-12 w-12 items-center justify-center rounded-full bg-amber-100 text-amber-800">
           <AlertTriangle className="h-6 w-6" />
         </div>
-        <h1 className="text-xl font-bold text-ceda-navy">Unable to load dashboard view</h1>
+        <h1 className="text-xl font-bold text-ceda-ink">Unable to load dashboard view</h1>
         <p className="mt-2 text-sm text-muted-foreground">
           A temporary error occurred while loading this section. Please try again.
         </p>
@@ -27,11 +27,11 @@ export default function DashboardError({
           <button
             type="button"
             onClick={() => reset()}
-            className="inline-flex items-center gap-1.5 rounded-lg bg-ceda-navy px-4 py-2 text-sm font-medium text-white hover:bg-ceda-navy/90"
+            className="inline-flex items-center gap-1.5 rounded-lg bg-ceda-ink px-4 py-2 text-sm font-medium text-white hover:bg-ceda-ink/90"
           >
             <RotateCcw className="h-4 w-4" /> Retry
           </button>
-          <Link href="/dashboard" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ceda-navy hover:bg-ceda-light">
+          <Link href="/dashboard" className="rounded-lg border border-border px-4 py-2 text-sm font-medium text-ceda-ink hover:bg-ceda-sand">
             Dashboard home
           </Link>
         </div>

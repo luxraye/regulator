@@ -2,12 +2,23 @@ import { NextResponse } from "next/server";
 import type { Role } from "@prisma/client";
 import { auth } from "@/lib/auth";
 
+export interface PartnerInfo {
+  id: string;
+  name: string;
+  slug: string;
+  logoUrl?: string | null;
+  primaryColor?: string | null;
+  secondaryColor?: string | null;
+}
+
 export interface SessionUser {
   id: string;
   role: Role;
   name: string;
   email: string;
   organizationName?: string | null;
+  partnerId?: string | null;
+  partner?: PartnerInfo | null;
 }
 
 /** The signed-in user, or null. */

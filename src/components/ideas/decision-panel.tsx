@@ -45,8 +45,8 @@ export function DecisionPanel({
   }
 
   return (
-    <section className="rounded-xl border-2 border-ceda-blue/30 bg-white p-5">
-      <h3 className="mb-3 flex items-center gap-2 font-semibold text-ceda-navy"><Gavel size={17} /> {title}</h3>
+    <section className="rounded-xl border-2 border-ceda-orange/30 bg-white p-5">
+      <h3 className="mb-3 flex items-center gap-2 font-semibold text-ceda-ink"><Gavel size={17} /> {title}</h3>
       <div className="flex flex-wrap gap-2">
         {actions.map((a) => (
           <button
@@ -89,7 +89,7 @@ export function DecisionPanel({
           )}
           {error && <p className="text-sm text-red-600">{error}</p>}
           <div className="flex justify-end gap-2">
-            <button onClick={() => setAction(null)} className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-ceda-light">Cancel</button>
+            <button onClick={() => setAction(null)} className="rounded-lg px-3 py-2 text-sm text-muted-foreground hover:bg-ceda-sand">Cancel</button>
             <button
               onClick={decide}
               disabled={busy || (needsNotes && notes.trim().length < 10) || (action === "AWARD" && !Number(amount))}

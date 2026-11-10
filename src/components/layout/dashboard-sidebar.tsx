@@ -17,7 +17,7 @@ export function DashboardSidebar() {
   const nav = navFor(session?.user?.role);
 
   return (
-    <aside className={cn("flex h-screen flex-col bg-ceda-navy text-white transition-all duration-200", collapsed ? "w-16" : "w-64")}>
+    <aside className={cn("flex h-screen flex-col bg-ceda-ink text-white transition-all duration-200", collapsed ? "w-16" : "w-64")}>
       <div className="flex items-center justify-between border-b border-white/10 p-4">
         <Link href="/">{collapsed ? <LogoMark /> : <Logo tone="light" sub={false} />}</Link>
         <button
@@ -29,6 +29,19 @@ export function DashboardSidebar() {
         </button>
       </div>
 
+      {!collapsed && (session?.user as any)?.partner && (
+        <div className="mx-3 mt-3 rounded-lg bg-white/10 px-3 py-2 text-xs border border-white/15">
+          <div className="flex items-center gap-2">
+            <div
+              className="h-2.5 w-2.5 rounded-full shrink-0"
+              style={{ backgroundColor: (session?.user as any)?.partner?.secondaryColor || "#00a3e0" }}
+            />
+            <span className="font-bold truncate text-white">{(session?.user as any)?.partner?.name}</span>
+          </div>
+          <span className="text-[10px] text-white/70 block mt-0.5">Partner Workspace</span>
+        </div>
+      )}
+
       <nav className="flex-1 space-y-1 overflow-y-auto px-2 py-4">
         {nav.map((item) => (
           <Link
@@ -36,9 +49,10 @@ export function DashboardSidebar() {
             href={item.href}
             className={cn(
               "flex items-center gap-3 rounded-md px-3 py-2.5 text-sm font-medium transition-colors",
-              isActive(pathname, item.href) ? "bg-ceda-blue text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
+              isActive(pathname, item.href) ? "bg-ceda-orange text-white" : "text-white/80 hover:bg-white/10 hover:text-white"
             )}
             title={collapsed ? item.label : undefined}
+            aria-current={isActive(pathname, item.href) ? "page" : undefined}
           >
             {item.icon}
             {!collapsed && <span>{item.label}</span>}

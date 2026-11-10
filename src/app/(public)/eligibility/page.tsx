@@ -22,7 +22,7 @@ export default function EligibilityPage() {
     <div className="flex gap-2">
       {[true, false].map((v) => (
         <button key={String(v)} type="button" onClick={() => set(v)} aria-pressed={value === v} name={name}
-          className={cn("flex-1 rounded-lg border px-4 py-2 text-sm font-medium", value === v ? "border-ceda-blue bg-ceda-blue text-white" : "border-border bg-white hover:bg-ceda-light")}>
+          className={cn("flex-1 rounded-lg border px-4 py-2 text-sm font-medium", value === v ? "border-ceda-orange bg-ceda-orange text-white" : "border-border bg-white hover:bg-ceda-sand")}>
           {v ? "Yes" : "No"}
         </button>
       ))}
@@ -30,9 +30,9 @@ export default function EligibilityPage() {
   );
 
   return (
-    <div className="bg-ceda-light px-4 py-14">
+    <div className="bg-ceda-sand px-4 py-14">
       <div className="mx-auto max-w-2xl">
-        <h1 className="text-3xl font-bold text-ceda-navy">Am I eligible?</h1>
+        <h1 className="text-3xl font-bold text-ceda-ink">Am I eligible?</h1>
         <p className="mb-8 mt-2 text-muted-foreground">Four questions, based on the competition rules. Nothing you enter here is saved.</p>
         <div className="space-y-6 rounded-2xl border border-border bg-white p-6">
           <div><p className="mb-2 text-sm font-medium">Are you a citizen of Botswana with an Omang?</p>{yesNo(citizen, setCitizen, "citizen")}</div>
@@ -50,7 +50,7 @@ export default function EligibilityPage() {
 
         {answered && (
           <div className={cn("mt-6 rounded-2xl border p-6", result.eligible ? "border-green-200 bg-green-50" : "border-amber-200 bg-amber-50")} aria-live="polite">
-            <p className="text-lg font-semibold text-ceda-navy">{result.eligible ? "You meet the rules. Go for it." : "Not yet eligible"}</p>
+            <p className="text-lg font-semibold text-ceda-ink">{result.eligible ? "You meet the rules. Go for it." : "Not yet eligible"}</p>
             <ul className="mt-3 space-y-2">
               {result.checks.map((c) => (
                 <li key={c.key} className="flex items-start gap-2 text-sm">
@@ -60,7 +60,7 @@ export default function EligibilityPage() {
               ))}
             </ul>
             {result.eligible ? (
-              <Link href="/register" className="mt-5 inline-block rounded-lg bg-ceda-navy px-5 py-2.5 font-medium text-white">Create your account</Link>
+              <Link href="/register" className="mt-5 inline-block rounded-lg bg-ceda-ink px-5 py-2.5 font-medium text-white">Create your account</Link>
             ) : (
               <p className="mt-4 text-sm text-muted-foreground">
                 Not eligible for this challenge? CEDA and the Local Enterprise Authority run other programmes for citizen entrepreneurs.
