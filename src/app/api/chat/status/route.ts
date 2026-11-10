@@ -24,6 +24,8 @@ export async function GET() {
 
     return NextResponse.json({
       ...hoursStatus,
+      isOpen: hoursStatus.open,
+      operatingHours: "09:00 - 16:00 CAT (Monday - Friday, excluding Botswana public holidays)",
       waitingQueueCount,
       activeConsultants,
     });

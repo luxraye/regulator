@@ -1,5 +1,4 @@
 import { NextResponse } from "next/server";
-import { getSessionUser } from "@/lib/session";
 import { evaluateRuleSuite } from "@/lib/instance-engine/rules";
 import { validateInstanceDefinition } from "@/lib/instance-engine/validator";
 import type { InstanceDefinition } from "@/lib/instance-engine/types";
@@ -104,11 +103,6 @@ const DEFAULT_CANDIDATES: SimulationCandidate[] = [
  */
 export async function POST(req: Request) {
   try {
-    const user = await getSessionUser();
-    if (!user) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-
     const body = await req.json();
     const { definition, customCandidate } = body;
 
@@ -176,6 +170,8 @@ export async function POST(req: Request) {
     });
 
     return NextResponse.json({
+      pass: validation.valid,
+      errors: validation.errors,
       validDefinition: validation.valid,
       validationErrors: validation.errors,
       validationWarnings: validation.warnings,

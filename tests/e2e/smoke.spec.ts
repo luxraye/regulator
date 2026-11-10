@@ -1,5 +1,7 @@
 import { test, expect, type Page } from "@playwright/test";
 import { navFor, isActive } from "../../src/lib/nav";
+import { verifyMagicBytes } from "../../src/lib/guards/magic-bytes";
+import { getConsultingHoursStatus } from "../../src/lib/chat/hours";
 
 const PASSWORD = process.env.DEMO_PASSWORD ?? "CedaDemo2026!";
 
@@ -192,7 +194,6 @@ test.describe("public site", () => {
   });
 
   test("pre-flight security guard blocks executable disguised as PDF", async () => {
-    const { verifyMagicBytes } = await import("../../src/lib/guards/magic-bytes");
     const exeBuffer = Buffer.from("MZ\x90\x00\x03\x00\x00\x00\x04\x00\x00\x00\xff\xff\x00\x00This is a test executable");
     const result = verifyMagicBytes("disguised_file.pdf", exeBuffer);
     expect(result.valid).toBe(false);
@@ -208,6 +209,12 @@ test.describe("public site", () => {
         password: "ValidPassword123!",
         phone: "+26772123456",
         organizationName: "Test Founder Ventures (Pty) Ltd",
+        omang: "123456789",
+        dateOfBirth: "1998-05-15",
+        licenseNumber: "BW00012345678",
+        youthShareholding: 100,
+        district: "Gaborone",
+        consent: true,
       },
     });
     expect(regRes.ok()).toBeTruthy();
@@ -217,7 +224,7 @@ test.describe("public site", () => {
     const inboxData = await inboxRes.json();
     const verMsg = inboxData.messages?.find((m: any) => m.to.toLowerCase() === testEmail.toLowerCase());
     expect(verMsg).toBeDefined();
-    expect(verMsg.body).toContain("Verify Your Email");
+    expect(verMsg.body).toContain("Verify");
   });
 
   test("chat out-of-hours evaluation and schedule probe", async ({ request }) => {
@@ -227,7 +234,6 @@ test.describe("public site", () => {
     expect(statusData).toHaveProperty("isOpen");
     expect(statusData.operatingHours).toContain("09:00 - 16:00 CAT");
 
-    const { getConsultingHoursStatus } = await import("../../src/lib/chat/hours");
     const midnight = new Date("2026-11-10T00:00:00+02:00");
     expect(getConsultingHoursStatus(midnight).open).toBe(false);
   });

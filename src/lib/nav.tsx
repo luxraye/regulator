@@ -58,10 +58,10 @@ const admin: NavItem[] = [
 ];
 
 const partnerAdmin: NavItem[] = [
+  { href: "/dashboard/partner/settings", label: "Partner space", icon: i(Building2), mobile: true },
   { href: "/dashboard/instances", label: "Instances", short: "Instances", icon: i(Layers), mobile: true },
   { href: "/dashboard/admin", label: "Overview", short: "Home", icon: i(LayoutDashboard), mobile: true },
   { href: "/dashboard/admin/instances", label: "Ideas & screening", short: "Ideas", icon: i(Inbox), mobile: true },
-  { href: "/dashboard/partner/settings", label: "Partner space", icon: i(Building2) },
   { href: "/dashboard/partner/users", label: "Team & roles", icon: i(Users) },
   { href: "/dashboard/partner/keys", label: "API keys", icon: i(Key) },
   { href: "/dashboard/partner/audit", label: "Audit trail", icon: i(ScrollText) },
@@ -114,7 +114,7 @@ export const HOME_FOR: Record<string, string> = {
   ADJUDICATOR: "/dashboard/panel",
   ADMIN: "/dashboard/admin",
   SUPERADMIN: "/dashboard/admin",
-  PARTNER_ADMIN: "/dashboard/instances",
+  PARTNER_ADMIN: "/dashboard/partner/settings",
   CONSULTANT: "/dashboard/consultant",
   COMMITTEE_OBSERVER: "/dashboard/observer",
 };
