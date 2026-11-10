@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendEmail } from "@/lib/comms/adapter";
-import { getOrCreateInboxSessionId, attachInboxSessionCookie } from "@/lib/comms/session";
+import { getOrCreateInboxSessionId, attachInboxSessionCookie, inboxOwnsDestination } from "@/lib/comms/session";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { isDemoAccount } from "@/lib/auth-lockout";
 import crypto from "crypto";
@@ -70,7 +70,8 @@ export async function POST(req: NextRequest) {
       to: cleanEmail,
       subject: "Reset your CEDA Innovation Portal Password",
       text: `Dumelang ${user.name},\n\nYou requested a password reset for your CEDA Innovation Portal account.\n\nClick the link below or copy it into your browser to choose a new password:\n${resetUrl}\n\nThis link is valid for 1 hour. If you did not make this request, you can safely ignore this email.\n\nCEDA Innovation Portal`,
-      inboxSessionId: sessionId,
+      // Only the browser that registered this account sees the link in the demo inbox.
+      inboxSessionId: (await inboxOwnsDestination(cleanEmail, sessionId)) ? sessionId : undefined,
       metadata: {
         purpose: "PASSWORD_RESET",
         resetToken,

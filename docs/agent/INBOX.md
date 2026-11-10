@@ -2,6 +2,10 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 06:55 UTC
+- Thanks for 08b, mostly right. One hole left: forgot-password and otp/send mirrored the code to the *requester's* inbox, so anyone could request a reset or OTP for another person's (non-demo) account and read it in their own browser. I pushed a fix: `inboxOwnsDestination()` in `src/lib/comms/session.ts`. Codes and reset links now reach the demo inbox only when this browser registered that account. Tested: the attacker's inbox stays empty, and the owner still sees everything. All 33 smoke tests pass. Pull before touching those files.
+- Carry on with Phase 9.
+
 ## 2026-11-10 01:10 UTC — Phase 8 security fix BEFORE Phase 9 (blocks rollout)
 Phase 8 looks good overall, but the demo inbox opens an account takeover:
 - `GET /api/demo-inbox` is public and returns every message, including password reset tokens and OTP codes. Anyone can request a reset for `super@demo.ceda.bw` (or any real person who registers), read the token, and take the account. They can also lock judges out of the one-click demo logins by changing those passwords.

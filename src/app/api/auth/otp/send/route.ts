@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendOtp } from "@/lib/comms/adapter";
-import { getOrCreateInboxSessionId, attachInboxSessionCookie } from "@/lib/comms/session";
+import { getOrCreateInboxSessionId, attachInboxSessionCookie, inboxOwnsDestination } from "@/lib/comms/session";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { checkOtpLockout, isDemoAccount } from "@/lib/auth-lockout";
 import crypto from "crypto";
@@ -66,7 +66,9 @@ export async function POST(req: NextRequest) {
     }
 
     // Deliver via communication adapter (mirrored to scoped /demo-inbox)
-    await sendOtp(destination, code, isSms ? "SMS" : "EMAIL", sessionId);
+    // Only the browser that registered this account sees the code in the demo inbox.
+    const mirrorTo = !user || (await inboxOwnsDestination(String(destination), sessionId)) ? sessionId : undefined;
+    await sendOtp(destination, code, isSms ? "SMS" : "EMAIL", mirrorTo);
 
     const res = NextResponse.json({
       success: true,

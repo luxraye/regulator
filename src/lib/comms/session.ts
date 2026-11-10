@@ -51,3 +51,24 @@ export function maskSensitiveComms(msg: any) {
     metadata: meta,
   };
 }
+
+/**
+ * True when this browser's inbox session registered the account at `destination`.
+ * Reset links and sign-in codes are only mirrored to that browser's demo inbox,
+ * so nobody can request a code for someone else's account and read it.
+ */
+export async function inboxOwnsDestination(destination: string, sessionId: string): Promise<boolean> {
+  const { prisma } = await import("@/lib/prisma");
+  const match = await prisma.demoInboxMessage.findFirst({
+    where: {
+      to: { equals: destination.trim(), mode: "insensitive" },
+      metadata: { path: ["inboxSessionId"], equals: sessionId },
+      OR: [
+        { metadata: { path: ["purpose"], equals: "EMAIL_VERIFICATION" } },
+        { metadata: { path: ["purpose"], equals: "PHONE_VERIFICATION" } },
+      ],
+    },
+    select: { id: true },
+  });
+  return Boolean(match);
+}
