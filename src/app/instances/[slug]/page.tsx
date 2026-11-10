@@ -18,6 +18,7 @@ import {
   ExternalLink,
 } from "lucide-react";
 import { PublicRuleVerifier } from "./verifier-client";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 interface PageProps {
   params: { slug: string };
@@ -94,6 +95,8 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
             {definition.meta?.description}
           </p>
         </div>
+
+        <DemoDataBanner message="Demo data: fictional teams for illustration" />
 
         {/* Live Stage Countdown Banner */}
         {currentStage && (
@@ -258,6 +261,8 @@ export default async function PublicInstanceDetailPage({ params }: PageProps) {
               <ExternalLink size={12} />
             </Link>
           </div>
+
+          <DemoDataBanner message="Demo data: fictional teams for illustration" />
 
           <div className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-slate-50 p-3 text-xs border border-border">
             <div className="flex items-center gap-2">

@@ -3,6 +3,7 @@ import Link from "next/link";
 import { prisma } from "@/lib/prisma";
 import { formatDate } from "@/lib/utils";
 import { Trophy, Calendar, ArrowRight, ShieldCheck, Building2 } from "lucide-react";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 interface PageProps {
   params: { slug: string };
@@ -85,6 +86,8 @@ export default async function PublicPartnerPage({ params }: PageProps) {
           style={{ backgroundColor: secondaryColor }}
         />
       </div>
+
+      <DemoDataBanner message="Demo data: fictional partner challenges for illustration" />
 
       {/* Challenge Instances Section */}
       <div className="space-y-6">

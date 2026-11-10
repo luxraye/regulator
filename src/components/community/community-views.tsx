@@ -7,6 +7,7 @@ import { CommunityHeader } from "@/components/community/community-header";
 import { ThreadList, type ThreadRow } from "@/components/community/thread-list";
 import { FORUM_CATEGORIES, NOTICE_CATEGORIES, forumLabel, initials, lines, noticeCategory, timeAgo } from "@/lib/community";
 import { createThread, replyToThread } from "@/app/(public)/community/actions";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export async function CommunityForumView({
   basePath = "/community",
@@ -52,6 +53,7 @@ export async function CommunityForumView({
       />
       <div className="mx-auto grid max-w-6xl grid-cols-1 gap-8 px-4 py-10 sm:px-6 lg:grid-cols-[1fr_300px] lg:px-8">
         <div>
+          <DemoDataBanner message="Demo data: fictional community discussions for illustration" className="mb-5" />
           <div className="mb-5 flex items-center justify-between gap-3">
             <h2 className="text-xl font-semibold text-ceda-ink">Discussions</h2>
             <Link

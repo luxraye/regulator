@@ -4,6 +4,7 @@ import { Search } from "lucide-react";
 import { prisma } from "@/lib/prisma";
 import { StatusBadge } from "@/components/ui/status-badge";
 import { cn, formatDate } from "@/lib/utils";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export const dynamic = "force-dynamic";
 
@@ -65,6 +66,8 @@ export default async function AdminIdeasPage({ searchParams }: { searchParams: {
         <h1 className="text-2xl font-bold text-ceda-ink">Ideas &amp; screening</h1>
         <p className="mt-1 text-muted-foreground">Screen new submissions, assign evaluators, and follow every idea to a decision. Oldest first.</p>
       </div>
+
+      <DemoDataBanner message="Demo data: fictional applicant dossiers and screening results for illustration" className="mb-4" />
 
       <form className="mb-4 flex flex-wrap gap-2" action="/dashboard/admin/instances">
         <input type="hidden" name="filter" value={active.key} />

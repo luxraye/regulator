@@ -21,6 +21,7 @@ import {
   ArrowRight,
   ShieldAlert,
 } from "lucide-react";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 const DEMO_PASSWORD = "CedaDemo2026!";
 
@@ -197,12 +198,15 @@ export default function JudgesTourPage() {
         </p>
 
         {/* Global Demo Password Banner */}
-        <div className="inline-flex items-center gap-2 p-2.5 rounded-xl bg-ceda-sand border border-border text-xs font-medium text-ceda-ink">
-          <span>Universal Demo Password:</span>
-          <code className="px-2 py-0.5 rounded bg-white font-mono font-bold text-ceda-copper border">
-            {DEMO_PASSWORD}
-          </code>
-          <span className="text-ceda-slate">(Click any role below for instant one-click sign in)</span>
+        <div className="flex flex-col sm:flex-row items-center justify-center gap-3">
+          <div className="inline-flex items-center gap-2 p-2.5 rounded-xl bg-ceda-sand border border-border text-xs font-medium text-ceda-ink">
+            <span>Universal Demo Password:</span>
+            <code className="px-2 py-0.5 rounded bg-white font-mono font-bold text-ceda-copper border">
+              {DEMO_PASSWORD}
+            </code>
+            <span className="text-ceda-slate">(Click any role below for instant one-click sign in)</span>
+          </div>
+          <DemoDataBanner message="Demo data: fictional teams for illustration" />
         </div>
       </div>
 

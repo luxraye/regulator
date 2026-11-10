@@ -5,6 +5,7 @@ import { formatPula } from "@/lib/utils";
 import { fundedShowcase } from "@/lib/funded";
 import { BlueBackdrop } from "@/components/home/blue-backdrop";
 import { FundedCard } from "@/components/funded/funded-card";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export const metadata = { title: "Funded innovators · CEDA Innovation Portal" };
 export const dynamic = "force-dynamic";
@@ -49,6 +50,7 @@ export default async function FundedPage() {
       </section>
 
       <div className="mx-auto max-w-6xl px-4 py-10 sm:px-6 lg:px-8">
+        <DemoDataBanner message="Demo data: fictional teams and awards for illustration" className="mb-6" />
         <div className="grid gap-5 sm:grid-cols-2 lg:grid-cols-3">
           {items.map((f) => <FundedCard key={f.referenceCode} f={f} />)}
         </div>

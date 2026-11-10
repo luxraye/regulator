@@ -19,6 +19,7 @@ import {
   RefreshCw,
 } from "lucide-react";
 import { cn, formatDate } from "@/lib/utils";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 interface InstanceItem {
   id: string;
@@ -122,6 +123,8 @@ export default function InstancesDashboardPage() {
           </Link>
         </div>
       </div>
+
+      <DemoDataBanner message="Demo data: fictional competition instances and teams for illustration" />
 
       {/* Metrics Bar */}
       <div className="grid grid-cols-2 gap-4 sm:grid-cols-4">

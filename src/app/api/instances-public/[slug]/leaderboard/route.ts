@@ -27,7 +27,11 @@ export async function GET(_req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Could not compute leaderboard" }, { status: 500 });
     }
 
-    return NextResponse.json({ success: true, leaderboard });
+    return NextResponse.json({
+      success: true,
+      demoDataNotice: "Demo data: fictional teams and scores for illustration",
+      leaderboard,
+    });
   } catch (error: any) {
     console.error("GET /api/instances-public/[slug]/leaderboard error:", error);
     return NextResponse.json({ error: error.message || "Failed to compute leaderboard" }, { status: 500 });

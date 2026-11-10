@@ -7,6 +7,7 @@ import {
   ArrowRight,
   Sparkles,
 } from "lucide-react";
+import { DemoDataBanner } from "@/components/ui/demo-data-banner";
 
 export const metadata = {
   title: "Competitions & Challenges | CEDA Innovation Portal",
@@ -45,6 +46,8 @@ export default async function PublicInstancesDirectoryPage() {
           Participate in national funding calls, software hackathons, and sector accelerators. Every competition runs on verifiable, mathematically sealed evaluation rulesets.
         </p>
       </div>
+
+      <DemoDataBanner message="Demo data: fictional partner challenges and seeded test entries" />
 
       {/* Instance Cards Grid */}
       <div className="grid grid-cols-1 gap-6 md:grid-cols-2 lg:grid-cols-3">
