@@ -201,7 +201,8 @@ test.describe("public site", () => {
   });
 
   test("registration and verification dispatch via demo inbox", async ({ request }) => {
-    const testEmail = `innovator-${Date.now()}@test.ceda.bw`;
+    const uniqueSuffix = `${Date.now()}-${Math.floor(Math.random() * 10000)}`;
+    const testEmail = `innovator-${uniqueSuffix}@test.ceda.bw`;
     const regRes = await request.post("/api/auth/register", {
       data: {
         name: "Test Founder",
@@ -209,9 +210,9 @@ test.describe("public site", () => {
         password: "ValidPassword123!",
         phone: "+26772123456",
         organizationName: "Test Founder Ventures (Pty) Ltd",
-        omang: "123456789",
+        omang: `1${Math.floor(10000000 + Math.random() * 90000000)}`,
         dateOfBirth: "1998-05-15",
-        licenseNumber: "BW00012345678",
+        licenseNumber: `BW000${Math.floor(1000000 + Math.random() * 9000000)}`,
         youthShareholding: 100,
         district: "Gaborone",
         consent: true,
@@ -224,7 +225,7 @@ test.describe("public site", () => {
     const inboxData = await inboxRes.json();
     const verMsg = inboxData.messages?.find((m: any) => m.to.toLowerCase() === testEmail.toLowerCase());
     expect(verMsg).toBeDefined();
-    expect(verMsg.body).toContain("Verify");
+    expect(verMsg.body).toMatch(/verify/i);
   });
 
   test("chat out-of-hours evaluation and schedule probe", async ({ request }) => {

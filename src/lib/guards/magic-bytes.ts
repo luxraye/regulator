@@ -34,6 +34,16 @@ export function verifyMagicBytes(fileName: string, buffer: Buffer): MagicByteRes
     };
   }
 
+  // DOS executable / Windows PE: 4D 5A ("MZ")
+  if (buffer.length >= 2 && buffer[0] === 0x4d && buffer[1] === 0x5a) {
+    return {
+      valid: false,
+      detectedMime: "application/x-dosexec",
+      expectedExtension: ext,
+      error: `Unsupported file format "${ext}" with unrecognized magic bytes (executable binary header MZ is blocked).`,
+    };
+  }
+
   // PNG: 89 50 4E 47 0D 0A 1A 0A
   if (
     buffer.length >= 8 &&
