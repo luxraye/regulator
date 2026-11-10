@@ -34,7 +34,7 @@ export function NotificationBell() {
 
   useEffect(() => {
     load();
-    const t = setInterval(load, 60_000);
+    const t = setInterval(load, 10_000); // 10-second real-time short polling
     return () => clearInterval(t);
   }, [load]);
 

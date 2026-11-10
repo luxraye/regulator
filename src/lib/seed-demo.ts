@@ -444,6 +444,7 @@ export async function seedDemoData(prisma: PrismaClient) {
   queueUser("masego", { email: "masego.eval@demo.ceda.bw", name: "Masego Lekgowe", role: Role.EVALUATOR, organizationName: "CEDA", expertise: "Finance and manufacturing" });
   queueUser("dineo", { email: "panel@demo.ceda.bw", name: "Mma Dineo Seabo", role: Role.ADJUDICATOR, organizationName: "CEDA", expertise: "Investment committee chair" });
   queueUser("onkemetse", { email: "panel2@demo.ceda.bw", name: "Onkemetse Gabaake", role: Role.ADJUDICATOR, organizationName: "CEDA", expertise: "Venture capital" });
+  queueUser("consultant", { email: "consultant@demo.ceda.bw", name: "Neo Molefe", role: Role.CONSULTANT, organizationName: "CEDA Advisory Services", expertise: "Business Advisory & Technical Mentorship" });
 
   // Partner Admins
   queueUser("bdih_admin", {

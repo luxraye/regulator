@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
+import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { badRequest } from "@/lib/session";
 import { checkEligibility, isValidOmang } from "@/lib/eligibility";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { sendEmail, sendSms } from "@/lib/comms/adapter";
 
 export const dynamic = "force-dynamic";
 
@@ -52,6 +54,10 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "An account with this Omang number already exists" }, { status: 409 });
   }
 
+  const emailToken = crypto.randomBytes(24).toString("hex");
+  const phoneCode = crypto.randomInt(100000, 999999).toString();
+  const tokenExpiresAt = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
   await prisma.user.create({
     data: {
       name,
@@ -67,8 +73,43 @@ export async function POST(req: NextRequest) {
       licenseNumber,
       youthShareholding: Math.round(youthShareholding),
       consentAt: new Date(),
+      emailOtp: emailToken,
+      emailOtpExpiresAt: tokenExpiresAt,
+      phoneOtp: phone ? phoneCode : null,
+      phoneOtpExpiresAt: phone ? tokenExpiresAt : null,
     },
   });
 
-  return NextResponse.json({ message: "Account created" }, { status: 201 });
+  const baseUrl = process.env.NEXTAUTH_URL || "http://localhost:3000";
+  const verifyLink = `${baseUrl}/api/auth/verify-email?token=${emailToken}`;
+
+  // Dispatch email verification link (mirrored into /demo-inbox)
+  await sendEmail({
+    to: email,
+    subject: "Verify your email address for CEDA Innovation Portal",
+    text: `Dumelang ${name},\n\nWelcome to the CEDA Innovation Management Portal. Please click the link below to verify your email address:\n${verifyLink}\n\nCEDA Innovation Portal`,
+    metadata: {
+      purpose: "EMAIL_VERIFICATION",
+      token: emailToken,
+      actionUrl: `/api/auth/verify-email?token=${emailToken}`,
+    },
+  });
+
+  // Dispatch phone verification OTP if phone provided (mirrored into /demo-inbox)
+  if (phone) {
+    await sendSms({
+      to: phone,
+      message: `Dumelang ${name}. Your CEDA Innovation Portal phone verification code is: ${phoneCode}.`,
+      metadata: {
+        purpose: "PHONE_VERIFICATION",
+        code: phoneCode,
+      },
+    });
+  }
+
+  return NextResponse.json({
+    message: "Account created. Verification link sent to email and OTP sent to phone.",
+    emailVerified: false,
+    phoneVerified: false,
+  }, { status: 201 });
 }

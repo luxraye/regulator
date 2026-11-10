@@ -112,6 +112,16 @@ model User {
   expertise         String?
   /// When the user accepted the privacy notice (Data Protection Act 2024).
   consentAt         DateTime?
+  emailVerifiedAt   DateTime?
+  phoneVerifiedAt   DateTime?
+  phoneOtp          String?
+  phoneOtpExpiresAt DateTime?
+  emailOtp          String?
+  emailOtpExpiresAt DateTime?
+  resetPasswordToken String?
+  resetPasswordExpiresAt DateTime?
+  totpSecret        String?
+  totpEnabled       Boolean   @default(false)
   createdAt         DateTime  @default(now())
   updatedAt         DateTime  @updatedAt
 
@@ -130,6 +140,10 @@ model User {
   ledTeams         Team[]            @relation("TeamLead")
   teamMemberships  TeamMember[]
   apiKeysCreated   ApiKey[]          @relation("ApiKeyCreator")
+  subscriptions    Subscription[]
+  chatSessionsAsUser       ChatSession[]  @relation("UserChatSessions")
+  chatSessionsAsConsultant ChatSession[]  @relation("ConsultantChatSessions")
+  chatMessages             ChatMessage[]
 
   @@index([partnerId])
 }
@@ -195,6 +209,8 @@ model Instance {
   versions         InstanceVersion[]
   matrixDimensions MatrixDimension[]
   auditLogs        AuditLog[]
+  chatSessions     ChatSession[]
+  subscriptions    Subscription[]
 
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
@@ -366,6 +382,8 @@ model Entry {
   showcase        Boolean     @default(false)
   score           Float?
   rank            Int?
+  consensusScore  Float?
+  consensusNote   String?
   createdAt       DateTime    @default(now())
   submittedAt     DateTime?
   reviewedAt      DateTime?
@@ -377,6 +395,7 @@ model Entry {
   messages     Message[]
   audits       AuditLog[]
   checkResults CheckResult[]
+  subscriptions Subscription[]
 
   @@index([instanceId])
   @@index([status])
@@ -559,4 +578,83 @@ model Notice {
   authorId  String?
   author    User?    @relation(fields: [authorId], references: [id], onDelete: SetNull)
   createdAt DateTime @default(now())
+}
+
+model DemoInboxMessage {
+  id        String   @id @default(cuid())
+  to        String
+  type      String   // "EMAIL" | "SMS"
+  subject   String?
+  body      String
+  metadata  Json?
+  createdAt DateTime @default(now())
+
+  @@index([to, createdAt])
+}
+
+model ChatSession {
+  id              String        @id @default(cuid())
+  instanceId      String?
+  instance        Instance?     @relation(fields: [instanceId], references: [id], onDelete: SetNull)
+  userId          String
+  user            User          @relation("UserChatSessions", fields: [userId], references: [id], onDelete: Cascade)
+  consultantId    String?
+  consultant      User?         @relation("ConsultantChatSessions", fields: [consultantId], references: [id], onDelete: SetNull)
+  status          String        @default("WAITING") // "WAITING" | "ACTIVE" | "RESOLVED" | "CLOSED"
+  subject         String?
+  startedAt       DateTime      @default(now())
+  firstResponseAt DateTime?
+  resolvedAt      DateTime?
+  messages        ChatMessage[]
+
+  @@index([status, startedAt])
+  @@index([instanceId])
+}
+
+model ChatMessage {
+  id         String      @id @default(cuid())
+  sessionId  String
+  session    ChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  senderId   String
+  sender     User        @relation(fields: [senderId], references: [id], onDelete: Cascade)
+  senderRole String
+  body       String
+  createdAt  DateTime    @default(now())
+
+  @@index([sessionId, createdAt])
+}
+
+model Subscription {
+  id         String    @id @default(cuid())
+  userId     String
+  user       User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  instanceId String?
+  instance   Instance? @relation(fields: [instanceId], references: [id], onDelete: Cascade)
+  entryId    String?
+  entry      Entry?    @relation(fields: [entryId], references: [id], onDelete: Cascade)
+  channel    String    // "EMAIL" | "SMS" | "IN_APP"
+  active     Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+
+  @@index([userId, channel])
+  @@index([instanceId])
+}
+
+model SupportTicket {
+  id              String   @id @default(cuid())
+  referenceCode   String   @unique
+  name            String
+  email           String
+  phone           String?
+  severity        String   // "P1" | "P2" | "P3"
+  category        String
+  subject         String
+  description     String
+  status          String   @default("OPEN") // "OPEN" | "IN_PROGRESS" | "RESOLVED" | "CLOSED"
+  resolutionNotes String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([severity, status])
+  @@index([createdAt])
 }

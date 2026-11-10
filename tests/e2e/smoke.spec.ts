@@ -57,6 +57,8 @@ const PAGE_ROLE_RULES: [prefix: string, roles: string[]][] = [
   ["/dashboard/calls", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/funded", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
   ["/dashboard/community", ["INNOVATOR", "EVALUATOR", "ADJUDICATOR", "ADMIN", "SUPERADMIN"]],
+  ["/dashboard/subscriptions", ["INNOVATOR"]],
+  ["/dashboard/profile", ["INNOVATOR"]],
 ];
 
 const PUBLIC_PAGES = [
@@ -72,6 +74,10 @@ const PUBLIC_PAGES = [
   "/about",
   "/login",
   "/register",
+  "/support",
+  "/status",
+  "/faq",
+  "/demo-inbox",
 ];
 
 /** Fails the test on uncaught page errors, which is what a crashed React tree looks like. */

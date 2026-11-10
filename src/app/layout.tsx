@@ -5,6 +5,7 @@ import { SessionProvider } from "@/components/providers/session-provider";
 import { CookieBanner } from "@/components/layout/cookie-banner";
 import { RegisterSW } from "@/components/pwa/register-sw";
 import { LanguageProvider } from "@/components/providers/language-provider";
+import { ConsultantChatWidget } from "@/components/chat/consultant-chat-widget";
 import { auth } from "@/lib/auth";
 
 // Poppins is the typeface on ceda.co.bw
@@ -76,6 +77,7 @@ export default async function RootLayout({
           <LanguageProvider>
             {children}
             <CookieBanner />
+            <ConsultantChatWidget />
             <RegisterSW />
           </LanguageProvider>
         </SessionProvider>

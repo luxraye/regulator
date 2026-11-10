@@ -1,6 +1,6 @@
 # Status (Antigravity updates this)
 
-- Phase: Phase 7 complete (BDIH & BTC Innovation partners, custom branding, scoped partner consoles, partner users, partner keys, partner audit trail, and /partners/[slug] showcase), starting Phase 8 (Closing scoring gaps: auth flows, OTP sign-in, demo inbox at /demo-inbox, consultant live chat, alert subscriptions, and /support ticketing)
-- Done: 92%
+- Phase: Phase 8 complete (Account auth flows, demo inbox at /demo-inbox, consultant live chat, alert subscriptions, /support ticketing with SLA matrix, regulatory directory, /status hosting statement with BWP/USD economics, admin content manager, collaborative consensus, and committee observer console), starting Phase 9 (Seeds & Demo: flagship instance refinement, partner programmable instances, guided judges' tour)
+- Done: 96%
 - Blockers: none
 - Questions for the strategy lead: none

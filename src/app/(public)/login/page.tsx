@@ -4,7 +4,7 @@ import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import Link from "next/link";
-import { ClipboardList, Gavel, Lightbulb, Loader2, Settings2, ShieldCheck, Building2, Radio } from "lucide-react";
+import { ClipboardList, Gavel, Lightbulb, Loader2, Settings2, ShieldCheck, Building2, Radio, Headset } from "lucide-react";
 import { LogoMark } from "@/components/brand/logo";
 
 /** Demo accounts for hackathon judges. Turn off with NEXT_PUBLIC_SHOW_DEMO_LOGINS=false. */
@@ -16,6 +16,7 @@ const DEMO = [
   { email: "super@demo.ceda.bw", role: "Super admin", who: "Kgosi Mothibi: people, audit and verification", icon: <ShieldCheck size={16} /> },
   { email: "bdih.admin@demo.ceda.bw", role: "Partner Admin (BDIH)", who: "Kagiso Moeti: BDIH Innovation Hub space", icon: <Building2 size={16} /> },
   { email: "btc.admin@demo.ceda.bw", role: "Partner Admin (BTC)", who: "Naledi Modise: BTC Telecoms 5G Challenge", icon: <Radio size={16} /> },
+  { email: "consultant@demo.ceda.bw", role: "Consultant", who: "Neo Molefe: live chat queue & applicant advisory", icon: <Headset size={16} /> },
 ];
 const DEMO_PASSWORD = "CedaDemo2026!";
 const SHOW_DEMO = process.env.NEXT_PUBLIC_SHOW_DEMO_LOGINS !== "false";
@@ -58,12 +59,22 @@ export default function LoginPage() {
               <input id="email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={input} placeholder="you@example.com" required autoComplete="email" />
             </div>
             <div>
-              <label htmlFor="password" className="mb-1.5 block text-sm font-medium">Password</label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label htmlFor="password" className="block text-sm font-medium">Password</label>
+                <Link href="/forgot-password" className="text-xs text-ceda-orange hover:underline">
+                  Forgot password?
+                </Link>
+              </div>
               <input id="password" type="password" value={password} onChange={(e) => setPassword(e.target.value)} className={input} required autoComplete="current-password" />
             </div>
             <button type="submit" disabled={!!loading} className="w-full rounded-lg bg-ceda-ink py-2.5 font-medium text-white transition-colors hover:bg-ceda-ink/90 disabled:opacity-50">
               {loading === email ? "Signing in…" : "Sign in"}
             </button>
+            <div className="text-center pt-1">
+              <Link href="/otp-login" className="text-xs font-semibold text-ceda-ink hover:text-ceda-orange transition">
+                Sign in with SMS or Email OTP →
+              </Link>
+            </div>
           </form>
           <p className="mt-6 text-center text-sm text-muted-foreground">
             New innovator? <Link href="/register" className="text-ceda-orange hover:underline">Create an account</Link>
@@ -95,6 +106,13 @@ export default function LoginPage() {
                 </li>
               ))}
             </ul>
+            <div className="mt-4 rounded-xl border border-ceda-copper/20 bg-ceda-sand/70 p-3 text-center text-xs">
+              <span className="font-semibold text-ceda-ink block mb-0.5">Judging Verification Sandbox</span>
+              <Link href="/demo-inbox" target="_blank" className="font-bold text-ceda-copper hover:underline inline-flex items-center gap-1">
+                <span>View Delivered OTPs & Email Links in /demo-inbox</span>
+                <span className="font-mono">→</span>
+              </Link>
+            </div>
             <p className="mt-4 text-xs text-muted-foreground">
               New to the evaluation walkthrough? <Link href="/about#how-to-judge" className="font-medium text-ceda-orange hover:underline">How to judge this portal (2-minute path per role)</Link>
             </p>
