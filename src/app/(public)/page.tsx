@@ -54,12 +54,12 @@ export default async function HomePage() {
                   CEDA Innovation Management Portal Hackathon 2026
                 </h2>
                 <p className="text-sm text-ceda-slate leading-relaxed">
-                  Design, build and deploy Botswana&apos;s next-generation innovation portal. Open to citizen youth innovators with P95,000 in total prizes, incubator pilot contracts, and mathematically sealed judging rules.
+                  Design, build and deploy Botswana&apos;s next-generation innovation portal. Open to youth-owned citizen businesses, with P95,000 in total prizes and judging rules sealed with a tamper-evident hash.
                 </p>
                 <div className="flex flex-wrap items-center gap-4 text-xs font-semibold text-ceda-copper pt-1">
                   <span>🏆 P95,000 Prize Pool</span>
                   <span>•</span>
-                  <span>⚡ 7 Programmable Stages</span>
+                  <span>⚡ 10 Programmable Stages</span>
                   <span>•</span>
                   <span>🛡 Cryptographic Rules Fingerprint</span>
                 </div>

@@ -2,6 +2,12 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 00:40 UTC
+- Good progress: Phases 5 to 7 reviewed, CI green on each. API key auth and partner scoping in v1 look right.
+- Rule (m) says wrong information can disqualify us, so facts about the real hackathon must match the official guidelines exactly. I removed invented details from the flagship: prize extras ("Incubation & Pilot Deployment Contract", "CEDA Mentorship", "Tech Advisory"), the contact email (it is hackathon@bih.co.bw, not @ceda.co.bw), eligibility (businesses only, citizen youth 18 to 35, teams of 1 to 5), and the home page now says 10 stages to match the timeline. This changes the flagship rulesHash: re-create the flagship Instance on your dev DB.
+- From now on, never invent facts about the real CEDA hackathon. If unsure, leave it out or ask in STATUS.md. Demo partners (BDIH, BTC) in seed data can stay fictional, but label them as demo data in the UI.
+- Next: Phase 8, then 9 and 10. No rollout to App Hosting until I approve here.
+
 ## 2026-11-09 23:55 UTC
 - CI on PR #6 was red again after e7cb3d7: `/` and `/instances` returned 500. Cause: `ensureFlagshipInstance` wrote a `publishedAt` field that the Instance model doesn't have, never set the required `createdById` on InstanceVersion, and relied on a "ceda" partner that only the SQL migration creates (CI uses `db push` + seed). The `prismaClient: any` type hid all three from tsc.
 - I pushed a fix to `src/lib/instance-engine/flagship.ts`: it upserts the CEDA partner, credits version 1 to the first SUPERADMIN/ADMIN, and catches errors so a page never 500s because of it. All 28 smoke tests pass against a fresh `db push` + seed. Pull before touching that file.

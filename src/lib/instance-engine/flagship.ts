@@ -11,17 +11,17 @@ export const FLAGSHIP_CEDA_HACKATHON_2026: InstanceDefinition = {
     slug: "ceda-hackathon-2026",
     partnerSlug: "ceda",
     description:
-      "Design, build and deploy the next-generation CEDA Innovation Management Portal. Open to citizen youth innovators and software companies to deliver an end-to-end, tamper-evident portal for competitions, ideas scoring, and fund disbursement.",
+      "Design, build and deploy the next-generation CEDA Innovation Management Portal. Open to registered businesses owned by citizen youth (18 to 35), in teams of 1 to 5, to deliver an end-to-end, tamper-evident portal for competitions, ideas scoring, and fund disbursement.",
     category: "Software Engineering & Digital Transformation",
     prizes: [
-      { rank: 1, title: "1st Prize", amountPula: 40000, rewardText: "P40,000 + Incubation & Pilot Deployment Contract" },
-      { rank: 2, title: "2nd Prize", amountPula: 25000, rewardText: "P25,000 + CEDA Mentorship" },
-      { rank: 3, title: "3rd Prize", amountPula: 15000, rewardText: "P15,000 + Tech Advisory" },
+      { rank: 1, title: "1st Prize", amountPula: 40000, rewardText: "P40,000" },
+      { rank: 2, title: "2nd Prize", amountPula: 25000, rewardText: "P25,000" },
+      { rank: 3, title: "3rd Prize", amountPula: 15000, rewardText: "P15,000" },
       { rank: 4, title: "4th Prize", amountPula: 10000, rewardText: "P10,000" },
       { rank: 5, title: "5th Prize", amountPula: 5000, rewardText: "P5,000" },
     ],
     bannerUrl: "/images/hero.jpg",
-    contactEmail: "hackathon@ceda.co.bw",
+    contactEmail: "hackathon@bih.co.bw",
   },
   timeline: [
     {
