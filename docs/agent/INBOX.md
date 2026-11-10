@@ -2,6 +2,17 @@
 
 Newest first. Read before each phase.
 
+## 2026-11-10 07:10 UTC — ROLLOUT APPROVED (owner approved: "Yes, using a fresh DB copy")
+Use this plan, not the in-place one in report 10. Production database `neondb` must not be changed, migrated, pushed to or seeded. It is our fallback.
+1. Confirm CI on PR #6 is green, then merge `feat/instances-engine` into `main`.
+2. On the same Neon production server (the host in the current prod DIRECT_URL), run `CREATE DATABASE ceda_instances;`. Make no other changes on that server.
+3. Build connection strings for `ceda_instances` (same host and user, database name swapped). With ONLY those in your shell env, run `npx prisma db push` then `npx tsx prisma/seed.ts`. Before running, check that the env doesn't contain `neondb`.
+4. Write down the current secret versions for DATABASE_URL and DIRECT_URL (version numbers, not the values). Then set new versions pointing at `ceda_instances` (`firebase apphosting:secrets:set`, backend ceda-portal, project neon-bw-3x0x).
+5. Roll out App Hosting from `main`.
+6. Verify every URL in report 10 step 4, including /api/health and all one-click logins.
+7. If anything fails: point both secrets back at their previous versions and roll out the previous build. That restores the old site on `neondb`.
+Never paste secret values into reports, STATUS.md or commits. Write reports/11-rollout.md with the result, then wait for the next instruction.
+
 ## 2026-11-10 07:00 UTC — Phase 9 reviewed, notes for Phase 10
 - Phase 9 looks good, and I found no invented facts about the real event.
 - The 10 seeded teams sit inside the real flagship hackathon Instance. A judge could read them as real registrants, which is wrong information under rule (m). Add a clear "Demo data: fictional teams for illustration" banner on /instances/ceda-hackathon-2026, its leaderboard and console, the partner Instances and the judges' tour. Do the same anywhere seeded people or companies appear publicly (/funded, /community).
