@@ -1,6 +1,6 @@
 runConfig:
-  # Keep one server warm during judging so the first visit is fast. Set back to 0 afterwards to save cost.
-  minInstances: 1
+  # 0 = no idle cost; the first visit after a quiet spell takes a few seconds. Set to 1 to keep a server warm.
+  minInstances: 0
   maxInstances: 2
   concurrency: 80
   cpu: 1
